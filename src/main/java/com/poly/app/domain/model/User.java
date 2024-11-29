@@ -28,8 +28,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "account")
-public class Account extends PrimaryEntity implements Serializable, UserDetails {
+@Table(name = "users")
+public class User extends PrimaryEntity implements Serializable, UserDetails {
 
     private String code;
 
@@ -54,6 +54,7 @@ public class Account extends PrimaryEntity implements Serializable, UserDetails 
 
     private String avatar;
 
+    // Phân quyền theo role
     private RoleAccount role;
 
     private Status status = Status.HOAT_DONG;

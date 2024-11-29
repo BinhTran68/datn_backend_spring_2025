@@ -77,7 +77,7 @@ public class Bill extends PrimaryEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_customer", referencedColumnName = "id")
-    private Account customer;
+    private User customer;
 
     @ManyToOne
     @JoinColumn(name = "id_voucher", referencedColumnName = "id")

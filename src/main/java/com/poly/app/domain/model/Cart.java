@@ -23,7 +23,7 @@ public class Cart extends PrimaryEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_account", referencedColumnName = "id")
-    private Account account;
+    private User account;
 
     @ManyToOne
     @JoinColumn(name = "id_product_detail", referencedColumnName = "id")

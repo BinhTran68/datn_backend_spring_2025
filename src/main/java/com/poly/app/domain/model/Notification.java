@@ -45,5 +45,5 @@ public class Notification extends PrimaryEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_account", referencedColumnName = "id")
-    private Account account;
+    private User account;
 }

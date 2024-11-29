@@ -23,7 +23,7 @@ public class CustomerVoucher extends PrimaryEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_account", referencedColumnName = "id")
-    private Account account;
+    private User account;
 
     @ManyToOne
     @JoinColumn(name = "id_voucher", referencedColumnName = "id")

@@ -47,7 +47,7 @@ public class Transaction extends PrimaryEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_account", referencedColumnName = "id")
-    private Account account;
+    private User account;
 
     public Integer getStatus() {
         return status.ordinal();
