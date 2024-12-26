@@ -1,6 +1,7 @@
 package com.poly.app.infrastructure.security;
 
 
+import com.poly.app.domain.auth.response.TokenPayload;
 import com.poly.app.domain.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -36,6 +37,11 @@ public class JwtUtilities {
         return extractClaim(token, claims -> claims.get("id")).toString();
     }
 
+    public String extractRoleName(String token) {
+        return extractClaim(token, claims -> claims.get("roleName")).toString();
+    }
+
+
     public Claims extractAllClaims(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
@@ -49,26 +55,12 @@ public class JwtUtilities {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public Boolean validateToken(String token, User userDetails) {
-        final String id = extractUserId(token);
-        return (id.equals(userDetails.getId()) &&
-                !isTokenExpired(token) &&
-                userDetails.getStatus() == 0);
-    }
-
-    public Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    public String generateToken(User account) {
-        return Jwts.builder()
-                .setSubject(account.getEmail())
-                .claim("id", account.getId())
-                .claim("role", account.getRole())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(Date.from(Instant.now().plus(jwtExpiration, ChronoUnit.MILLIS)))
-                .signWith(SignatureAlgorithm.HS256, secret).compact();
-    }
+//    public Boolean validateToken(String token, Account userDetails) {
+//        final String id = extractUserId(token);
+//        return (id.equals(userDetails.getId()) &&
+//                !isTokenExpired(token) &&
+//                userDetails.getStatus() == 0);
+//    }
 
     public boolean validateToken(String token) {
         try {
@@ -79,6 +71,21 @@ public class JwtUtilities {
         }
     }
 
+    public Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    public String generateToken(TokenPayload tokenPayload) {
+        return Jwts.builder()
+                .setSubject(tokenPayload.getEmail())
+                .claim("id", tokenPayload.getId())
+                .claim("role", tokenPayload.getRoleName())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(Date.from(Instant.now().plus(jwtExpiration, ChronoUnit.MILLIS)))
+                .signWith(SignatureAlgorithm.HS256, secret).compact();
+    }
+
+
     public String getToken(HttpServletRequest httpServletRequest) {
         final String bearerToken = httpServletRequest.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
@@ -86,5 +93,6 @@ public class JwtUtilities {
         }
         return null;
     }
+
 
 }

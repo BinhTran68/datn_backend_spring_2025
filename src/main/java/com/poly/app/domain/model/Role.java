@@ -6,6 +6,8 @@ import com.poly.app.infrastructure.constant.EntityProperties;
 import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,19 +21,16 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "brand")  // Thương hiệu
-public class Brand extends PrimaryEntity {
+@Table(name = "role")
+public class Role extends PrimaryEntity {
+
 
     @Column(columnDefinition = EntityProperties.DEFINITION_NAME)
-    private String name;
+    private String code;
 
-    private Status deleted = Status.HOAT_DONG;
+    @Column(length = EntityProperties.LENGTH_PHONE)
+    private String roleName;
 
-    public Integer getDeleted() {
-        return deleted.ordinal();
-    }
+    private Status status;
 
-    public void setDeleted(Integer deleted) {
-        this.deleted = Status.values()[deleted];
-    }
 }

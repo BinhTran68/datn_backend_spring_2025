@@ -1,6 +1,5 @@
 package com.poly.app.domain.common;
 
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,10 +13,10 @@ public class ObjectResponse {
     private Object data;
 
     public <T> ObjectResponse(T obj) {
-        processResponseObject(obj);
+        processReponseObject(obj);
     }
 
-    public void processResponseObject(Object obj) {
+    public void processReponseObject(Object obj) {
         if (obj != null) {
             this.isSuccess = true;
             this.data = obj;

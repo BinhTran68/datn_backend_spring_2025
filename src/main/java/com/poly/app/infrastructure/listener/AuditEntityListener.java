@@ -1,9 +1,11 @@
 package com.poly.app.infrastructure.listener;
 
 
+import com.poly.app.domain.common.Helpers;
 import com.poly.app.domain.model.base.AuditEntity;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import lombok.experimental.Helper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -15,12 +17,15 @@ public class AuditEntityListener {
     private void onCreate(AuditEntity entity) {
         entity.setCreatedAt(getLongDate());
         entity.setUpdatedAt(getLongDate());
+        entity.setCode(Helpers.genCodeUUID());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             entity.setUpdatedBy(authentication.getName());
             entity.setCreatedBy(authentication.getName());
         }
     }
+
+
 
     @PreUpdate
     private void onUpdate(AuditEntity entity) {
@@ -31,6 +36,9 @@ public class AuditEntityListener {
             entity.setUpdatedBy(updatedBy);
         }
     }
+
+
+
 
     private Long getLongDate() {
         return Calendar.getInstance().getTimeInMillis();

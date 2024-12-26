@@ -18,6 +18,10 @@ public interface AuthenticationService {
 
     Boolean register(RegisterRequest request);
 
+    Boolean registerStaff(RegisterRequest request);
+
+
+
     User checkMail(String email);
 
     String sendOtp(String email);
