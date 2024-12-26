@@ -31,7 +31,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "staff")
+@Table(name = "staff") // Nhân viên
 public class Staff extends PrimaryEntity implements Serializable, UserDetails {
 
     private String code;
