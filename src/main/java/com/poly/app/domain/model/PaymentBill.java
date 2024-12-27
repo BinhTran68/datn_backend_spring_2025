@@ -14,16 +14,19 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "image")
-//ảnh
-public class Image extends PrimaryEntity implements Serializable {
+@Table(name = "payment_bill")
+//thanh toán háo dơn
+public class PaymentBill extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    ProductDetail productDetailId;
+    Bill billId;
 
-    String imageDefault;
+    @ManyToOne
+    @JoinColumn
+    PaymentMethods paymentMethodsId;
 
     Integer status;
+
 
 }

@@ -14,16 +14,16 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "image")
-//ảnh
-public class Image extends PrimaryEntity implements Serializable {
+@Table(name = "announcement")
+//Thông báo
+public class Announcement extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    ProductDetail productDetailId;
+    Customer customerid;
 
-    String imageDefault;
-
-    Integer status;
+    String announcementCode;
+//    nội dung thông báo
+    String announcementContent;
 
 }

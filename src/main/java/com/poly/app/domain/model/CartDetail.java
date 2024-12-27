@@ -14,16 +14,18 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "image")
-//ảnh
-public class Image extends PrimaryEntity implements Serializable {
+@Table(name = "cart_detail")
+//giỏ hàng
+public class CartDetail extends PrimaryEntity implements Serializable {
+
+    @ManyToOne
+    @JoinColumn
+    Cart cartId;
 
     @ManyToOne
     @JoinColumn
     ProductDetail productDetailId;
 
-    String imageDefault;
-
-    Integer status;
+    Integer quantity;
 
 }

@@ -1,36 +1,28 @@
 package com.poly.app.domain.model;
 
-
 import com.poly.app.domain.model.base.PrimaryEntity;
-import com.poly.app.infrastructure.constant.EntityProperties;
-import com.poly.app.infrastructure.constant.Status;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "product")
-public class Product extends PrimaryEntity {
-    @Column(columnDefinition = EntityProperties.DEFINITION_NAME, unique = true)
-    private String name;
+//hang
+public class Product extends PrimaryEntity implements Serializable {
 
-    private Status deleted = Status.HOAT_DONG;
+    String productCode;
 
-    public Integer getDeleted() {
-        return deleted.ordinal();
-    }
+    String productName;
 
-    public void setDeleted(Integer deleted) {
-        this.deleted = Status.values()[deleted];
-    }
+    Integer status;
+
 }

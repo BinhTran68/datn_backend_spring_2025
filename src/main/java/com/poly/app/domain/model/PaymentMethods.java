@@ -2,8 +2,6 @@ package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -17,23 +15,22 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "bill_detail")
-//hóa đơn chi tiết
-public class BillDetail extends PrimaryEntity implements Serializable {
-
-    @ManyToOne
-    @JoinColumn
-    Bill billId;
-
-    @ManyToOne
-    @JoinColumn
-    ProductDetail productDetailId;
-
-    Double price;
-
-    Integer quantity;
-
+@Table(name = "payment_methods")
+//phương thức thanh toán
+public class PaymentMethods extends PrimaryEntity implements Serializable {
+//mã
+    String paymentMethodsCode;
+//phương thwudcs thanh toán
+    String paymentMethods;
+//tổng tiền
     Double totalMoney;
+//loại
+    String paymentMethodsType;
+//    ghi chứ
+    String notes;
+//    mã giao dịch
+
+    String dealCode;
 
     Integer status;
 

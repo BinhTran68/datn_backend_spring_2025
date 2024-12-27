@@ -1,77 +1,41 @@
 package com.poly.app.domain.model;
 
-
 import com.poly.app.domain.model.base.PrimaryEntity;
-import com.poly.app.infrastructure.constant.EntityProperties;
-import com.poly.app.infrastructure.constant.StatusVoucher;
-import com.poly.app.infrastructure.constant.TypeValue;
-import com.poly.app.infrastructure.constant.TypeVoucher;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
+import java.io.Serializable;
+import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@ToString
 @Table(name = "voucher")
-public class Voucher extends PrimaryEntity {
-    @Column(length = EntityProperties.LENGTH_CODE, unique = true)
-    private String code;
+//phiếu giảm giá
+public class Voucher extends PrimaryEntity implements Serializable {
 
-    @Column(columnDefinition = EntityProperties.DEFINITION_NAME, unique = true)
-    private String name;
+    String voucherCode;
 
-    private BigDecimal value;
+    String quatity;
 
-    private BigDecimal maximumValue;
+    Double discountValue;
+//loại
+    String voucherType;
+//giá trị giảm tối đa
+    Double discountMaxValue;
+//giá trị tối thiểu của háo đơn
+    Double billMinValue;
 
-    private TypeVoucher type;
+    Date startDate;
 
-    private TypeValue typeValue;
+    Date endDate;
 
-    private BigDecimal minimumAmount;
+    Integer status;
 
-    private Integer quantity;
-
-    private Long startDate;
-
-    private Long endDate;
-
-    private StatusVoucher status;
-
-    public Integer getType() {
-        return type.ordinal();
-    }
-
-    public void setType(Integer type) {
-        this.type = TypeVoucher.values()[type];
-    }
-
-    public Integer getStatus() {
-        return status.ordinal();
-    }
-
-    public void setStatus(Integer status) {
-        this.status = StatusVoucher.values()[status];
-    }
-
-    public Integer getTypeValue() {
-        return typeValue.ordinal();
-    }
-
-    public void setTypeValue(Integer typeValue) {
-        this.typeValue = TypeValue.values()[typeValue];
-    }
 }

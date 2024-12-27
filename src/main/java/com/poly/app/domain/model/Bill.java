@@ -1,101 +1,69 @@
 package com.poly.app.domain.model;
 
-
 import com.poly.app.domain.model.base.PrimaryEntity;
-import com.poly.app.infrastructure.constant.EntityProperties;
-import com.poly.app.infrastructure.constant.StatusBill;
-import com.poly.app.infrastructure.constant.TypeBill;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
+import java.io.Serializable;
+import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@ToString
 @Table(name = "bill")
-public class Bill extends PrimaryEntity {
-
-    @Column(length = EntityProperties.LENGTH_CODE)
-    private String code;
-
-    @Column(columnDefinition = EntityProperties.DEFINITION_NAME)
-    private String fullName;
-
-    @Column(length = EntityProperties.LENGTH_PHONE)
-    private String phoneNumber;
-
-    @Column(columnDefinition = EntityProperties.DEFINITION_ADDRESS)
-    private String address;
-
-    private BigDecimal totalMoney;
-
-    private BigDecimal moneyReduced;
-
-    private BigDecimal moneyAfter;
-
-    private Long shipDate;
-
-    private Long receiveDate;
-
-    private BigDecimal moneyShip;
-
-    private Long confirmationDate;
-
-    private TypeBill type;
-
-    @Column(columnDefinition = EntityProperties.DEFINITION_DESCRIPTION)
-    private String note;
-
-    private BigDecimal customerAmount;
-
-    private Long desiredReceiptDate;
-
-    private Long completeDate;
-
-    private StatusBill status;
-
-    private Integer receivingMethod; //receivingMethod nếu mua tại quầy set là 0 còn giao hàng là 1 nhé
-
-    private Integer percentMoney;
-
-    @Column(length = EntityProperties.LENGTH_EMAIL)
-    private String email;
+//hóa đơn
+public class Bill extends PrimaryEntity implements Serializable {
 
     @ManyToOne
-    @JoinColumn(name = "id_customer", referencedColumnName = "id")
-    private User customer;
+    @JoinColumn
+    Customer customerid;
 
     @ManyToOne
-    @JoinColumn(name = "id_voucher", referencedColumnName = "id")
-    private Voucher voucher;
+    @JoinColumn
+    Staff staffId;
 
-    public Integer getType() {
-        return type.ordinal();
-    }
 
-    public void setType(Integer type) {
-        this.type = TypeBill.values()[type];
-    }
+    String billCode;
 
-    public Integer getStatus() {
-        return status.ordinal();
-    }
+//    tiền kahcsh đưa
+    Double customerMoney;
 
-    public void setStatus(Integer status) {
-        this.status = StatusBill.values()[status];
-    }
+//    tiền đưuọc giảm
+
+    Double discountMoney;
+
+//    tiền ship
+    Double shipMoney;
+
+//    tổng tiền
+    Double totalMoney;
+//    laoi
+
+    String billType;
+//nagyf hoàn thành
+    Date completeDate;
+//    nagyf xác nhận
+    Date confirmDate;
+//    ngày mong muốn nhận hàng
+
+    Date desiredDateOfReceipt;
+//    ngày ship
+    Date shipDate;
+
+//    dịa chỉ giao hàng
+    String shippingAddress;
+
+    String numberPhone;
+
+    String email;
+
+    Integer status;
+
+
+
 }

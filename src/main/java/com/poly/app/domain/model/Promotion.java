@@ -1,46 +1,38 @@
 package com.poly.app.domain.model;
 
-
 import com.poly.app.domain.model.base.PrimaryEntity;
-import com.poly.app.infrastructure.constant.EntityProperties;
-import com.poly.app.infrastructure.constant.StatusVoucher;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.io.Serializable;
+import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "promotion")
-public class Promotion extends PrimaryEntity {
+//dợt giảm giá
+public class Promotion extends PrimaryEntity implements Serializable {
 
-    @Column(columnDefinition = EntityProperties.DEFINITION_NAME, unique = true)
-    private String name;
+    String promotionCode;
 
-    private Long timeStart;
+    String promotionName;
 
-    private Long timeEnd;
+    String promotionType;
 
-    private Boolean type;
+//    giá trị giảm
+    Double discountValue;
 
-    private Integer value;
+    Date startDate;
 
-    private StatusVoucher status;
+    Date endtDate;
 
-    public Integer getStatus() {
-        return status.ordinal();
-    }
-
-    public void setStatus(Integer status) {
-        this.status = StatusVoucher.values()[status];
-    }
+    Integer status;
 
 }

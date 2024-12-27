@@ -1,52 +1,31 @@
 package com.poly.app.domain.model;
 
-
 import com.poly.app.domain.model.base.PrimaryEntity;
-import com.poly.app.infrastructure.constant.EntityProperties;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "address")
-public class Address extends PrimaryEntity {
-
-
-    @Column(columnDefinition = EntityProperties.DEFINITION_NAME)
-    private String name;
-
-    @Column(length = EntityProperties.LENGTH_PHONE)
-    private String phoneNumber;
-
-
-    @Column(length = EntityProperties.LENGTH_ID)
-    private String provinceId;
-
-    @Column(length = EntityProperties.LENGTH_ID)
-    private String districtId;
-
-    @Column(length = EntityProperties.LENGTH_ID)
-    private String wardId;
-
-    @Column(columnDefinition = EntityProperties.DEFINITION_ADDRESS)
-    private String specificAddress;
-
-    private Boolean type;
+//địa chỉ
+public class Address extends PrimaryEntity implements Serializable {
 
     @ManyToOne
-    @JoinColumn(name = "id_account", referencedColumnName = "id")
-    private User account;
+    @JoinColumn
+    Customer customerid;
+
+    String addressCode;
+
+    Boolean isAddressDefault;
+
+    String addressDetail;
 
 }

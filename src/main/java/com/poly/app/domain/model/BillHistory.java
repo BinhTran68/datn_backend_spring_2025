@@ -1,50 +1,41 @@
 package com.poly.app.domain.model;
 
-
 import com.poly.app.domain.model.base.PrimaryEntity;
-import com.poly.app.infrastructure.constant.EntityProperties;
-import com.poly.app.infrastructure.constant.StatusBill;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "bill_history")
-public class BillHistory extends PrimaryEntity {
-    private StatusBill statusBill;
-
-    @Column(columnDefinition = EntityProperties.DEFINITION_DESCRIPTION)
-    private String note;
+//địa chỉ
+public class BillHistory extends PrimaryEntity implements Serializable {
+    @ManyToOne
+    @JoinColumn
+    Staff staffId;
 
     @ManyToOne
-    @JoinColumn(name = "id_bill", referencedColumnName = "id")
-    private Bill bill;
+    @JoinColumn
+    Customer customerid;
 
     @ManyToOne
-    @JoinColumn(name = "id_account", referencedColumnName = "id")
-    private User account;
+    @JoinColumn
+    Bill billId;
 
-    @ManyToOne
-    @JoinColumn(name = "id_reception_staff", referencedColumnName = "id")
-    private User receptionStaff;
+    String action;
 
-    public Integer getStatusBill() {
-        return statusBill.ordinal();
-    }
+    String descrition;
 
-    public void setStatusBill(Integer statusBill) {
-        this.statusBill = StatusBill.values()[statusBill];
-    }
+    Integer status;
+
 }
