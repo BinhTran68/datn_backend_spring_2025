@@ -1,7 +1,9 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,18 +16,14 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "address")
-//địa chỉ
-public class Address extends PrimaryEntity implements Serializable {
+@Table(name = "gender")
+//gioi tính
+public class Gender extends PrimaryEntity implements Serializable {
 
-    @ManyToOne
-    @JoinColumn
-    Customer customerId;
+    String genderCode;
 
-    String addressCode;
+    String genderName;
 
-    Boolean isAddressDefault;
-
-    String addressDetail;
+    Integer status;
 
 }

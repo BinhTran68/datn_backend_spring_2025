@@ -17,7 +17,6 @@ import com.poly.app.domain.common.Helpers;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Role;
 import com.poly.app.domain.model.Staff;
-import com.poly.app.domain.model.User;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.security.JwtUtilities;
 import com.poly.app.infrastructure.util.MD5Util;
@@ -110,10 +109,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return true;
     }
 
-    @Override
-    public User checkMail(String email) {
-        return null;
-    }
+
 
     @Override
     public String sendOtp(String email) {

@@ -26,7 +26,7 @@ public class BillHistory extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    Customer customerid;
+    Customer customerId;
 
     @ManyToOne
     @JoinColumn
@@ -34,7 +34,7 @@ public class BillHistory extends PrimaryEntity implements Serializable {
 
     String action;
 
-    String descrition;
+    String description;
 
     Integer status;
 

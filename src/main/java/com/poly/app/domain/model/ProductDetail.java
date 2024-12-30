@@ -50,7 +50,7 @@ public class ProductDetail extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    Sex sexId;
+    Gender genderId;
 
     String productDetailCode;
 
@@ -60,7 +60,7 @@ public class ProductDetail extends PrimaryEntity implements Serializable {
 
     Double weight;
 
-    String descrition;
+    String description;
 
     Integer status;
 

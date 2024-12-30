@@ -20,7 +20,7 @@ public class Announcement extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    Customer customerid;
+    Customer customerId;
 
     String announcementCode;
 //    nội dung thông báo

@@ -2,7 +2,6 @@ package com.poly.app.infrastructure.security;
 
 
 import com.poly.app.domain.auth.response.TokenPayload;
-import com.poly.app.domain.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

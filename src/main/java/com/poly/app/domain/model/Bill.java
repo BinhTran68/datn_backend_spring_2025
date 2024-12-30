@@ -30,32 +30,32 @@ public class Bill extends PrimaryEntity implements Serializable {
 
     String billCode;
 
-//    tiền kahcsh đưa
+    //    tiền kahcsh đưa
     Double customerMoney;
 
 //    tiền đưuọc giảm
 
     Double discountMoney;
 
-//    tiền ship
+    //    tiền ship
     Double shipMoney;
 
-//    tổng tiền
+    //    tổng tiền
     Double totalMoney;
 //    laoi
 
     String billType;
-//nagyf hoàn thành
+    //nagyf hoàn thành
     Date completeDate;
-//    nagyf xác nhận
+    //    nagyf xác nhận
     Date confirmDate;
 //    ngày mong muốn nhận hàng
 
     Date desiredDateOfReceipt;
-//    ngày ship
+    //    ngày ship
     Date shipDate;
 
-//    dịa chỉ giao hàng
+    //    dịa chỉ giao hàng
     String shippingAddress;
 
     String numberPhone;
@@ -63,7 +63,6 @@ public class Bill extends PrimaryEntity implements Serializable {
     String email;
 
     Integer status;
-
 
 
 }
