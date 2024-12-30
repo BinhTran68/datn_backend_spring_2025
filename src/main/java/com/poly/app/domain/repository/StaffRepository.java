@@ -1,4 +1,4 @@
-package com.poly.app.domain.auth.repsitory;
+package com.poly.app.domain.repository;
 
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Staff;

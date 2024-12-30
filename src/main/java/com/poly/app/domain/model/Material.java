@@ -1,6 +1,7 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -20,10 +21,10 @@ import java.io.Serializable;
 //chat liệu
 public class Material extends PrimaryEntity implements Serializable {
 
-    String materialCode;
+
 
     String materialName;
 
-    Integer status;
+    Status status;
 
 }

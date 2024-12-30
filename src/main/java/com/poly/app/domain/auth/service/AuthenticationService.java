@@ -7,7 +7,6 @@ import com.poly.app.domain.auth.request.LoginGoogleRequest;
 import com.poly.app.domain.auth.request.LoginRequest;
 import com.poly.app.domain.auth.request.RegisterRequest;
 import com.poly.app.domain.auth.response.UserLoginResponse;
-import com.poly.app.domain.model.User;
 
 public interface AuthenticationService {
     String loginAdmin(LoginRequest request);
@@ -22,7 +21,7 @@ public interface AuthenticationService {
 
 
 
-    User checkMail(String email);
+
 
     String sendOtp(String email);
 

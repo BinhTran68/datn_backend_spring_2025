@@ -22,4 +22,8 @@ public abstract class PrimaryEntity extends AuditEntity implements IsIdentified 
     @Column(updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+
+    private String code;
+
 }

@@ -25,6 +25,10 @@ public abstract class AuditEntity {
     @Column(name = "nguoi_cap_nhat")
     private String updatedBy;
 
+    private String code;
+
+
+
 
 
 

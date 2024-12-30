@@ -1,6 +1,7 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -16,14 +17,14 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "sex")
+@Table(name = "gender")
 //gioi tính
-public class Sex extends PrimaryEntity implements Serializable {
+public class Gender extends PrimaryEntity implements Serializable {
 
-    String sexCode;
+    String genderCode;
 
-    String sexName;
+    String genderName;
 
-    Integer status;
+    Status status;
 
 }
