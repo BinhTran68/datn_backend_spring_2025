@@ -24,4 +24,5 @@ public class Cart extends PrimaryEntity implements Serializable {
 
     Integer quantity;
 
+
 }

@@ -1,6 +1,8 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.constant.StatusBill;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -62,7 +64,7 @@ public class Bill extends PrimaryEntity implements Serializable {
 
     String email;
 
-    Integer status;
+    StatusBill status;
 
 
 }

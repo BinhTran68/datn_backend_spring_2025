@@ -2,10 +2,8 @@ package com.poly.app.domain.auth.service.impl;
 
 
 
-import com.cloudinary.api.exceptions.ApiException;
-import com.poly.app.domain.auth.repsitory.CustomerRepository;
-import com.poly.app.domain.auth.repsitory.RoleRepository;
-import com.poly.app.domain.auth.repsitory.StaffRepository;
+import com.poly.app.domain.repository.CustomerRepository;
+import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.domain.auth.request.ChangeRequest;
 import com.poly.app.domain.auth.request.LoginGoogleRequest;
 import com.poly.app.domain.auth.request.LoginRequest;
@@ -13,14 +11,10 @@ import com.poly.app.domain.auth.request.RegisterRequest;
 import com.poly.app.domain.auth.response.TokenPayload;
 import com.poly.app.domain.auth.response.UserLoginResponse;
 import com.poly.app.domain.auth.service.AuthenticationService;
-import com.poly.app.domain.common.Helpers;
+import com.poly.app.domain.repository.RoleRepository;
 import com.poly.app.domain.model.Customer;
-import com.poly.app.domain.model.Role;
 import com.poly.app.domain.model.Staff;
-import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.security.JwtUtilities;
-import com.poly.app.infrastructure.util.MD5Util;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

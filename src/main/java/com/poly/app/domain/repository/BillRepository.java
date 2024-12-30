@@ -1,4 +1,4 @@
-package com.poly.app.domain.client.repository;
+package com.poly.app.domain.repository;
 
 import com.poly.app.domain.model.Bill;
 import org.springframework.data.jpa.repository.JpaRepository;

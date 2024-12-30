@@ -1,6 +1,7 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -24,6 +25,6 @@ public class Image extends PrimaryEntity implements Serializable {
 
     String imageDefault;
 
-    Integer status;
+    Status status;
 
 }

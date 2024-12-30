@@ -22,10 +22,10 @@ public class Address extends PrimaryEntity implements Serializable {
     @JoinColumn
     Customer customerId;
 
-    String addressCode;
-
     Boolean isAddressDefault;
 
     String addressDetail;
+
+
 
 }

@@ -1,6 +1,7 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -26,7 +27,7 @@ public class PaymentBill extends PrimaryEntity implements Serializable {
     @JoinColumn
     PaymentMethods paymentMethodsId;
 
-    Integer status;
+    Status status;
 
 
 }

@@ -2,6 +2,7 @@ package com.poly.app.domain.model;
 
 
 import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -24,4 +25,6 @@ import java.io.Serializable;
 @Table(name = "role")
 public class Role extends PrimaryEntity implements Serializable {
     private  String roleName;
+
+    Status status;
 }

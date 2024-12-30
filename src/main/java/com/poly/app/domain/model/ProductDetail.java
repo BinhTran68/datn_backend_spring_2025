@@ -1,6 +1,7 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -62,7 +63,7 @@ public class ProductDetail extends PrimaryEntity implements Serializable {
 
     String description;
 
-    Integer status;
+    Status status;
 
 
 

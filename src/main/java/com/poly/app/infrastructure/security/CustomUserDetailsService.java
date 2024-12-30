@@ -1,8 +1,8 @@
 package com.poly.app.infrastructure.security;
 
 
-import com.poly.app.domain.auth.repsitory.CustomerRepository;
-import com.poly.app.domain.auth.repsitory.StaffRepository;
+import com.poly.app.domain.repository.CustomerRepository;
+import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Staff;
 import lombok.RequiredArgsConstructor;
