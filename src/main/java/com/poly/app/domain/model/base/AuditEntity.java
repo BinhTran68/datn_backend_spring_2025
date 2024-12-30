@@ -13,16 +13,16 @@ import lombok.Setter;
 @EntityListeners(AuditEntityListener.class)
 public abstract class AuditEntity {
 
-    @Column(updatable = false, name = "ngay_tao")
+    @Column(updatable = false, name = "created_at")
     private Long createdAt;
 
-    @Column(name = "ngay_cap_nhat")
+    @Column(name = "updated_at")
     private Long updatedAt;
 
-    @Column(name = "nguoi_tao")
+    @Column(name = "created_by")
     private String createdBy;
 
-    @Column(name = "nguoi_cap_nhat")
+    @Column(name = "updated_by")
     private String updatedBy;
 
     private String code;
