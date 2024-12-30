@@ -32,7 +32,7 @@ import com.poly.app.domain.repository.*;
 
 import java.util.Date;
 
-@Component
+
 public class DatabaseSeeder implements CommandLineRunner {
 
     @Autowired
@@ -255,11 +255,11 @@ public class DatabaseSeeder implements CommandLineRunner {
 
 
         // Add seed data
-        Brand brand1 = Brand.builder().branhName("Nike").status(Status.HOAT_DONG).build();
-        Brand brand2 = Brand.builder().branhName("Adidas").status(Status.HOAT_DONG).build();
-        Brand brand3 = Brand.builder().branhName("Puma").status(Status.HOAT_DONG).build();
-        Brand brand4 = Brand.builder().branhName("Reebok").status(Status.HOAT_DONG).build();
-        Brand brand5 = Brand.builder().branhName("New Balance").status(Status.HOAT_DONG).build();
+        Brand brand1 = Brand.builder().brandName("Nike").status(Status.HOAT_DONG).build();
+        Brand brand2 = Brand.builder().brandName("Adidas").status(Status.HOAT_DONG).build();
+        Brand brand3 = Brand.builder().brandName("Puma").status(Status.HOAT_DONG).build();
+        Brand brand4 = Brand.builder().brandName("Reebok").status(Status.HOAT_DONG).build();
+        Brand brand5 = Brand.builder().brandName("New Balance").status(Status.HOAT_DONG).build();
 
         // Save data to the database
         brandRepository.save(brand1);
@@ -339,7 +339,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .quantity(100)
                 .price(99.99)
                 .weight(0.5)
-                .description("Nike Air Max 2023, High comfort and design.")
+                .descrition("Nike Air Max 2023, High comfort and design.")
                 .status(Status.HOAT_DONG)
                 .build();
 
@@ -356,7 +356,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .quantity(200)
                 .price(89.99)
                 .weight(0.6)
-                .description("Adidas UltraBoost 2023, Advanced cushioning.")
+                .descrition("Adidas UltraBoost 2023, Advanced cushioning.")
                 .status(Status.HOAT_DONG)
                 .build();
 

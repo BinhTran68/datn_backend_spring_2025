@@ -32,12 +32,7 @@ public class SpringSecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers("/api/admin/voucher/**").hasAuthority(RoleAccount.QUAN_LY.name());
-                    req.requestMatchers("/api/admin/staff/**").hasAuthority(RoleAccount.QUAN_LY.name());
-                    req.requestMatchers("/api/admin/promotion/**").hasAuthority(RoleAccount.QUAN_LY.name());
-                    req.requestMatchers("/api/admin/statistical/**").hasAuthority(RoleAccount.QUAN_LY.name());
-                    req.requestMatchers("/api/admin/**").hasAnyAuthority(RoleAccount.QUAN_LY.name(), RoleAccount.NHAN_VIEN.name())
-                            .anyRequest().permitAll();
+                    req.anyRequest().permitAll();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
