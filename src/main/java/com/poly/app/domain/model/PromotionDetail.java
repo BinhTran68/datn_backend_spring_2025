@@ -24,11 +24,11 @@ public class PromotionDetail extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    ProductDetail productDetailId;
+    ProductDetail productDetail;
 
     @ManyToOne
     @JoinColumn
-    Promotion promotionId;
+    Promotion promotion;
 
     Status status;
 

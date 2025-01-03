@@ -199,14 +199,14 @@ public class DatabaseSeeder implements CommandLineRunner {
                 new RuntimeException("Customer with ID 1 not found"));
 
         Announcement announcement1 = Announcement.builder()
-                .customerId(customerExits)
+                .customer(customerExits)
                 .announcementCode("ANN001")
                 .announcementContent("Thông báo khuyến mãi 50% cho khách hàng VIP!")
                 .build();
         announcementRepository.save(announcement1);
 
         Announcement announcement2 = Announcement.builder()
-                .customerId(customerExits)
+                .customer(customerExits)
                 .announcementCode("ANN002")
                 .announcementContent("Chúc mừng bạn đã nhận được voucher giảm giá 100k!")
                 .build();
@@ -256,11 +256,11 @@ public class DatabaseSeeder implements CommandLineRunner {
 
 
         // Add seed data
-        Brand brand1 = Brand.builder().branhName("Nike").status(Status.HOAT_DONG).build();
-        Brand brand2 = Brand.builder().branhName("Adidas").status(Status.HOAT_DONG).build();
-        Brand brand3 = Brand.builder().branhName("Puma").status(Status.HOAT_DONG).build();
-        Brand brand4 = Brand.builder().branhName("Reebok").status(Status.HOAT_DONG).build();
-        Brand brand5 = Brand.builder().branhName("New Balance").status(Status.HOAT_DONG).build();
+        Brand brand1 = Brand.builder().brandName("Nike").status(Status.HOAT_DONG).build();
+        Brand brand2 = Brand.builder().brandName("Adidas").status(Status.HOAT_DONG).build();
+        Brand brand3 = Brand.builder().brandName("Puma").status(Status.HOAT_DONG).build();
+        Brand brand4 = Brand.builder().brandName("Reebok").status(Status.HOAT_DONG).build();
+        Brand brand5 = Brand.builder().brandName("New Balance").status(Status.HOAT_DONG).build();
 
         // Save data to the database
         brandRepository.save(brand1);
@@ -328,14 +328,14 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         // Add seed data for ProductDetail
         ProductDetail productDetail1 = ProductDetail.builder()
-                .productId(product)
-                .brandId(brand)
-                .typeId(type)
-                .colorId(color)
-                .materialId(material)
-                .sizeId(size)
-                .soleId(sole)
-                .genderId(gender)
+                .product(product)
+                .brand(brand)
+                .type(type)
+                .color(color)
+                .material(material)
+                .size(size)
+                .sole(sole)
+                .gender(gender)
                 .productDetailCode("PD001")
                 .quantity(100)
                 .price(99.99)
@@ -345,14 +345,14 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .build();
 
         ProductDetail productDetail2 = ProductDetail.builder()
-                .productId(product)
-                .brandId(brand)
-                .typeId(type)
-                .colorId(color)
-                .materialId(material)
-                .sizeId(size)
-                .soleId(sole)
-                .genderId(gender)
+                .product(product)
+                .brand(brand)
+                .type(type)
+                .color(color)
+                .material(material)
+                .size(size)
+                .sole(sole)
+                .gender(gender)
                 .productDetailCode("PD002")
                 .quantity(200)
                 .price(89.99)
@@ -418,8 +418,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         if (customerBill1 != null && staffBill1 != null) {
             Bill bill1 = Bill.builder()
-                    .customerid(customerBill1)
-                    .staffId(staffBill1)
+                    .customer(customerBill1)
+                    .staff(staffBill1)
                     .billCode("BILL001")
                     .customerMoney(500000.0)
                     .discountMoney(50000.0)
@@ -440,8 +440,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         if (customerBill2 != null && staffBill2 != null) {
             Bill bill2 = Bill.builder()
-                    .customerid(customerBill2)
-                    .staffId(staffBill2)
+                    .customer(customerBill2)
+                    .staff(staffBill2)
                     .billCode("BILL002")
                     .customerMoney(300000.0)
                     .discountMoney(20000.0)
@@ -469,8 +469,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         if (bill1 != null && productDetailBill1 != null) {
             BillDetail billDetail1 = BillDetail.builder()
-                    .billId(bill1)
-                    .productDetailId(productDetail1)
+                    .bill(bill1)
+                    .productDetail(productDetail1)
                     .price(100000.0) // Giá của sản phẩm
                     .quantity(2) // Số lượng sản phẩm
                     .totalMoney(200000.0) // Tổng tiền (price * quantity)
@@ -481,8 +481,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         if (bill2 != null && productDetailBill2 != null) {
             BillDetail billDetail2 = BillDetail.builder()
-                    .billId(bill2)
-                    .productDetailId(productDetail2)
+                    .bill(bill2)
+                    .productDetail(productDetail2)
                     .price(150000.0) // Giá của sản phẩm
                     .quantity(1) // Số lượng sản phẩm
                     .totalMoney(150000.0) // Tổng tiền (price * quantity)
@@ -535,7 +535,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         if (billPaymentMethods1 != null && paymentMethodBill1 != null) {
             // Tạo PaymentBill cho bill1 và paymentMethod1
             PaymentBill paymentBill1 = PaymentBill.builder()
-                    .billId(bill1)
+                    .bill(bill1)
                     .paymentMethodsId(paymentMethod1)
                     .status(Status.HOAT_DONG) // Trạng thái thanh toán thành công
                     .build();
@@ -545,7 +545,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         if (billPaymentMethods2 != null && paymentMethodBill2 != null) {
             // Tạo PaymentBill cho bill2 và paymentMethod2
             PaymentBill paymentBill2 = PaymentBill.builder()
-                    .billId(bill2)
+                    .bill(bill2)
                     .paymentMethodsId(paymentMethod2)
                     .status(Status.HOAT_DONG) // Trạng thái thanh toán chưa hoàn thành
                     .build();

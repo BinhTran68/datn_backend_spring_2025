@@ -24,11 +24,11 @@ public class Bill extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    Customer customerid;
+    Customer customer;
 
     @ManyToOne
     @JoinColumn
-    Staff staffId;
+    Staff staff;
 
 
     String billCode;

@@ -23,11 +23,11 @@ public class CustomerVoucher extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    Customer customerid;
+    Customer customer;
 
     @ManyToOne
     @JoinColumn
-    Voucher voucherId;
+    Voucher voucher;
 
     Integer quantity;
 

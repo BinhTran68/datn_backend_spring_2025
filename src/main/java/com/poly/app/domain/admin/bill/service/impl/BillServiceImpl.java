@@ -26,14 +26,18 @@ public class BillServiceImpl implements BillService {
         List<BillResponse> billResponses = bills.stream().map(
                 bill -> BillResponse.builder()
                         .billCode(bill.getBillCode())
-                        .customerName(bill.getCustomerid().getFullName())
-                        .customerPhone(bill.getCustomerid().getPhoneNumber())
+                        .customerName(bill.getCustomer().getFullName())
+                        .customerPhone(bill.getCustomer().getPhoneNumber())
                         .customerMoney(bill.getCustomerMoney())
                         .discountMoney(bill.getDiscountMoney())
                         .shipMoney(bill.getShipMoney())
                         .totalMoney(bill.getTotalMoney())
                         .billType(bill.getBillType())
                         .completeDate(bill.getCompleteDate())
+                        .confirmDate(bill.getConfirmDate())
+                        .desiredDateOfReceipt(bill.getDesiredDateOfReceipt())
+                        .shipDate(bill.getShipDate())
+                        .shipDate(bill.getShipDate())
                         .build()
         ).collect(Collectors.toList());
 

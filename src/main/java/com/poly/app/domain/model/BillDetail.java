@@ -24,11 +24,11 @@ public class BillDetail extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    Bill billId;
+    Bill bill;
 
     @ManyToOne
     @JoinColumn
-    ProductDetail productDetailId;
+    ProductDetail productDetail;
 
     Double price;
 

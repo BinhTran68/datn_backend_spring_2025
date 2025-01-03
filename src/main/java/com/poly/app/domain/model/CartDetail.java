@@ -20,7 +20,7 @@ public class CartDetail extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    Cart cartId;
+    Cart cart;
 
     @ManyToOne
     @JoinColumn
