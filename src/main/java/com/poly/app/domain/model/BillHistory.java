@@ -23,15 +23,15 @@ import java.io.Serializable;
 public class BillHistory extends PrimaryEntity implements Serializable {
     @ManyToOne
     @JoinColumn
-    Staff staffId;
+    Staff staff;
 
     @ManyToOne
     @JoinColumn
-    Customer customerId;
+    Customer customer;
 
     @ManyToOne
     @JoinColumn
-    Bill billId;
+    Bill bill;
 
     String action;
 

@@ -22,7 +22,7 @@ import java.io.Serializable;
 public class Brand extends PrimaryEntity implements Serializable {
 
 
-    String branhName;
+    String brandName;
 
     Status status;
 
