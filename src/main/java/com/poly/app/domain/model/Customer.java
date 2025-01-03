@@ -1,8 +1,4 @@
 package com.poly.app.domain.model;
-
-
-
-
 import com.poly.app.domain.model.base.PrimaryEntity;
 import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.constant.EntityProperties;
