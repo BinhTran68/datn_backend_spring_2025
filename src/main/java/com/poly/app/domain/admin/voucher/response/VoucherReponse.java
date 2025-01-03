@@ -1,4 +1,4 @@
-package com.poly.app.domain.response;
+package com.poly.app.domain.admin.voucher.response;
 
 import com.poly.app.infrastructure.constant.Status;
 import lombok.*;
