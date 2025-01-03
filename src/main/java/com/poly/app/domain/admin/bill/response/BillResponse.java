@@ -1,0 +1,40 @@
+package com.poly.app.domain.admin.bill.response;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class BillResponse {
+
+    private String billCode;
+    private String customerName;
+    private String customerPhone;
+    private String staffName;
+    private Double customerMoney;
+    private Double discountMoney;
+    private Double shipMoney;
+    private Double totalMoney;
+    private String billType;
+    private LocalDateTime completeDate;
+    private LocalDateTime confirmDate;
+    private LocalDateTime desiredDateOfReceipt;
+    private LocalDateTime shipDate;
+    private String shippingAddress;
+    private String email;
+    private String status;
+
+
+
+
+}
