@@ -555,7 +555,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Voucher voucher1 = Voucher.builder()
                 .voucherCode("VOUCHER10")
-                .quatity("100") // Số lượng phiếu giảm giá
+                .quantity(100) // Số lượng phiếu giảm giá
                 .discountValue(10.0) // Giảm 10%
                 .voucherType("PERCENT") // Loại giảm theo phần trăm
                 .discountMaxValue(50.0) // Giảm tối đa 50.000đ
@@ -567,7 +567,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Voucher voucher2 = Voucher.builder()
                 .voucherCode("VOUCHER200")
-                .quatity("50")
+                .quantity(50)
                 .discountValue(200.0) // Giảm 200.000đ
                 .voucherType("MONEY") // Loại giảm theo số tiền
                 .discountMaxValue(200.0)

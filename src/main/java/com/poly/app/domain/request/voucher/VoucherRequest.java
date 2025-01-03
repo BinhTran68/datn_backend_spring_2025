@@ -1,0 +1,34 @@
+package com.poly.app.domain.request.voucher;
+
+import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.Status;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class VoucherRequest {
+    //phiếu giảm giá
+        Integer id;
+        //mã phiếu
+        String voucherCode;
+        //số lượng
+        Integer quantity;
+        //loại giảm
+        String voucherType;
+        //giá trị giảm
+        Double discountValue;
+        //giá trị giảm tối đa
+        Double discountMaxValue;
+        //giá trị tối thiểu của háo đơnvoucher
+        Double billMinValue;
+        LocalDateTime startDate;
+        LocalDateTime endDate;
+        Status status;
+}
