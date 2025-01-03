@@ -14,5 +14,4 @@ public enum StatusBill {
     KHONG_TON_TAI, //10
     HUY_YEU_CAU_TRA_HANG,
     TU_CHOI_TRA_HANG
-
 }

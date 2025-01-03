@@ -1,7 +1,10 @@
 package com.poly.app.domain.model;
 
 
+
+
 import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.constant.EntityProperties;
 import com.poly.app.infrastructure.constant.RoleAccount;
 import com.poly.app.infrastructure.constant.Status;
@@ -28,8 +31,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "account")
-public class Account extends PrimaryEntity implements Serializable, UserDetails {
+@Table(name = "customer")
+public class Customer extends PrimaryEntity implements Serializable, UserDetails {
 
     private String code;
 
@@ -54,30 +57,21 @@ public class Account extends PrimaryEntity implements Serializable, UserDetails 
 
     private String avatar;
 
-    private RoleAccount role;
-
-    private Status status = Status.HOAT_DONG;
+    private AccountStatus status = AccountStatus.CHUA_KICH_HOAT;
 
     public Integer getStatus() {
         return status.ordinal();
     }
 
     public void setStatus(Integer status) {
-        this.status = Status.values()[status];
+        this.status = AccountStatus.values()[status];
     }
 
-    public Integer getRole() {
-        return role.ordinal();
-    }
-
-    public void setRole(Integer role) {
-        this.role = RoleAccount.values()[role];
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(role.name()));
+        authorities.add(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
         return authorities;
     }
 
@@ -105,4 +99,6 @@ public class Account extends PrimaryEntity implements Serializable, UserDetails 
     public boolean isEnabled() {
         return true;
     }
+
+
 }

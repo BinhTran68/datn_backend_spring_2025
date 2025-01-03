@@ -1,52 +1,41 @@
 package com.poly.app.domain.model;
 
-
 import com.poly.app.domain.model.base.PrimaryEntity;
-import com.poly.app.infrastructure.constant.EntityProperties;
-import com.poly.app.infrastructure.constant.StatusBillDetail;
-import jakarta.persistence.Column;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
+import java.io.Serializable;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "bill_detail")
-public class BillDetail extends PrimaryEntity {
-    private Integer quantity;
-
-    private BigDecimal price;
-
-    private StatusBillDetail status;
-
-    @Column(columnDefinition = EntityProperties.DEFINITION_DESCRIPTION)
-    private String note;
+//hóa đơn chi tiết
+public class BillDetail extends PrimaryEntity implements Serializable {
 
     @ManyToOne
-    @JoinColumn(name = "id_bill", referencedColumnName = "id")
-    private Bill bill;
+    @JoinColumn
+    Bill billId;
 
     @ManyToOne
-    @JoinColumn(name = "id_product_detail", referencedColumnName = "id")
-    private ProductDetail productDetail;
+    @JoinColumn
+    ProductDetail productDetailId;
 
-    public Integer getStatus() {
-        return status.ordinal();
-    }
+    Double price;
 
-    public void setStatus(Integer status) {
-        this.status = StatusBillDetail.values()[status];
-    }
+    Integer quantity;
+
+    Double totalMoney;
+
+    Status status;
+
 }
