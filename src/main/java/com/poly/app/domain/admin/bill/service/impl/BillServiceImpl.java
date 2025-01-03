@@ -6,8 +6,11 @@ import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.common.PageableRequest;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.repository.BillRepository;
+import com.poly.app.domain.response.ApiResponse;
+import com.poly.app.infrastructure.constant.StatusBill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,15 +24,15 @@ public class BillServiceImpl implements BillService {
     @Autowired
     BillRepository billRepository;
 
+
     @Override
-    public PageReponse getPageBill(Integer size, Integer page) {
+    public Page<BillResponse> getPageBill(Integer size, Integer page) {
 
-        Pageable pageable = PageRequest.of(size, page);
+        Pageable pageable = PageRequest.of(0, size);
 
-        Page<Bill> billPage = billRepository.findAll(pageable);
+        Page<Bill> billPage = billRepository.findByStatus(StatusBill.CHO_XAC_NHAN, pageable);
 
         List<Bill> bills = billPage.getContent();
-
         List<BillResponse> billResponses = bills.stream().map(
                 bill -> BillResponse.builder()
                         .billCode(bill.getBillCode())
@@ -50,8 +53,9 @@ public class BillServiceImpl implements BillService {
                         .build()
         ).collect(Collectors.toList());
 
+        Page<BillResponse> pageResponse = new PageImpl<>(billResponses, PageRequest.of(billPage.getNumber(), billPage.getSize()), billPage.getTotalElements());
 
 
-        return new PageReponse(billResponses, billPage.getTotalElements(), page);
+        return  pageResponse;
     }
 }

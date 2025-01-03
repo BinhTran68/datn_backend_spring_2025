@@ -3,11 +3,17 @@ package com.poly.app.domain.admin.bill.controller;
 
 import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.common.ObjectResponse;
+import com.poly.app.domain.common.PageReponse;
+import com.poly.app.domain.model.Bill;
+import com.poly.app.domain.response.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/bill")
@@ -17,10 +23,9 @@ public class BillController {
     BillService billService;
 
     @GetMapping("/index")
-    public ObjectResponse index (@RequestParam(defaultValue = "10") Integer size,@RequestParam(defaultValue = "1") Integer page) {
-            return new ObjectResponse(billService.getPageBill(size, page));
+    public PageReponse index(@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "0") Integer page) {
+        return new PageReponse(billService.getPageBill(size, page));
     }
-
 
 
 }

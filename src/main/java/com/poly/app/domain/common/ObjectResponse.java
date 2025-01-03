@@ -8,7 +8,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@Builder
 public class ObjectResponse {
     private boolean isSuccess = false;
     private String mess;
