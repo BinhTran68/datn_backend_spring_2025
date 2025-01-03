@@ -1,5 +1,6 @@
 package com.poly.app.domain.common;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -7,6 +8,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@Builder
 public class ObjectResponse {
     private boolean isSuccess = false;
     private String mess;

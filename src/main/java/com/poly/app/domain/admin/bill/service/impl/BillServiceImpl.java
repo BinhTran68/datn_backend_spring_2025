@@ -2,10 +2,13 @@ package com.poly.app.domain.admin.bill.service.impl;
 
 import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.service.BillService;
+import com.poly.app.domain.common.PageReponse;
+import com.poly.app.domain.common.PageableRequest;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.repository.BillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +22,13 @@ public class BillServiceImpl implements BillService {
     BillRepository billRepository;
 
     @Override
-    public Page<Bill> getPageBill() {
+    public PageReponse getPageBill(Integer size, Integer page) {
 
-        List<Bill> bills =  billRepository.findAll();
+        Pageable pageable = PageRequest.of(size, page);
+
+        Page<Bill> billPage = billRepository.findAll(pageable);
+
+        List<Bill> bills = billPage.getContent();
 
         List<BillResponse> billResponses = bills.stream().map(
                 bill -> BillResponse.builder()
@@ -37,13 +44,14 @@ public class BillServiceImpl implements BillService {
                         .confirmDate(bill.getConfirmDate())
                         .desiredDateOfReceipt(bill.getDesiredDateOfReceipt())
                         .shipDate(bill.getShipDate())
-                        .shipDate(bill.getShipDate())
+                        .shippingAddress(bill.getShippingAddress())
+                        .email(bill.getEmail())
+                        .status(bill.getStatus().toString())
                         .build()
         ).collect(Collectors.toList());
 
-        Pageable pageable = Pageable.ofSize(5);
 
 
-        return billRepository.findAll(pageable);
+        return new PageReponse(billResponses, billPage.getTotalElements(), page);
     }
 }
