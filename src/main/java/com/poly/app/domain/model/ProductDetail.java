@@ -1,11 +1,16 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
+
+import com.poly.app.infrastructure.constant.EntityProperties;
+import jakarta.persistence.*;
+
 import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -61,12 +66,12 @@ public class ProductDetail extends PrimaryEntity implements Serializable {
 
     Double weight;
 
-    String description;
+
+    @Column(columnDefinition = EntityProperties.DEFINITION_DESCRIPTION)
+    String descrition;
+
 
     Status status;
-
-
-
 
 
 }

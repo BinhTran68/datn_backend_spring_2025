@@ -14,9 +14,6 @@ import java.util.Map;
 @ControllerAdvice
 public class RestExceptionHandler {
 
-
-
-
     // Bắt các lỗi validate
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
