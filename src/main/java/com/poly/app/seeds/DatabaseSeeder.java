@@ -30,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import com.poly.app.domain.repository.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -166,7 +167,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         Customer customer1 = Customer.builder()
                 .code("CUST001")
                 .fullName("Nguyễn Văn A")
-                .dateBirth(631152000000L) // Ngày sinh (dạng timestamp), ví dụ: 01/01/1990
+                .dateBirth(LocalDateTime.now()) // Ngày sinh (dạng timestamp), ví dụ: 01/01/1990
                 .CitizenId("0123456789")
                 .phoneNumber("0912345678")
                 .email("nguyenvana@example.com")
@@ -180,7 +181,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         Customer customer2 = Customer.builder()
                 .code("CUST002")
                 .fullName("Trần Thị B")
-                .dateBirth(946684800000L) // Ngày sinh: 01/01/2000
+                .dateBirth(LocalDateTime.now()) // Ngày sinh: 01/01/2000
                 .CitizenId("9876543210")
                 .phoneNumber("0987654321")
                 .email("tranthib@example.com")
@@ -380,7 +381,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         Staff staff1 = Staff.builder()
                 .code("STF001")
                 .fullName("Nguyễn Văn A")
-                .dateBirth(631152000000L) // Ngày sinh (dạng timestamp)
+                .dateBirth(LocalDateTime.now()) // Ngày sinh (dạng timestamp)
                 .CitizenId("1234567890")
                 .phoneNumber("0901234567")
                 .email("nguyenvana@example.com")
@@ -396,7 +397,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         Staff staff2 = Staff.builder()
                 .code("STF002")
                 .fullName("Trần Thị B")
-                .dateBirth(946684800000L) // Ngày sinh (dạng timestamp)
+                .dateBirth(LocalDateTime.now()) // Ngày sinh (dạng timestamp)
                 .CitizenId("0987654321")
                 .phoneNumber("0987654321")
                 .email("tranthib@example.com")
@@ -425,10 +426,10 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .shipMoney(30000.0)
                     .totalMoney(480000.0)
                     .billType("Online")
-                    .completeDate(new Date()) // Ngày hoàn thành
-                    .confirmDate(new Date()) // Ngày xác nhận
-                    .desiredDateOfReceipt(new Date()) // Ngày nhận hàng mong muốn
-                    .shipDate(new Date()) // Ngày giao hàng
+                    .completeDate(LocalDateTime.now()) // Ngày hoàn thành
+                    .confirmDate(LocalDateTime.now()) // Ngày xác nhận
+                    .desiredDateOfReceipt(LocalDateTime.now()) // Ngày nhận hàng mong muốn
+                    .shipDate(LocalDateTime.now()) // Ngày giao hàng
                     .shippingAddress("123 Đường ABC, Quận 1, TP.HCM")
                     .numberPhone("0912345678")
                     .email("nguyenvana@example.com")
@@ -447,10 +448,10 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .shipMoney(25000.0)
                     .totalMoney(305000.0)
                     .billType("In-store")
-                    .completeDate(new Date()) // Ngày hoàn thành
-                    .confirmDate(new Date()) // Ngày xác nhận
-                    .desiredDateOfReceipt(new Date()) // Ngày nhận hàng mong muốn
-                    .shipDate(new Date()) // Ngày giao hàng
+                    .completeDate(LocalDateTime.now()) // Ngày hoàn thành
+                    .confirmDate(LocalDateTime.now()) // Ngày xác nhận
+                    .desiredDateOfReceipt(LocalDateTime.now()) // Ngày nhận hàng mong muốn
+                    .shipDate(LocalDateTime.now()) // Ngày giao hàng
                     .shippingAddress("456 Đường XYZ, Quận 2, TP.HCM")
                     .numberPhone("0987654321")
                     .email("tranthib@example.com")
@@ -559,8 +560,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .voucherType("PERCENT") // Loại giảm theo phần trăm
                 .discountMaxValue(50.0) // Giảm tối đa 50.000đ
                 .billMinValue(200.0) // Giá trị hóa đơn tối thiểu 200.000đ
-                .startDate(new Date()) // Ngày bắt đầu là ngày hiện tại
-                .endDate(new Date(System.currentTimeMillis() + 86400000)) // Ngày kết thúc là Status.HOAT_DONG ngày sau
+                .startDate(LocalDateTime.now()) // Ngày bắt đầu là ngày hiện tại
+                .endDate(LocalDateTime.now()) // Ngày kết thúc là Status.HOAT_DONG ngày sau
                 .status(Status.HOAT_DONG) // Trạng thái đang hoạt động
                 .build();
 
@@ -571,8 +572,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .voucherType("MONEY") // Loại giảm theo số tiền
                 .discountMaxValue(200.0)
                 .billMinValue(500.0) // Hóa đơn tối thiểu 500.000đ
-                .startDate(new Date())
-                .endDate(new Date(System.currentTimeMillis() + 86400000)) // Status.HOAT_DONG ngày sau
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now()) // Status.HOAT_DONG ngày sau
                 .status(Status.HOAT_DONG)
                 .build();
 

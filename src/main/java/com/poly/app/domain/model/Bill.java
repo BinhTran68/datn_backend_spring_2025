@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -48,14 +49,14 @@ public class Bill extends PrimaryEntity implements Serializable {
 
     String billType;
     //nagyf hoàn thành
-    Date completeDate;
+    LocalDateTime completeDate;
     //    nagyf xác nhận
-    Date confirmDate;
+    LocalDateTime confirmDate;
 //    ngày mong muốn nhận hàng
 
-    Date desiredDateOfReceipt;
+    LocalDateTime desiredDateOfReceipt;
     //    ngày ship
-    Date shipDate;
+    LocalDateTime shipDate;
 
     //    dịa chỉ giao hàng
     String shippingAddress;

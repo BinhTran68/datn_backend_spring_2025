@@ -19,6 +19,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,7 +39,7 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
     @Column(columnDefinition = EntityProperties.DEFINITION_NAME)
     private String fullName;
 
-    private Long dateBirth;
+    private LocalDateTime dateBirth;
 
     @Column(unique = true)
     private String CitizenId;
