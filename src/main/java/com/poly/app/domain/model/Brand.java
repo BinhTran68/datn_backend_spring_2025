@@ -20,7 +20,8 @@ import java.io.Serializable;
 @Table(name = "brand")
 //hang
 public class Brand extends PrimaryEntity implements Serializable {
-@Column(name = "brand_name")
+
+
     String brandName;
 
     Status status;

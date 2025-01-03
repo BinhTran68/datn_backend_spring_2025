@@ -12,8 +12,8 @@ import org.springframework.stereotype.Repository;
 public interface ProductDetailRepository extends JpaRepository<ProductDetail, Integer> {
 
     @Query(value = "select  new com.poly.app.domain.response.productdetail.ProductDetailResponse" +
-            "(pd.id,pd.code,pd.productId.productName,pd.brandId.brandName,pd.typeId.typeName,pd.colorId.colorName" +
-            ",pd.materialId.materialName,pd.sizeId.sizeName,pd.soleId.soleName,pd.genderId.genderName,pd.quantity" +
+            "(pd.id,pd.code,pd.product.productName,pd.brand.brandName,pd.type.typeName,pd.color.colorName" +
+            ",pd.material.materialName,pd.size.sizeName,pd.sole.soleName,pd.gender.genderName,pd.quantity" +
             ",pd.price,pd.weight,pd.descrition,pd.status,pd.updatedAt,pd.updatedBy) from ProductDetail pd order by pd.createdAt desc ")
     Page<ProductDetailResponse> getAllProductDetailPage(Pageable pageable);
 

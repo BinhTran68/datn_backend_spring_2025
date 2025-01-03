@@ -20,7 +20,7 @@ public class Address extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    Customer customerId;
+    Customer customer;
 
     Boolean isAddressDefault;
 

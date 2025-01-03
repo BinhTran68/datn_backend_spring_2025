@@ -28,35 +28,35 @@ import java.io.Serializable;
 public class ProductDetail extends PrimaryEntity implements Serializable {
     @ManyToOne
     @JoinColumn
-    Product productId;
+    Product product;
 
     @ManyToOne
     @JoinColumn
-    Brand brandId;
+    Brand brand;
 
     @ManyToOne
     @JoinColumn
-    Type typeId;
+    Type type;
 
     @ManyToOne
     @JoinColumn
-    Color colorId;
+    Color color;
 
     @ManyToOne
     @JoinColumn
-    Material materialId;
+    Material material;
 
     @ManyToOne
     @JoinColumn
-    Size sizeId;
+    Size size;
 
     @ManyToOne
     @JoinColumn
-    Sole soleId;
+    Sole sole;
 
     @ManyToOne
     @JoinColumn
-    Gender genderId;
+    Gender gender;
 
     String productDetailCode;
 

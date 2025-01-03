@@ -54,14 +54,14 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         Gender gender = genderRepository.findById(request.getGenderId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
 
         ProductDetail productDetail = ProductDetail.builder()
-                .productId(product)
-                .brandId(brand)
-                .typeId(type)
-                .colorId(color)
-                .materialId(material)
-                .sizeId(size)
-                .soleId(sole)
-                .genderId(gender)
+                .product(product)
+                .brand(brand)
+                .type(type)
+                .color(color)
+                .material(material)
+                .size(size)
+                .sole(sole)
+                .gender(gender)
                 .quantity(request.getQuantity())
                 .price(request.getPrice())
                 .weight(request.getWeight())
@@ -85,14 +85,14 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         Gender gender = genderRepository.findById(request.getGenderId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
 
 
-        productDetail.setProductId(product);
-        productDetail.setBrandId(brand);
-        productDetail.setTypeId(type);
-        productDetail.setColorId(color);
-        productDetail.setMaterialId(material);
-        productDetail.setSizeId(size);
-        productDetail.setSoleId(sole);
-        productDetail.setGenderId(gender);
+        productDetail.setProduct(product);
+        productDetail.setBrand(brand);
+        productDetail.setType(type);
+        productDetail.setColor(color);
+        productDetail.setMaterial(material);
+        productDetail.setSize(size);
+        productDetail.setSole(sole);
+        productDetail.setGender(gender);
         productDetail.setQuantity(request.getQuantity());
         productDetail.setPrice(request.getPrice());
         productDetail.setWeight(request.getWeight());
@@ -103,14 +103,14 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
                 .code(productDetail.getCode())
-                .productName(productDetail.getProductId().getProductName())
-                .brandName(productDetail.getBrandId().getBrandName())
-                .typeName(productDetail.getTypeId().getTypeName())
-                .colorName(productDetail.getColorId().getColorName())
-                .materialName(productDetail.getMaterialId().getMaterialName())
-                .sizeName(productDetail.getSizeId().getSizeName())
-                .soleName(productDetail.getSoleId().getSoleName())
-                .genderName(productDetail.getGenderId().getGenderName())
+                .productName(productDetail.getProduct().getProductName())
+                .brandName(productDetail.getBrand().getBrandName())
+                .typeName(productDetail.getType().getTypeName())
+                .colorName(productDetail.getColor().getColorName())
+                .materialName(productDetail.getMaterial().getMaterialName())
+                .sizeName(productDetail.getSize().getSizeName())
+                .soleName(productDetail.getSole().getSoleName())
+                .genderName(productDetail.getGender().getGenderName())
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .weight(productDetail.getWeight())
@@ -164,14 +164,14 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
                 .code(productDetail.getCode())
-                .productName(productDetail.getProductId().getProductName())
-                .brandName(productDetail.getBrandId().getBrandName())
-                .typeName(productDetail.getTypeId().getTypeName())
-                .colorName(productDetail.getColorId().getColorName())
-                .materialName(productDetail.getMaterialId().getMaterialName())
-                .sizeName(productDetail.getSizeId().getSizeName())
-                .soleName(productDetail.getSoleId().getSoleName())
-                .genderName(productDetail.getGenderId().getGenderName())
+                .productName(productDetail.getProduct().getProductName())
+                .brandName(productDetail.getBrand().getBrandName())
+                .typeName(productDetail.getType().getTypeName())
+                .colorName(productDetail.getColor().getColorName())
+                .materialName(productDetail.getMaterial().getMaterialName())
+                .sizeName(productDetail.getSize().getSizeName())
+                .soleName(productDetail.getSole().getSoleName())
+                .genderName(productDetail.getGender().getGenderName())
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .weight(productDetail.getWeight())
