@@ -2,6 +2,7 @@ package com.poly.app.domain.controller;
 
 import com.poly.app.domain.model.Color;
 import com.poly.app.domain.request.color.ColorRequest;
+import com.poly.app.domain.response.ApiResponse;
 import com.poly.app.domain.response.color.ColorResponse;
 import com.poly.app.domain.service.ColorService;
 import lombok.AccessLevel;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/color")
+@RequestMapping("api/color")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
@@ -22,27 +23,42 @@ public class ColorController {
     ColorService colorService;
 
     @PostMapping("/add")
-    public Color create(@RequestBody ColorRequest request) {
-        return colorService.createColor(request);
+    public ApiResponse<Color> create(@RequestBody ColorRequest request) {
+        return ApiResponse.<Color>builder()
+                .message("create color")
+                .data(colorService.createColor(request))
+                .build();
     }
 
     @PostMapping("/update/{id}")
-    public ColorResponse update(@RequestBody ColorRequest request, @PathVariable int id) {
-        return colorService.updateColor(request,id);
+    public ApiResponse<ColorResponse> update(@RequestBody ColorRequest request, @PathVariable int id) {
+        return ApiResponse.<ColorResponse>builder()
+                .message("update color")
+                .data(colorService.updateColor(request,id))
+                .build();
     }
 
     @GetMapping()
-    public List<ColorResponse> getAllColor() {
-        return colorService.getAllColor();
+    public ApiResponse<List<ColorResponse>> getAllColor() {
+        return ApiResponse.<List<ColorResponse>>builder()
+                .message("list color")
+                .data(colorService.getAllColor())
+                .build();
     }
     @GetMapping("{id}")
-    public ColorResponse getColor(@PathVariable int id) {
-        return colorService.getColor(id);
+    public ApiResponse<ColorResponse> getColor(@PathVariable int id) {
+        return ApiResponse.<ColorResponse>builder()
+                .message("get color by id")
+                .data(colorService.getColor(id))
+                .build();
     }
 
     @DeleteMapping("delete/{id}")
-    public String delete(@PathVariable int id) {
-        return colorService.deleteColor(id);
+    public ApiResponse<String> delete(@PathVariable int id) {
+        return ApiResponse.<String>builder()
+                .message("delete color by id")
+                .data(colorService.deleteColor(id))
+                .build();
     }
 
 
