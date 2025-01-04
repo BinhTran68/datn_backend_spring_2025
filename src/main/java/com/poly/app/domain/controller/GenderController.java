@@ -2,7 +2,7 @@ package com.poly.app.domain.controller;
 
 import com.poly.app.domain.model.Gender;
 import com.poly.app.domain.request.gender.GenderRequest;
-import com.poly.app.domain.response.ApiResponse;
+import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.response.gender.GenderResponse;
 import com.poly.app.domain.service.GenderService;
 import lombok.AccessLevel;

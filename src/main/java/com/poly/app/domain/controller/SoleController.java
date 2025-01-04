@@ -2,7 +2,7 @@ package com.poly.app.domain.controller;
 
 import com.poly.app.domain.model.Sole;
 import com.poly.app.domain.request.sole.SoleRequest;
-import com.poly.app.domain.response.ApiResponse;
+import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.response.sole.SoleResponse;
 import com.poly.app.domain.service.SoleService;
 import lombok.AccessLevel;

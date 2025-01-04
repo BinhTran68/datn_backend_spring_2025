@@ -2,7 +2,7 @@ package com.poly.app.domain.controller;
 
 import com.poly.app.domain.model.Color;
 import com.poly.app.domain.request.color.ColorRequest;
-import com.poly.app.domain.response.ApiResponse;
+import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.response.color.ColorResponse;
 import com.poly.app.domain.service.ColorService;
 import lombok.AccessLevel;

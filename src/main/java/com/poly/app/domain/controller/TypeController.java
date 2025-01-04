@@ -2,7 +2,7 @@ package com.poly.app.domain.controller;
 
 import com.poly.app.domain.model.Type;
 import com.poly.app.domain.request.type.TypeRequest;
-import com.poly.app.domain.response.ApiResponse;
+import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.response.type.TypeResponse;
 import com.poly.app.domain.service.TypeService;
 import lombok.AccessLevel;

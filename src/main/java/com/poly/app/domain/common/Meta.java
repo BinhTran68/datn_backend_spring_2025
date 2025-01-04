@@ -1,18 +1,18 @@
-package com.poly.app.domain.response;
+package com.poly.app.domain.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiResponse<T> {
-    @Builder.Default
-    private int code = 200;
-    private String message;
-    private T data;
+public class Meta {
+    Integer totalPages;
+    Integer currentPage;
+    Long totalElement;
 }

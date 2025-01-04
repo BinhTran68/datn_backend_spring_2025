@@ -2,7 +2,7 @@ package com.poly.app.domain.controller;
 
 import com.poly.app.domain.model.Material;
 import com.poly.app.domain.request.material.MaterialRequest;
-import com.poly.app.domain.response.ApiResponse;
+import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.response.material.MaterialResponse;
 import com.poly.app.domain.service.MaterialService;
 import lombok.AccessLevel;

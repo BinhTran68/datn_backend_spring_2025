@@ -2,7 +2,9 @@ package com.poly.app.domain.service.Impl;
 
 import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.*;
+import com.poly.app.domain.request.productdetail.FilterRequest;
 import com.poly.app.domain.request.productdetail.ProductDetailRequest;
+import com.poly.app.domain.response.productdetail.FilterProductDetailResponse;
 import com.poly.app.domain.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.service.ProductDetailService;
 import lombok.AccessLevel;
@@ -200,5 +202,61 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductDetailResponse> page1 = productDetailRepository.getAllProductDetailPage(pageable);
         return page1;
+    }
+
+    @Override
+    public List<FilterProductDetailResponse> filterProductDetail(int page, int size, FilterRequest request) {
+
+        log.info(request.toString());
+
+        List<FilterProductDetailResponse> list = productDetailRepository.getFilterProductDetail(
+                request.getProductName(),
+                request.getBrandName(),
+                request.getTypeName(),
+                request.getColorName(),
+                request.getMaterialName(),
+                request.getSizeName(),
+                request.getSoleName(),
+                request.getGenderName(),
+                request.getStatus(),
+                request.getSortByQuantity(),
+                request.getSortByPrice(),
+                page, size);
+
+//        List<FilterProductDetailResponse> list = productDetailRepository.getFilterProductDetail(
+//                null,
+//                "nike",
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                "HOAT_DONG",
+//                null,
+//                null,
+//                1,
+//                1
+//                );
+
+        return list;
+    }
+
+    @Override
+    public Integer getFillterElement(FilterRequest request) {
+        Integer totalElement = productDetailRepository.getInforpage(
+                request.getProductName(),
+                request.getBrandName(),
+                request.getTypeName(),
+                request.getColorName(),
+                request.getMaterialName(),
+                request.getSizeName(),
+                request.getSoleName(),
+                request.getGenderName(),
+                request.getStatus()
+
+        );
+        log.info("tổng element"+Integer.toString(totalElement));
+        return totalElement;
     }
 }

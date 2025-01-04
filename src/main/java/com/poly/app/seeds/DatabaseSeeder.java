@@ -33,7 +33,7 @@ import com.poly.app.domain.repository.*;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-@Component
+
 public class DatabaseSeeder implements CommandLineRunner {
 
     @Autowired

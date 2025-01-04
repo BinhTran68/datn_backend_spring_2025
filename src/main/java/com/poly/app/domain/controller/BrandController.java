@@ -2,7 +2,7 @@ package com.poly.app.domain.controller;
 
 import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.request.brand.BrandRequest;
-import com.poly.app.domain.response.ApiResponse;
+import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.response.brand.BrandResponse;
 import com.poly.app.domain.service.BrandService;
 import lombok.AccessLevel;

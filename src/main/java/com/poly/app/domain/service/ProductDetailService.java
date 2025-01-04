@@ -1,7 +1,9 @@
 package com.poly.app.domain.service;
 
 import com.poly.app.domain.model.ProductDetail;
+import com.poly.app.domain.request.productdetail.FilterRequest;
 import com.poly.app.domain.request.productdetail.ProductDetailRequest;
+import com.poly.app.domain.response.productdetail.FilterProductDetailResponse;
 import com.poly.app.domain.response.productdetail.ProductDetailResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,4 +21,7 @@ public interface ProductDetailService {
      ProductDetailResponse getProductDetail(int id);
 
      Page<ProductDetailResponse> getAllProductDetailPage(int page, int size);
+     List<FilterProductDetailResponse> filterProductDetail(int page, int size, FilterRequest request);
+
+     Integer getFillterElement (FilterRequest request);
 }

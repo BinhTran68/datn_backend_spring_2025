@@ -1,11 +1,13 @@
 package com.poly.app.domain.common;
 
+import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 @Getter
+
 public class PageReponse<T> {
     private List<T> data;
     private long totalPages;
