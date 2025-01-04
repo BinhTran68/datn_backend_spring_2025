@@ -1,11 +1,8 @@
-package com.poly.app.domain.request.voucher;
+package com.poly.app.domain.admin.voucher.request.voucher;
 
-import com.poly.app.domain.model.base.PrimaryEntity;
 import com.poly.app.infrastructure.constant.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
