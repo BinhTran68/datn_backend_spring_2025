@@ -14,10 +14,12 @@ public class PageReponse<T> {
     private List<T> data;
     private long totalPages;
     private int currentPage;
+    private long totalElements;
 
     public PageReponse(Page<T> page) {
         this.data = page.getContent();
         this.totalPages = page.getTotalPages();
         this.currentPage = page.getNumber();
+        this.totalElements = page.getTotalElements();
     }
 }

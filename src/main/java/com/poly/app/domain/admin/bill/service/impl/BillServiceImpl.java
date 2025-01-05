@@ -26,11 +26,18 @@ public class BillServiceImpl implements BillService {
 
 
     @Override
-    public Page<BillResponse> getPageBill(Integer size, Integer page) {
+    public Page<BillResponse> getPageBill(Integer size, Integer page, StatusBill statusBill) {
 
-        Pageable pageable = PageRequest.of(0, size);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Bill> billPage;
 
-        Page<Bill> billPage = billRepository.findByStatus(StatusBill.CHO_XAC_NHAN, pageable);
+        if(statusBill == null) {
+            billPage = billRepository.findAll(pageable);
+        }else  {
+            billPage = billRepository.findByStatus(statusBill, pageable);
+        }
+
+
 
         List<Bill> bills = billPage.getContent();
         List<BillResponse> billResponses = bills.stream().map(
@@ -50,6 +57,7 @@ public class BillServiceImpl implements BillService {
                         .shippingAddress(bill.getShippingAddress())
                         .email(bill.getEmail())
                         .status(bill.getStatus().toString())
+                        .createAt(bill.getCreatedAt())
                         .build()
         ).collect(Collectors.toList());
 
