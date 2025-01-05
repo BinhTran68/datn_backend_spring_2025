@@ -38,7 +38,6 @@ public class BillServiceImpl implements BillService {
         }
 
 
-
         List<Bill> bills = billPage.getContent();
         List<BillResponse> billResponses = bills.stream().map(
                 bill -> BillResponse.builder()

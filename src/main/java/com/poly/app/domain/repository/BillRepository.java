@@ -12,4 +12,7 @@ public interface BillRepository extends JpaRepository<Bill,Integer> {
 
     Page<Bill> findByStatus(StatusBill status, Pageable pageable);
 
+
+    Bill findByBillCode(String billCode);
+
 }

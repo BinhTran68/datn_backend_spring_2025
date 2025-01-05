@@ -1,9 +1,10 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.PaymentMethodEnum;
+import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.Status;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -17,22 +18,21 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "payment_methods")
-//phương thức thanh toán
 public class PaymentMethods extends PrimaryEntity implements Serializable {
-//mã
-    String paymentMethodsCode;
-//phương thwudcs thanh toán
-    String paymentMethods;
-//tổng tiền
-    Double totalMoney;
-//loại
-    String paymentMethodsType;
-//    ghi chứ
-    String notes;
-//    mã giao dịch
 
-    String dealCode;
 
-    Status status;
+    @Enumerated(EnumType.STRING)
+    PaymentMethodsType paymentMethodsType; // Loại thanh toán (enum)
 
+    Double totalMoney; // Tổng tiền
+
+    @Enumerated(EnumType.STRING)
+    PaymentMethodEnum paymentMethod; // Phương thước thanh toán
+
+    String notes; // Ghi chú
+
+    String transactionCode; // Mã giao dịch
+
+    @Enumerated(EnumType.STRING)
+    Status status; // Trạng thái (enum)
 }

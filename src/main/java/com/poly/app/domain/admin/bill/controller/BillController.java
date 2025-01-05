@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/bill")
+@RequestMapping("/api/admin/bill")
 public class BillController {
 
     @Autowired
@@ -29,6 +29,7 @@ public class BillController {
                              @RequestParam(required = false) StatusBill statusBill) {
         return new PageReponse(billService.getPageBill(size, page, statusBill));
     }
+
 
 
 }

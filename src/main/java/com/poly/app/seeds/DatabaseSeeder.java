@@ -21,6 +21,8 @@ import com.poly.app.domain.model.Staff;
 import com.poly.app.domain.model.Type;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.infrastructure.constant.AccountStatus;
+import com.poly.app.infrastructure.constant.PaymentMethodEnum;
+import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.constant.StatusBill;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,6 @@ import org.springframework.stereotype.Component;
 import com.poly.app.domain.repository.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Component
 public class DatabaseSeeder implements CommandLineRunner {
@@ -493,34 +494,34 @@ public class DatabaseSeeder implements CommandLineRunner {
 
 
         PaymentMethods paymentMethod1 = PaymentMethods.builder()
-                .paymentMethodsCode("PM001") // Mã phương thức thanh toán
-                .paymentMethods("Thanh toán qua thẻ tín dụng") // Tên phương thức thanh toán
+                .paymentMethod(PaymentMethodEnum.TIEN_MAT)// Tên phương thức thanh toán
                 .totalMoney(1000000.0) // Tổng tiền
-                .paymentMethodsType("Credit Card") // Loại phương thức thanh toán
+                .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
                 .notes("Thanh toán qua thẻ Visa hoặc MasterCard") // Ghi chú
-                .dealCode("TXN001") // Mã giao dịch
+                .transactionCode("TXN001") // Mã giao dịch
                 .status(Status.HOAT_DONG) // Trạng thái (1: Hoạt động, 0: Không hoạt động)
                 .build();
+
+
         paymentMethodsRepository.save(paymentMethod1);
 
         PaymentMethods paymentMethod2 = PaymentMethods.builder()
-                .paymentMethodsCode("PM002")
-                .paymentMethods("Thanh toán qua chuyển khoản ngân hàng")
+
+                .paymentMethod(PaymentMethodEnum.TIEN_MAT)
                 .totalMoney(2000000.0)
-                .paymentMethodsType("Bank Transfer")
+                .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
                 .notes("Thanh toán qua chuyển khoản vào tài khoản ngân hàng")
-                .dealCode("TXN002")
+                .transactionCode("TXN002")
                 .status(Status.HOAT_DONG)
                 .build();
         paymentMethodsRepository.save(paymentMethod2);
 
         PaymentMethods paymentMethod3 = PaymentMethods.builder()
-                .paymentMethodsCode("PM003")
-                .paymentMethods("Thanh toán khi nhận hàng")
+                .paymentMethod(PaymentMethodEnum.CHUYEN_KHOAN)
                 .totalMoney(500000.0)
-                .paymentMethodsType("Cash on Delivery")
+                .paymentMethodsType(PaymentMethodsType.THANH_TOAN_KHI_NHAN_HANG)
                 .notes("Thanh toán khi nhận sản phẩm tại nhà")
-                .dealCode("TXN003")
+                .transactionCode("TXN003")
                 .status(Status.HOAT_DONG) // Trạng thái không hoạt động
                 .build();
         paymentMethodsRepository.save(paymentMethod3);
@@ -536,7 +537,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             // Tạo PaymentBill cho bill1 và paymentMethod1
             PaymentBill paymentBill1 = PaymentBill.builder()
                     .bill(bill1)
-                    .paymentMethodsId(paymentMethod1)
+                    .paymentMethods(paymentMethod1)
                     .status(Status.HOAT_DONG) // Trạng thái thanh toán thành công
                     .build();
             paymentBillRepository.save(paymentBill1);
@@ -546,7 +547,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             // Tạo PaymentBill cho bill2 và paymentMethod2
             PaymentBill paymentBill2 = PaymentBill.builder()
                     .bill(bill2)
-                    .paymentMethodsId(paymentMethod2)
+                    .paymentMethods(paymentMethod2)
                     .status(Status.HOAT_DONG) // Trạng thái thanh toán chưa hoàn thành
                     .build();
             paymentBillRepository.save(paymentBill2);

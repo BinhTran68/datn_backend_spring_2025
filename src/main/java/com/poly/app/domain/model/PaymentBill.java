@@ -25,7 +25,7 @@ public class PaymentBill extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    PaymentMethods paymentMethodsId;
+    PaymentMethods paymentMethods;
 
     Status status;
 
