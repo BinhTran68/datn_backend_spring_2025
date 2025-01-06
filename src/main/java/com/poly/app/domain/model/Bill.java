@@ -65,6 +65,7 @@ public class Bill extends PrimaryEntity implements Serializable {
 
     String email;
 
+    @Enumerated(EnumType.STRING)
     StatusBill status;
 
 
