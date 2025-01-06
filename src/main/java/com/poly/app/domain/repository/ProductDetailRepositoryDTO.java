@@ -1,7 +1,6 @@
 package com.poly.app.domain.repository;
 
-import com.poly.app.domain.response.productdetail.FilterProductDetailDTO;
-import com.poly.app.domain.response.productdetail.FilterProductDetailResponse;
+import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
@@ -9,7 +8,6 @@ import jakarta.persistence.StoredProcedureQuery;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class ProductDetailRepositoryDTO {

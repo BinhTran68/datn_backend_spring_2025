@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public enum ErrorCode {
+
+    NOT_BLANK(3000,"Không được để trống"),
     UNCATEGORIZED_EXCEPTION(9999, "UNCATEGORIZED ERROR"),
     INVALID_KEY(1001, "INVALID MESSAGE KEY"),
     MAUSAC_NOT_FOUND(1002, "Mausac Not Found"),

@@ -2,11 +2,8 @@ package com.poly.app.domain.admin.bill.service.impl;
 
 import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.service.BillService;
-import com.poly.app.domain.common.PageReponse;
-import com.poly.app.domain.common.PageableRequest;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.repository.BillRepository;
-import com.poly.app.domain.response.ApiResponse;
 import com.poly.app.infrastructure.constant.StatusBill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
