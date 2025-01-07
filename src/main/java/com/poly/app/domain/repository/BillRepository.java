@@ -1,7 +1,7 @@
 package com.poly.app.domain.repository;
 
 import com.poly.app.domain.model.Bill;
-import com.poly.app.infrastructure.constant.StatusBill;
+import com.poly.app.infrastructure.constant.BillStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,9 +10,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BillRepository extends JpaRepository<Bill,Integer> {
 
-    Page<Bill> findByStatus(StatusBill status, Pageable pageable);
+    Page<Bill> findByStatus(BillStatus status, Pageable pageable);
 
 
-    Bill findByBillCode(String billCode);
+
+
+
+    Bill findByCode(String billCode);
+
+
 
 }

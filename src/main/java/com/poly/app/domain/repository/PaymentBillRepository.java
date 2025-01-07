@@ -26,7 +26,7 @@ public interface PaymentBillRepository extends JpaRepository<PaymentBill,Integer
             "FROM PaymentBill pb " +
             "LEFT JOIN PaymentMethods pm ON pm.id = pb.paymentMethods.id " +
             "LEFT JOIN Bill b ON b.id = pb.bill.id " +
-            "WHERE b.billCode = :billCode")
+            "WHERE b.code = :billCode")
     List<PaymentBillResponse> findPaymentBillByBillCode(@Param("billCode") String billCode);
 
 }

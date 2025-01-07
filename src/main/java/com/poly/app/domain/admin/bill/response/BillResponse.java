@@ -36,6 +36,4 @@ public class BillResponse {
     private Long createAt;
 
 
-
-
 }

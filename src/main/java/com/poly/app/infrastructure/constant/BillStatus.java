@@ -1,6 +1,6 @@
 package com.poly.app.infrastructure.constant;
 
-public enum StatusBill {
+public enum BillStatus {
     CHO_XAC_NHAN(1),
     DA_XAC_NHAN(2),
     CHO_VAN_CHUYEN(3),
@@ -9,9 +9,6 @@ public enum StatusBill {
     DA_HOAN_THANH(6),
     DA_HUY(7),
     TRA_HANG(8);
-
-
-
 
 //
 //    CHO_THANH_TOAN(7),
@@ -25,7 +22,7 @@ public enum StatusBill {
 
     private final int code;
 
-    StatusBill(int code) {
+    BillStatus(int code) {
         this.code = code;
     }
 
@@ -33,8 +30,8 @@ public enum StatusBill {
         return code;
     }
 
-    public static StatusBill fromCode(int code) {
-        for (StatusBill status : StatusBill.values()) {
+    public static BillStatus fromCode(int code) {
+        for (BillStatus status : BillStatus.values()) {
             if (status.getCode() == code) {
                 return status;
             }

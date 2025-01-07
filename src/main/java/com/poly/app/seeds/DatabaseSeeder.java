@@ -5,6 +5,7 @@ import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Announcement;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillDetail;
+import com.poly.app.domain.model.BillHistory;
 import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.model.Color;
 import com.poly.app.domain.model.Customer;
@@ -24,7 +25,7 @@ import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.Status;
-import com.poly.app.infrastructure.constant.StatusBill;
+import com.poly.app.infrastructure.constant.BillStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 
@@ -434,7 +435,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .shippingAddress("123 Đường ABC, Quận 1, TP.HCM")
                     .numberPhone("0912345678")
                     .email("nguyenvana@example.com")
-                    .status(StatusBill.DA_THANH_TOAN) // Trạng thái hóa đơn
+                    .status(BillStatus.DA_THANH_TOAN) // Trạng thái hóa đơn
                     .build();
             billRepository.save(bill1);
         }
@@ -456,7 +457,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .shippingAddress("456 Đường XYZ, Quận 2, TP.HCM")
                     .numberPhone("0987654321")
                     .email("tranthib@example.com")
-                    .status(StatusBill.CHO_XAC_NHAN) // Trạng thái hóa đơn
+                    .status(BillStatus.CHO_XAC_NHAN) // Trạng thái hóa đơn
                     .build();
             billRepository.save(bill2);
 
@@ -467,6 +468,17 @@ public class DatabaseSeeder implements CommandLineRunner {
         Bill bill2 = billRepository.findById(2).orElse(null); // Giả sử bill có id = 2
         ProductDetail productDetailBill1 = productDetailRepository.findById(1).orElse(null); // Giả sử productDetail có id = 1
         ProductDetail productDetailBill2 = productDetailRepository.findById(2).orElse(null); // Giả sử productDetail có id = 2
+
+        BillHistory billHistory = BillHistory
+                .builder().bill(bill2).customer(customerBill1).staff(staffBill1).status(BillStatus.CHO_XAC_NHAN)
+                .build();
+        BillHistory billHistory1 = BillHistory
+                .builder().bill(bill1).customer(customerBill1).staff(staffBill1).status(BillStatus.CHO_VAN_CHUYEN)
+                .build();
+
+        billHistoryRepository.save(billHistory);
+
+        billHistoryRepository.save(billHistory1);
 
         if (bill1 != null && productDetailBill1 != null) {
             BillDetail billDetail1 = BillDetail.builder()
