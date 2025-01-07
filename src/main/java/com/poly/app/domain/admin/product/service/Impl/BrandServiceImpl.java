@@ -9,6 +9,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,10 +54,22 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public List<BrandResponse> getAllBrand() {
-        return brandRepository.findAll().stream()
-                .map(brand -> new BrandResponse(brand.getId(), brand.getCode(), brand.getBrandName(), brand.getUpdatedAt(), brand.getStatus())).toList();
+    public Page<BrandResponse> getAllBrand(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Thay vì stream và toList, sử dụng phương thức map của Page
+        Page<Brand> brandPage = brandRepository.findAll(pageable);
+
+        // Chuyển đổi từ Page<Brand> sang Page<BrandResponse>
+        return brandPage.map(brand -> new BrandResponse(
+                brand.getId(),
+                brand.getCode(),
+                brand.getBrandName(),
+                brand.getUpdatedAt(),
+                brand.getStatus()
+        ));
     }
+
 
     @Override
     public String delete(int id) {

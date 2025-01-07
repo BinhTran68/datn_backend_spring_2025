@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.admin.product.request.brand.BrandRequest;
 import com.poly.app.domain.common.ApiResponse;
@@ -10,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,22 +37,32 @@ public class BrandController {
     public ApiResponse<BrandResponse> update(@RequestBody BrandRequest request, @PathVariable int id) {
         return ApiResponse.<BrandResponse>builder()
                 .message("update brand")
-                .data(brandService.updateBrand(request,id))
+                .data(brandService.updateBrand(request, id))
                 .build();
     }
 
     @GetMapping()
-    public ApiResponse<List<BrandResponse>> getAllBrand() {
+    public ApiResponse<List<BrandResponse>> getAllBrand(@RequestParam(value = "page", defaultValue = "1") int page,
+                                                        @RequestParam(value = "size", defaultValue = "2") int size
+    ) {
+
+        Page<BrandResponse> page1 = brandService.getAllBrand(page-1, size);
         return ApiResponse.<List<BrandResponse>>builder()
                 .message("list brand")
-                .data(brandService.getAllBrand())
+                .data(page1.getContent())
+                .meta(Meta.builder()
+                        .totalElement(page1.getTotalElements())
+                        .currentPage(page1.getNumber()+1)
+                        .totalPages(page1.getTotalPages())
+                        .build())
                 .build();
     }
+
     @GetMapping("{id}")
     public ApiResponse<BrandResponse> getBrand(@PathVariable int id) {
         return ApiResponse.<BrandResponse>builder()
                 .message("get brand by id")
-                .data( brandService.getBrand(id))
+                .data(brandService.getBrand(id))
                 .build();
     }
 
