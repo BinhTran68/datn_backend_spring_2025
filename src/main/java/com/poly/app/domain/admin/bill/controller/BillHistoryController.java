@@ -19,7 +19,7 @@ public class BillHistoryController {
 
     @GetMapping
     public ApiResponse<?> getBillHistoryByBillCode(@RequestParam String billCode) {
-        return ApiResponse.builder().data(billHistoryService.findBillHistoryResponseListByBillCode(billCode)).build();
+        return ApiResponse.builder().data(billHistoryService.findBillHistoryResponseBuilderListByBillCode(billCode)).build();
     }
 
 }

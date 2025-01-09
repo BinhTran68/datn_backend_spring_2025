@@ -21,9 +21,11 @@ public class Image extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    ProductDetail productDetailId;
+    ProductDetail productDetail;
 
-    String imageDefault;
+    Boolean isDefault;
+
+    String url;
 
     Status status;
 

@@ -1,6 +1,7 @@
 package com.poly.app.domain.repository;
 
 import com.poly.app.domain.admin.bill.response.BillHistoryResponse;
+import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,9 +20,11 @@ public interface BillHistoryRepository extends JpaRepository<BillHistory,Integer
             "bh.status as status," +
             "bh.description as description, " +
             "bh.createdAt as createdAt" +
-            " from BillHistory bh join Bill  b on bh.bill.id = b.id where b.code = :billCode ")
+            " from BillHistory bh  LEFT JOIN Bill b on bh.bill.id = b.id where b.code = :billCode ")
     List<BillHistoryResponse> findBillHistoryByBillCode(String billCode);
 
+
+    List<BillHistory> findByBill(Bill bill);
 
 
 }

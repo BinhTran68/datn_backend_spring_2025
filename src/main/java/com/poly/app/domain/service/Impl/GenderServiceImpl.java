@@ -34,6 +34,7 @@ public class GenderServiceImpl implements GenderService {
 
     @Override
     public GenderResponse updateGender(GenderRequest request, int id) {
+
         Gender gender = genderRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
 
         gender.setGenderName(request.getGenderName());

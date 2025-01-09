@@ -41,7 +41,4 @@ public class BillHistory extends PrimaryEntity implements Serializable {
 
     String description;
 
-
-
-
 }

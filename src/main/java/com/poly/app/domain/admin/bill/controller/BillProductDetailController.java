@@ -16,12 +16,13 @@ public class BillProductDetailController {
     @Autowired
     private BillService billService;
 
+    @Autowired
     private BillProductDetailService billProductDetailService;
 
 
     @GetMapping("/{billCode}")
     public ApiResponse<?> getProductDetailsByBillCode(@PathVariable String billCode) {
-        return ApiResponse.builder().build();
+        return ApiResponse.builder().data(billProductDetailService.getBillProductDetailResponse(billCode)).build();
     }
 
 

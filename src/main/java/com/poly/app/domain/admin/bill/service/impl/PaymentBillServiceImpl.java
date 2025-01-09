@@ -28,7 +28,9 @@ public class PaymentBillServiceImpl implements PaymentBillService {
 
         Bill bill  = billRepository.findByCode(billCode);
 
-        List<PaymentBillResponse> paymentBillList = paymentBillRepository.findPaymentBillByBillCode(bill.getBillCode());
+        List<PaymentBillResponse> paymentBillList = paymentBillRepository.findPaymentBillByBillCode(bill.getCode());
+
+
 
         return paymentBillList;
     }
