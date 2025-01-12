@@ -2,6 +2,7 @@ package com.poly.app.domain.admin.bill.service.impl;
 
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
+import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.model.Bill;
@@ -97,6 +98,17 @@ public class BillServiceImpl implements BillService {
 
     }
 
+    @Override
+    public BillResponse updateBillInfo(String billCode, UpdateBillRequest request) {
+        System.out.println(request.toString());
+        Bill bill = billRepository.findByCode(billCode);
+        bill.setNumberPhone(request.getCustomerPhone());
+        bill.setShippingAddress(request.getShippingAddress());
+        bill.setNotes(request.getNote());
+        billRepository.save(bill);
+        return convertBillToBillResponse(bill);
+    }
+
 
     private BillResponse convertBillToBillResponse(Bill bill) {
         return BillResponse.builder()
@@ -108,6 +120,7 @@ public class BillServiceImpl implements BillService {
                 .shipMoney(bill.getShipMoney())
                 .totalMoney(bill.getTotalMoney())
                 .billType(bill.getBillType())
+                .notes(bill.getNotes())
                 .completeDate(bill.getCompleteDate())
                 .confirmDate(bill.getConfirmDate())
                 .desiredDateOfReceipt(bill.getDesiredDateOfReceipt())

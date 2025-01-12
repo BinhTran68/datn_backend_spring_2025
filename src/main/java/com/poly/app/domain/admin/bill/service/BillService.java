@@ -2,6 +2,7 @@ package com.poly.app.domain.admin.bill.service;
 
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
+import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.infrastructure.constant.BillStatus;
 import org.springframework.data.domain.Page;
 
@@ -16,6 +17,7 @@ public interface BillService {
 
     Map<String,?> updateStatusBill(String billCode, UpdateStatusBillRequest request);
 
+     BillResponse updateBillInfo(String billCode, UpdateBillRequest request);
 
 
 

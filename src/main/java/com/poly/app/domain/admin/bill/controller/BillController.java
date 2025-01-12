@@ -2,6 +2,7 @@ package com.poly.app.domain.admin.bill.controller;
 
 
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
+import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Bill;
@@ -42,6 +43,12 @@ public class BillController {
     @PutMapping ("/{code}/update")
     public ApiResponse<?> updateBillStatus(@PathVariable String code, @RequestBody UpdateStatusBillRequest request) {
         return ApiResponse.builder().data(billService.updateStatusBill(code, request)).build();
+    }
+
+
+    @PutMapping ("/{code}/update-info-bill")
+    public ApiResponse<?> updateInfoBillStatus(@PathVariable String code, @RequestBody UpdateBillRequest request) {
+        return ApiResponse.builder().data(billService.updateBillInfo(code, request)).build();
     }
 
 

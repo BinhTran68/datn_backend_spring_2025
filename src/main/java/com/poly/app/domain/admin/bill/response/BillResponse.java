@@ -33,6 +33,7 @@ public class BillResponse {
     private String shippingAddress;
     private String email;
     private String status;
+    private String notes;
     private Long createAt;
 
 
