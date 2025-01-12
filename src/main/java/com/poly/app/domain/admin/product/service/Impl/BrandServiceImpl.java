@@ -5,6 +5,8 @@ import com.poly.app.domain.repository.BrandRepository;
 import com.poly.app.domain.admin.product.request.brand.BrandRequest;
 import com.poly.app.domain.admin.product.response.brand.BrandResponse;
 import com.poly.app.domain.admin.product.service.BrandService;
+import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,6 +30,9 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public Brand createBrand(BrandRequest request) {
+        if (brandRepository.existsByBrandName(request.getBrandName())) {
+            throw new ApiException(ErrorCode.BRAND_EXISTS );
+        }
         Brand brand = Brand.builder()
                 .brandName(request.getBrandName())
                 .status(request.getStatus())
@@ -37,8 +42,11 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public BrandResponse updateBrand(BrandRequest request, int id) {
-        Brand brand = brandRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
+        Brand brand = brandRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
+        if (brandRepository.existsByBrandNameAndIdNot(request.getBrandName(),id)) {
+            throw new ApiException(ErrorCode.BRAND_EXISTS );
+        }
         brand.setBrandName(request.getBrandName());
         brand.setStatus(request.getStatus());
 
@@ -58,7 +66,7 @@ public class BrandServiceImpl implements BrandService {
         Pageable pageable = PageRequest.of(page, size);
 
         // Thay vì stream và toList, sử dụng phương thức map của Page
-        Page<Brand> brandPage = brandRepository.findAll(pageable);
+        Page<Brand> brandPage = brandRepository.getAll(pageable);
 
         // Chuyển đổi từ Page<Brand> sang Page<BrandResponse>
         return brandPage.map(brand -> new BrandResponse(
@@ -70,13 +78,24 @@ public class BrandServiceImpl implements BrandService {
         ));
     }
 
+    @Override
+    public Page<BrandResponse> fillbyBrandName(int page, int size, String name) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Thay vì stream và toList, sử dụng phương thức map của Page
+        Page<BrandResponse> brandPage = brandRepository.fillbyname(String.format("%%%s%%", name), pageable);
+        log.info(name);
+        // Chuyển đổi từ Page<Brand> sang Page<BrandResponse>
+        return brandPage;
+    }
+
 
     @Override
     public String delete(int id) {
-        if ( !brandRepository.findById(id).isEmpty()){
+        if (!brandRepository.findById(id).isEmpty()) {
             brandRepository.deleteById(id);
             return "xóa thành công";
-        }else{
+        } else {
             return "id ko tồn tại";
         }
 
@@ -85,7 +104,7 @@ public class BrandServiceImpl implements BrandService {
 
     @Override
     public BrandResponse getBrand(int id) {
-        Brand brand = brandRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
+        Brand brand = brandRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         return BrandResponse.builder()
                 .code(brand.getCode())
@@ -94,5 +113,17 @@ public class BrandServiceImpl implements BrandService {
                 .updateAt(brand.getUpdatedAt())
                 .status(brand.getStatus())
                 .build();
+    }
+
+    @Override
+    public boolean existsByBrandName(String brandName) {
+        if (brandRepository.existsByBrandName(brandName)) return true;
+        return false;
+    }
+
+    @Override
+    public boolean existsByBrandNameAndIdNot(String brandName, Integer id) {
+        if (brandRepository.existsByBrandNameAndIdNot(brandName, id)) return true;
+        return false;
     }
 }

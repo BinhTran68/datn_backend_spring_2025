@@ -33,7 +33,7 @@ public class BrandController {
                 .build();
     }
 
-    @PostMapping("/update/{id}")
+    @PutMapping("/update/{id}")
     public ApiResponse<BrandResponse> update(@RequestBody BrandRequest request, @PathVariable int id) {
         return ApiResponse.<BrandResponse>builder()
                 .message("update brand")
@@ -64,9 +64,24 @@ public class BrandController {
                 .message("get brand by id")
                 .data(brandService.getBrand(id))
                 .build();
+    }@GetMapping("/search")
+    public ApiResponse<List<BrandResponse>> getBrand(@RequestParam("name") String name,
+                                               @RequestParam(value = "page", defaultValue = "1") int page,
+                                               @RequestParam(value = "size", defaultValue = "5") int size) {
+
+        Page<BrandResponse> page1 = brandService.fillbyBrandName(page-1, size, name);
+        return ApiResponse.<List<BrandResponse>>builder()
+                .message("get brand by id")
+                .data(page1.getContent())
+                .meta(Meta.builder()
+                        .totalElement(page1.getTotalElements())
+                        .currentPage(page1.getNumber()+1)
+                        .totalPages(page1.getTotalPages())
+                        .build())
+                .build();
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("{id}")
     public ApiResponse<String> delete(@PathVariable int id) {
         return ApiResponse.<String>builder()
                 .message("delete by id")
@@ -74,5 +89,17 @@ public class BrandController {
                 .build();
     }
 
-
+@GetMapping("/existsbybrandname")
+    public ApiResponse<Boolean> existsByBrandName(@RequestParam String brandName){
+        return ApiResponse.<Boolean>builder()
+                .message("existsByBrandName")
+                .data(brandService.existsByBrandName(brandName))
+                .build();
+}@GetMapping("/existsbybrandnameandidnot")
+    public ApiResponse<Boolean> existsByBrandNameAndIdNot(@RequestParam String brandName,@RequestParam Integer id){
+        return ApiResponse.<Boolean>builder()
+                .message("existsByBrandName")
+                .data(brandService.existsByBrandNameAndIdNot(brandName, id))
+                .build();
+}
 }

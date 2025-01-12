@@ -16,7 +16,13 @@ public interface BrandService {
 
     Page<BrandResponse> getAllBrand(int page, int size);
 
+    Page<BrandResponse> fillbyBrandName(int page, int size, String name);
+
     String delete(int id);
 
     BrandResponse getBrand(int id);
+
+    boolean existsByBrandName(String brandName);
+
+    boolean existsByBrandNameAndIdNot (String brandName, Integer id);
 }
