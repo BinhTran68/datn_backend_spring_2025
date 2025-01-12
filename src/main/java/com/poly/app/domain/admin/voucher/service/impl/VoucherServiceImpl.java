@@ -27,6 +27,9 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public List<VoucherReponse> getAllVoucher() {
+
+//        List<VoucherReponse> voucherReponses = voucherRepository.getAllVou();
+        
         return voucherRepository.findAll().stream()
                 .map(voucher -> new VoucherReponse(voucher.getId(), voucher.getVoucherCode(),
                         voucher.getQuantity(), voucher.getVoucherType(), voucher.getDiscountValue(),
@@ -54,7 +57,6 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     public VoucherReponse updateVoucher(VoucherRequest request, int id) {
         Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        voucher.setId(request.getId());
         voucher.setVoucherCode(request.getVoucherCode());
         voucher.setQuantity(request.getQuantity());
         voucher.setVoucherType(request.getVoucherType());
@@ -106,21 +108,21 @@ public class VoucherServiceImpl implements VoucherService {
                 .status(voucher.getStatus())
                 .build();
     }
-
+    public Page<VoucherReponse> getAllVoucher(Pageable pageable) {
+        return voucherRepository.findAll(pageable).map(voucher ->
+                VoucherReponse.builder()
+                        .id(voucher.getId())
+                        .voucherCode(voucher.getVoucherCode())
+                        .quantity(voucher.getQuantity())
+                        .voucherType(voucher.getVoucherType())
+                        .discountValue(voucher.getDiscountValue())
+                        .discountMaxValue(voucher.getDiscountMaxValue())
+                        .billMinValue(voucher.getBillMinValue())
+                        .startDate(voucher.getStartDate())
+                        .endDate(voucher.getEndDate())
+                        .status(voucher.getStatus())
+                        .build()
+        );
+    }
 }
-//    public Page<VoucherReponse> getAllVoucher(Pageable pageable) {
-//        return voucherRepository.findAll(pageable).map(voucher ->
-//                VoucherReponse.builder()
-//                        .id(voucher.getId())
-//                        .voucherCode(voucher.getVoucherCode())
-//                        .quantity(voucher.getQuantity())
-//                        .voucherType(voucher.getVoucherType())
-//                        .discountValue(voucher.getDiscountValue())
-//                        .discountMaxValue(voucher.getDiscountMaxValue())
-//                        .billMinValue(voucher.getBillMinValue())
-//                        .startDate(voucher.getStartDate())
-//                        .endDate(voucher.getEndDate())
-//                        .status(voucher.getStatus())
-//                        .build()
-//        );
-//    }
+

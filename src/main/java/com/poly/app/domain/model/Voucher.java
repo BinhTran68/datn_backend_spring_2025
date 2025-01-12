@@ -34,7 +34,7 @@ public class Voucher extends PrimaryEntity implements Serializable {
     Double discountValue;
     //giá trị giảm tối đa
     Double discountMaxValue;
-    //giá trị tối thiểu của háo đơnvoucher
+    //giá trị giảm tối thiểu
     Double billMinValue;
     LocalDateTime startDate;
     LocalDateTime endDate;

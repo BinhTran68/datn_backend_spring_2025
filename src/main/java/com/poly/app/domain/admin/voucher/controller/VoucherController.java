@@ -48,7 +48,7 @@ public class VoucherController {
                 .build();
     }
 
-    @PostMapping("/update/{id}")
+    @PutMapping("/update/{id}")
     public ApiResponse<VoucherReponse> update(@RequestBody VoucherRequest request, @PathVariable int id) {
         return ApiResponse.<VoucherReponse>builder()
                 .message("update voucher")
@@ -56,7 +56,7 @@ public class VoucherController {
                 .build();
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ApiResponse<String> delete(@PathVariable int id) {
         return ApiResponse.<String>builder()
                 .message("delete id voucher")
@@ -74,15 +74,16 @@ public class VoucherController {
 
 
 
-//    @GetMapping("/page")
-//    public ApiResponse<Page<VoucherReponse>> phanTrang(@RequestParam(value = "page") Integer page,
-//                                                       @RequestParam(value = "size") Integer size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        Page<VoucherReponse> list = voucherService.getAllVoucher(pageable);
-//        return ApiResponse.<Page<VoucherReponse>>builder()
-//                .message("")
-//                .data(list)
-//                .build();
-//    }
+    @GetMapping("/page")
+    public ApiResponse<Page<VoucherReponse>> phanTrang(@RequestParam(value = "page") Integer page,
+                                                       @RequestParam(value = "size") Integer size
+                                                       ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<VoucherReponse> list = voucherService.getAllVoucher(pageable);
+        return ApiResponse.<Page<VoucherReponse>>builder()
+                .message("")
+                .data(list)
+                .build();
+    }
 
 }

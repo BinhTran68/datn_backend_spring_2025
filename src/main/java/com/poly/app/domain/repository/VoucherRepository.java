@@ -17,7 +17,7 @@ public interface VoucherRepository extends JpaRepository<Voucher,Integer> {
                     SELECT new  com.poly.app.domain.admin.voucher.response.VoucherReponse
                      (vc.id, vc.voucherCode, vc.quantity, vc.voucherType, vc.discountValue,
                      vc.discountMaxValue, vc.billMinValue, vc.startDate, vc.endDate, vc.status)
-                    FROM Voucher vc
+                    FROM Voucher vc 
             """)
     List<VoucherReponse> getAllVou();
 //    @Query("""

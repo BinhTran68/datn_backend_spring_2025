@@ -8,13 +8,13 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface VoucherService {
+public interface  VoucherService {
     List<VoucherReponse> getAllVoucher();
     Voucher createVoucher(VoucherRequest request);
     VoucherReponse updateVoucher(VoucherRequest request, int id);
     String deleteVoucher(int id);
     VoucherReponse getVoucherDetail(int id);
-//    Page<VoucherReponse> getAllVoucher (Pageable pageable);
+    Page<VoucherReponse> getAllVoucher (Pageable pageable);
 
 
 }
