@@ -1,4 +1,4 @@
-package com.poly.app.domain.request.product;
+package com.poly.app.domain.admin.product.request.product;
 
 import com.poly.app.infrastructure.constant.Status;
 import lombok.*;

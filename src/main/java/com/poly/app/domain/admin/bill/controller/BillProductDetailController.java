@@ -2,7 +2,7 @@ package com.poly.app.domain.admin.bill.controller;
 
 import com.poly.app.domain.admin.bill.service.BillProductDetailService;
 import com.poly.app.domain.admin.bill.service.BillService;
-import com.poly.app.domain.response.ApiResponse;
+import com.poly.app.domain.common.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

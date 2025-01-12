@@ -6,7 +6,7 @@ import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.PaymentBill;
 import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.PaymentBillRepository;
-import com.poly.app.domain.response.ApiResponse;
+import com.poly.app.domain.common.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

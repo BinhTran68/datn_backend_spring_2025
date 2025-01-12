@@ -2,8 +2,8 @@ package com.poly.app.domain.admin.bill.controller;
 
 
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
+import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.model.BillHistory;
-import com.poly.app.domain.response.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

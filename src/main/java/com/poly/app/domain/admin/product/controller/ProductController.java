@@ -1,7 +1,7 @@
 package com.poly.app.domain.admin.product.controller;
 
-import com.poly.app.domain.model.Product;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
+import com.poly.app.domain.model.Product;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponse;
 import com.poly.app.domain.admin.product.service.ProductService;

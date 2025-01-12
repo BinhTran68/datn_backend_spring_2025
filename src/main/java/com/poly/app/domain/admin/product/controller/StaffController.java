@@ -2,7 +2,7 @@ package com.poly.app.domain.controller;
 
 import com.poly.app.domain.model.Staff;
 import com.poly.app.domain.request.staff.StaffRequest;
-import com.poly.app.domain.response.ApiResponse;
+import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.response.staff.StaffResponse;
 import com.poly.app.domain.service.StaffService;
 import lombok.AccessLevel;
