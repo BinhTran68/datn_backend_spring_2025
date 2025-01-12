@@ -23,5 +23,4 @@ public class BillProductDetailResponse extends AuditEntity {
     String color;
     Double totalPrice;
 
-
 }
