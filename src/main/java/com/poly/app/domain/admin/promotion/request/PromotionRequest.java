@@ -21,6 +21,7 @@ public class PromotionRequest {
     String promotionType;
     // giá trị giảm
     Double discountValue;
+//    Integer quantity;
     // ngày bắt đầu
     LocalDateTime startDate;
     // ngày kết thúc

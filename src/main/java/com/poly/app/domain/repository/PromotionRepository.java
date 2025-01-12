@@ -15,5 +15,6 @@ public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
                 (p.id,p.promotionCode,p.promotionName,p.promotionType,p.discountValue,p.startDate,p.endDate,p.status)
                 FROM Promotion  p
             """)
+//    ,p.quantity
     List<PromotionResponse> getAllPro();
 }

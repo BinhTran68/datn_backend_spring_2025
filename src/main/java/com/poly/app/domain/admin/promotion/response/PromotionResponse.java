@@ -18,6 +18,7 @@ public class PromotionResponse {
     String promotionName;
     String promotionType;
     Double discountValue;
+//    Integer quantity;
     LocalDateTime startDate;
     LocalDateTime endDate;
     Status status;

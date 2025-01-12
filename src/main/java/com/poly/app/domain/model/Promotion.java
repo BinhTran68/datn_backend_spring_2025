@@ -30,7 +30,8 @@ public class Promotion extends PrimaryEntity implements Serializable {
     String promotionType;
 // giá trị giảm
     Double discountValue;
-// ngày bắt đầu
+//    Integer quantity;
+    // ngày bắt đầu
     LocalDateTime startDate;
 // ngày kết thúc
     LocalDateTime endDate;

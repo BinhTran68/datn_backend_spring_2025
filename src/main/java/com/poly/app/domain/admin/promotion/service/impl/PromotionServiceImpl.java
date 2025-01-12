@@ -38,6 +38,7 @@ public class PromotionServiceImpl implements PromotionService {
                 .promotionName(request.getPromotionName())
                 .promotionType(request.getPromotionType())
                 .discountValue(request.getDiscountValue())
+//                .quantity(request.getQuantity())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .status(request.getStatus())
@@ -53,6 +54,7 @@ public class PromotionServiceImpl implements PromotionService {
         promotion.setPromotionName(request.getPromotionName());
         promotion.setPromotionType(request.getPromotionType());
         promotion.setDiscountValue(request.getDiscountValue());
+//        promotion.setQuantity(request.getQuantity());
         promotion.setStartDate(request.getStartDate());
         promotion.setEndDate(request.getEndDate());
         promotion.setStatus(request.getStatus());
@@ -64,6 +66,7 @@ public class PromotionServiceImpl implements PromotionService {
                 .promotionName(promotion.getPromotionName())
                 .promotionType(promotion.getPromotionType())
                 .discountValue(promotion.getDiscountValue())
+//                .quantity(promotion.getQuantity())
                 .startDate(promotion.getStartDate())
                 .endDate(promotion.getEndDate())
                 .status(promotion.getStatus())
@@ -103,6 +106,7 @@ public class PromotionServiceImpl implements PromotionService {
                         .promotionName(promotion.getPromotionName())
                         .promotionType(promotion.getPromotionType())
                         .discountValue(promotion.getDiscountValue())
+//                        .quantity(promotion.getQuantity())
                         .startDate(promotion.getStartDate())
                         .endDate(promotion.getEndDate())
                         .status(promotion.getStatus())

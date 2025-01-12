@@ -57,6 +57,7 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     public VoucherReponse updateVoucher(VoucherRequest request, int id) {
         Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+        voucher.setId(request.getId());
         voucher.setVoucherCode(request.getVoucherCode());
         voucher.setQuantity(request.getQuantity());
         voucher.setVoucherType(request.getVoucherType());
