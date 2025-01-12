@@ -11,7 +11,6 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductRequest {
-
     String ProductName;
     Status status;
 }

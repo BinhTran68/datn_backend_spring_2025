@@ -34,7 +34,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse updateProduct(ProductRequest request, int id) {
-        Product product = productRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
+        Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         product.setProductName(request.getProductName());
         product.setStatus(request.getStatus());
@@ -53,15 +53,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> getAllProduct() {
         return productRepository.findAll().stream()
-                .map(product -> new ProductResponse(product.getId(), product.getCode(), product.getProductName(), product.getUpdatedAt(), product.getStatus())).toList();
+                .map(product -> new ProductResponse(product.getId(), product.getCode(),
+                        product.getProductName(), product.getUpdatedAt(),
+                        product.getStatus())).toList();
     }
 
     @Override
     public String deleteProduct(int id) {
-        if ( !productRepository.findById(id).isEmpty()){
+        if (!productRepository.findById(id).isEmpty()) {
             productRepository.deleteById(id);
             return "xóa thành công";
-        }else{
+        } else {
             return "id ko tồn tại";
         }
 
@@ -70,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse getProduct(int id) {
-        Product product = productRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
+        Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         return ProductResponse.builder()
                 .code(product.getCode())
