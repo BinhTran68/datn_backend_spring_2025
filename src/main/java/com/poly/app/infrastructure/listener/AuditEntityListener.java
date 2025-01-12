@@ -26,7 +26,6 @@ public class AuditEntityListener {
     }
 
 
-
     @PreUpdate
     private void onUpdate(AuditEntity entity) {
         entity.setUpdatedAt(getLongDate());
@@ -36,8 +35,6 @@ public class AuditEntityListener {
             entity.setUpdatedBy(updatedBy);
         }
     }
-
-
 
 
     private Long getLongDate() {

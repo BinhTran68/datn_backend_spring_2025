@@ -340,7 +340,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .quantity(100)
                 .price(99.99)
                 .weight(0.5)
-                .description("Nike Air Max 2023, High comfort and design.")
+                .descrition("Nike Air Max 2023, High comfort and design.")
                 .status(Status.HOAT_DONG)
                 .build();
 
@@ -357,7 +357,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .quantity(200)
                 .price(89.99)
                 .weight(0.6)
-                .description("Adidas UltraBoost 2023, Advanced cushioning.")
+                .descrition("Adidas UltraBoost 2023, Advanced cushioning.")
                 .status(Status.HOAT_DONG)
                 .build();
 
