@@ -1,41 +1,31 @@
-package com.poly.app.domain.model;
+package com.poly.app.domain.admin.promotion.request;
 
-import com.poly.app.domain.model.base.PrimaryEntity;
 import com.poly.app.infrastructure.constant.Status;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity
-@Table(name = "promotion")
-// đợt giảm giá
-public class Promotion extends PrimaryEntity implements Serializable {
+public class PromotionRequest {
     Integer id;
-// mã giảm
+    // mã giảm
     String promotionCode;
-// tên loại giảm
+    // tên loại giảm
     String promotionName;
-// loại giảm
+    // loại giảm
     String promotionType;
-// giá trị giảm
+    // giá trị giảm
     Double discountValue;
 //    Integer quantity;
     // ngày bắt đầu
     LocalDateTime startDate;
-// ngày kết thúc
+    // ngày kết thúc
     LocalDateTime endDate;
-// trạng thái
+    // trạng thái
     Status status;
-
 }

@@ -19,7 +19,7 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "promotion_detail")
-//đoẹt giảm giá chi tiết
+//đợt giảm giá chi tiết
 public class PromotionDetail extends PrimaryEntity implements Serializable {
 
     @ManyToOne
