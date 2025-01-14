@@ -35,5 +35,9 @@ public class BillProductResponse {
     private List<Size> sizes;
     private List<Sole> soles;
     private List<Type> types;
+
+
+
+
     Brand brand;
 }
