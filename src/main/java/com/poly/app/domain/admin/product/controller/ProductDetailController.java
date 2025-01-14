@@ -58,7 +58,7 @@ public class ProductDetailController {
     public ApiResponse<List<ProductDetailResponse>> getAllProductPage(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                       @RequestParam(value = "size", defaultValue = "1") int size) {
 
-        Page<ProductDetailResponse> page1 = productDetailService.getAllProductDetailPage(page, size);
+        Page<ProductDetailResponse> page1 = productDetailService.getAllProductDetailPage(page-1, size);
         return ApiResponse.<List<ProductDetailResponse>>builder()
                 .message("list product detail page")
                 .data(page1.getContent())
