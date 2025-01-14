@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.*;
 import com.poly.app.domain.admin.product.request.productdetail.FilterRequest;
@@ -258,5 +259,20 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         );
         log.info("tổng element"+Integer.toString(totalElement));
         return totalElement;
+    }
+
+    @Override
+    public Page<ColorResponse> fillbyName(int page, int size, String name) {
+        return null;
+    }
+
+    @Override
+    public boolean existsByColorName(String brandName) {
+        return false;
+    }
+
+    @Override
+    public boolean existsByColorNameAndIdNot(String brandName, Integer id) {
+        return false;
     }
 }

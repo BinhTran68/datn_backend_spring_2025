@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.service;
 
+import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.admin.product.request.productdetail.FilterRequest;
 import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequest;
@@ -23,4 +24,10 @@ public interface ProductDetailService {
      List<FilterProductDetailResponse> filterProductDetail(int page, int size, FilterRequest request);
 
      Integer getFillterElement (FilterRequest request);
+
+     Page<ColorResponse> fillbyName(int page, int size, String name);
+
+     boolean existsByColorName(String brandName);
+
+     boolean existsByColorNameAndIdNot (String brandName, Integer id);
 }

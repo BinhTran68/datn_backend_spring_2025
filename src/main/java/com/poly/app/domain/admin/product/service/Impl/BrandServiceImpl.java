@@ -82,7 +82,7 @@ public class BrandServiceImpl implements BrandService {
     public Page<BrandResponse> fillbyBrandName(int page, int size, String name) {
         Pageable pageable = PageRequest.of(page, size);
 
-        // Thay vì stream và toList, sử dụng phương thức map của Page
+
         Page<BrandResponse> brandPage = brandRepository.fillbyname(String.format("%%%s%%", name), pageable);
         log.info(name);
         // Chuyển đổi từ Page<Brand> sang Page<BrandResponse>

@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.poly.app.domain.admin.product.response.material.MaterialResponse;
 import com.poly.app.domain.model.Material;
 import com.poly.app.domain.repository.MaterialRepository;
 import com.poly.app.domain.admin.product.request.material.MaterialRequest;
@@ -9,6 +10,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,10 +55,10 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
-    public List<MaterialResponse> getAllMaterial() {
-        return materialRepository.findAll().stream()
-                .map(material -> new MaterialResponse(material.getId(), material.getCode(), material.getMaterialName(), material.getUpdatedAt(), material.getStatus())).toList();
-    }
+    public Page<MaterialResponse> getAllMaterial(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<MaterialResponse> response= materialRepository.getAll(pageable);
+        return response ;    }
 
     @Override
     public String deleteMaterial(int id) {
@@ -79,5 +83,26 @@ public class MaterialServiceImpl implements MaterialService {
                 .updateAt(material.getUpdatedAt())
                 .status(material.getStatus())
                 .build();
+    }
+
+    @Override
+    public Page<MaterialResponse> fillbyName(int page, int size, String name) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<MaterialResponse> material = materialRepository.fillbyname(String.format("%%%s%%", name), pageable);
+        log.info(name);
+
+        return material;
+    }
+
+
+    @Override
+    public boolean existsByMaterialName(String brandName) {
+        return false;
+    }
+
+    @Override
+    public boolean existsByMaterialNameAndIdNot(String brandName, Integer id) {
+        return false;
     }
 }
