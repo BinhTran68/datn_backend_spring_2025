@@ -5,9 +5,11 @@ import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
+import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillHistory;
 import com.poly.app.domain.model.Staff;
+import com.poly.app.domain.repository.AddressRepository;
 import com.poly.app.domain.repository.BillHistoryRepository;
 import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.CustomerRepository;
@@ -54,6 +56,9 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     StaffRepository staffRepository;
+
+    @Autowired
+    AddressRepository addressRepository;
 
 
     @Autowired
@@ -150,8 +155,22 @@ public class BillServiceImpl implements BillService {
         System.out.println(request.toString());
         Bill bill = billRepository.findByCode(billCode);
         bill.setNumberPhone(request.getCustomerPhone());
-
         bill.setNotes(request.getNote());
+
+        Address newAddress = bill.getShippingAddress();
+        if(newAddress == null) {
+            newAddress = new Address();
+        }
+        newAddress.setDistrictId(request.getDistrictId());
+        newAddress.setProvinceId(request.getProvinceId());
+        newAddress.setSpecificAddress(request.getSpecificAddress());
+        newAddress.setWardId(request.getWardId());
+        bill.setShippingAddress(newAddress);
+
+        if (newAddress.getId() == null) {
+            addressRepository.save(newAddress);  // Lưu mới nếu chưa có ID
+        }
+
         billRepository.save(bill);
         return convertBillToBillResponse(bill);
     }
@@ -171,7 +190,7 @@ public class BillServiceImpl implements BillService {
                 .confirmDate(bill.getConfirmDate())
                 .desiredDateOfReceipt(bill.getDesiredDateOfReceipt())
                 .shipDate(bill.getShipDate())
-
+                .address(bill.getShippingAddress())
                 .email(bill.getEmail())
                 .status(bill.getStatus().toString())
                 .createAt(bill.getCreatedAt())

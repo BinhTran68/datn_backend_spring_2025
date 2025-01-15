@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.bill.response;
 
+import com.poly.app.domain.model.Address;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +31,7 @@ public class BillResponse {
     private LocalDateTime confirmDate;
     private LocalDateTime desiredDateOfReceipt;
     private LocalDateTime shipDate;
-    private String shippingAddress;
+    private Address address;
     private String email;
     private String status;
     private String notes;

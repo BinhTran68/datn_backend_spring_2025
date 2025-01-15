@@ -16,5 +16,12 @@ public class UpdateStatusBillRequest  {
 
     BillStatus status;
     String note;
+    String provinceId; // tỉnh
+    String districtId; // quận
+    String wardId; // xã
+    String specificAddress;
+
+
+
 
 }

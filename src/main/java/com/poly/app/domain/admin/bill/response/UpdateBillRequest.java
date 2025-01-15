@@ -24,4 +24,12 @@ public class UpdateBillRequest {
     private String shippingAddress;
     private String note;
 
+    String provinceId; // tỉnh
+    String districtId; // quận
+    String wardId; // xã
+    String specificAddress;
+
+
+
+
 }
