@@ -35,6 +35,7 @@ public class Customer extends PrimaryEntity implements Serializable, UserDetails
     @Column( columnDefinition = EntityProperties.DEFINITION_NAME)
     private String fullName;
 
+
     private LocalDateTime dateBirth;
 
     @Column(unique = true)

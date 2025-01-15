@@ -43,6 +43,9 @@ public class KhachHangController {
 
         // Nếu dữ liệu hợp lệ, tiến hành thêm mới
         return khachHangRepository.save(khachHang);
+//    public String add(@RequestBody Customer customer){
+//        khachHangRepository.save(customer);
+//        return "add thanh cong";
     }
 
     @PutMapping("update/{id}")
