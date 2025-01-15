@@ -136,11 +136,6 @@
 //
 //        //
 //
-//        Address address1 = Address.builder().addressDetail("Hà Nội").build();
-//        addressRepository.save(address1);
-//
-//        Address address2 = Address.builder().addressDetail("Hà Tây").build();
-//        addressRepository.save(address2);
 //
 //        //
 //
@@ -432,7 +427,7 @@
 //                    .confirmDate(LocalDateTime.now()) // Ngày xác nhận
 //                    .desiredDateOfReceipt(LocalDateTime.now()) // Ngày nhận hàng mong muốn
 //                    .shipDate(LocalDateTime.now()) // Ngày giao hàng
-//                    .shippingAddress("123 Đường ABC, Quận 1, TP.HCM")
+//
 //                    .numberPhone("0912345678")
 //                    .email("nguyenvana@example.com")
 //                    .status(BillStatus.DA_THANH_TOAN) // Trạng thái hóa đơn
@@ -454,7 +449,7 @@
 //                    .confirmDate(LocalDateTime.now()) // Ngày xác nhận
 //                    .desiredDateOfReceipt(LocalDateTime.now()) // Ngày nhận hàng mong muốn
 //                    .shipDate(LocalDateTime.now()) // Ngày giao hàng
-//                    .shippingAddress("456 Đường XYZ, Quận 2, TP.HCM")
+//
 //                    .numberPhone("0987654321")
 //                    .email("tranthib@example.com")
 //                    .status(BillStatus.CHO_XAC_NHAN) // Trạng thái hóa đơn
@@ -568,7 +563,7 @@
 //
 //        Voucher voucher1 = Voucher.builder()
 //                .voucherCode("VOUCHER10")
-//                .quatity("100") // Số lượng phiếu giảm giá
+//
 //                .discountValue(10.0) // Giảm 10%
 //                .voucherType("PERCENT") // Loại giảm theo phần trăm
 //                .discountMaxValue(50.0) // Giảm tối đa 50.000đ
@@ -580,7 +575,7 @@
 //
 //        Voucher voucher2 = Voucher.builder()
 //                .voucherCode("VOUCHER200")
-//                .quatity("50")
+//
 //                .discountValue(200.0) // Giảm 200.000đ
 //                .voucherType("MONEY") // Loại giảm theo số tiền
 //                .discountMaxValue(200.0)
