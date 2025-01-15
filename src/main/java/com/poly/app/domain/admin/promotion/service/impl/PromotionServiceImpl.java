@@ -26,7 +26,7 @@ public class PromotionServiceImpl implements PromotionService {
     public List<PromotionResponse> getAllPromotion() {
         return promotionRepository.findAll().stream()
                 .map(promotion -> new PromotionResponse(promotion.getId(), promotion.getPromotionCode(),
-                        promotion.getPromotionName(), promotion.getPromotionType(), promotion.getDiscountValue(),
+                        promotion.getPromotionName(), promotion.getPromotionType(), promotion.getDiscountValue(),promotion.getQuantity(),
                         promotion.getStartDate(), promotion.getEndDate(), promotion.getStatus())).toList();
     }
 
@@ -38,7 +38,7 @@ public class PromotionServiceImpl implements PromotionService {
                 .promotionName(request.getPromotionName())
                 .promotionType(request.getPromotionType())
                 .discountValue(request.getDiscountValue())
-//                .quantity(request.getQuantity())
+                .quantity(request.getQuantity())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .status(request.getStatus())
@@ -49,12 +49,11 @@ public class PromotionServiceImpl implements PromotionService {
     @Override
     public PromotionResponse updatePromotion(PromotionRequest request, int id) {
         Promotion promotion = promotionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        promotion.setId(request.getId());
         promotion.setPromotionCode(request.getPromotionCode());
         promotion.setPromotionName(request.getPromotionName());
         promotion.setPromotionType(request.getPromotionType());
         promotion.setDiscountValue(request.getDiscountValue());
-//        promotion.setQuantity(request.getQuantity());
+        promotion.setQuantity(request.getQuantity());
         promotion.setStartDate(request.getStartDate());
         promotion.setEndDate(request.getEndDate());
         promotion.setStatus(request.getStatus());
@@ -66,7 +65,7 @@ public class PromotionServiceImpl implements PromotionService {
                 .promotionName(promotion.getPromotionName())
                 .promotionType(promotion.getPromotionType())
                 .discountValue(promotion.getDiscountValue())
-//                .quantity(promotion.getQuantity())
+                .quantity(promotion.getQuantity())
                 .startDate(promotion.getStartDate())
                 .endDate(promotion.getEndDate())
                 .status(promotion.getStatus())
@@ -106,7 +105,7 @@ public class PromotionServiceImpl implements PromotionService {
                         .promotionName(promotion.getPromotionName())
                         .promotionType(promotion.getPromotionType())
                         .discountValue(promotion.getDiscountValue())
-//                        .quantity(promotion.getQuantity())
+                        .quantity(promotion.getQuantity())
                         .startDate(promotion.getStartDate())
                         .endDate(promotion.getEndDate())
                         .status(promotion.getStatus())

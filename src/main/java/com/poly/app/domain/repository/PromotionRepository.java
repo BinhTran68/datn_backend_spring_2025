@@ -12,7 +12,7 @@ import java.util.List;
 public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
     @Query("""
                 SELECT new com.poly.app.domain.admin.promotion.response.PromotionResponse
-                (p.id,p.promotionCode,p.promotionName,p.promotionType,p.discountValue,p.startDate,p.endDate,p.status)
+                (p.id,p.promotionCode,p.promotionName,p.promotionType,p.discountValue,p.quantity,p.startDate,p.endDate,p.status)
                 FROM Promotion  p
             """)
 //    ,p.quantity
