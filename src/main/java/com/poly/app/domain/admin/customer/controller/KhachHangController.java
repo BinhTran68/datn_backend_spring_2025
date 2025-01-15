@@ -1,4 +1,4 @@
-package com.poly.app.domain.auth.controller;
+package com.poly.app.domain.admin.customer.controller;
 import com.poly.app.domain.auth.Repo.KhachHangRepository;
 import com.poly.app.domain.model.Customer;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +40,7 @@ public class KhachHangController {
         if (khachHang.getStatus() == null || khachHang.getStatus().toString().isEmpty()) {
             return "Trạng thái không được để trống.";
         }
+
 
         // Nếu dữ liệu hợp lệ, tiến hành thêm mới
         return khachHangRepository.save(khachHang);

@@ -1,4 +1,4 @@
-package com.poly.app.domain.auth.controller;
+package com.poly.app.domain.admin.staff.controller;
 
 import com.poly.app.domain.auth.Repo.StaffRepo;
 import com.poly.app.domain.model.Staff;
