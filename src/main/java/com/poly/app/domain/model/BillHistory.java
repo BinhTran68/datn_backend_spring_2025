@@ -2,7 +2,10 @@ package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
 import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.constant.BillStatus;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -33,10 +36,9 @@ public class BillHistory extends PrimaryEntity implements Serializable {
     @JoinColumn
     Bill bill;
 
-    String action;
+    @Enumerated(EnumType.STRING)
+    BillStatus status;
 
     String description;
-
-    Status status;
 
 }

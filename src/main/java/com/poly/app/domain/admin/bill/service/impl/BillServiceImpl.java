@@ -1,21 +1,44 @@
 package com.poly.app.domain.admin.bill.service.impl;
 
+import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
+import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
+import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
-import com.poly.app.domain.common.PageReponse;
-import com.poly.app.domain.common.PageableRequest;
+import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
+import com.poly.app.domain.model.BillHistory;
+import com.poly.app.domain.model.Staff;
+import com.poly.app.domain.repository.AddressRepository;
+import com.poly.app.domain.repository.BillHistoryRepository;
 import com.poly.app.domain.repository.BillRepository;
-import com.poly.app.domain.response.ApiResponse;
-import com.poly.app.infrastructure.constant.StatusBill;
+import com.poly.app.domain.repository.CustomerRepository;
+import com.poly.app.domain.repository.StaffRepository;
+import com.poly.app.infrastructure.constant.BillStatus;
+import com.poly.app.infrastructure.constant.TypeBill;
+import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
+import com.poly.app.infrastructure.util.DateUtil;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,37 +48,152 @@ public class BillServiceImpl implements BillService {
     BillRepository billRepository;
 
 
+    @Autowired
+    BillHistoryRepository billHistoryRepository;
+
+    @Autowired
+    CustomerRepository customerRepository;
+
+    @Autowired
+    StaffRepository staffRepository;
+
+    @Autowired
+    AddressRepository addressRepository;
+
+
+    @Autowired
+    BillHistoryService billHistoryService;
+
     @Override
-    public Page<BillResponse> getPageBill(Integer size, Integer page) {
+    public Page<BillResponse> getPageBill(Integer size, Integer page,
+                                          BillStatus statusBill,
+                                          TypeBill typeBill,
+                                          String search,
+                                          String startDate,
+                                          String endDate
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        // Sử dụng Specification hoặc Predicate để xây dựng các điều kiện động
+        Specification<Bill> spec = Specification.where(null);
 
-        Pageable pageable = PageRequest.of(0, size);
+        // Thêm điều kiện lọc theo `statusBill`
+        if (statusBill != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("status"), statusBill));
+        }
 
-        Page<Bill> billPage = billRepository.findByStatus(StatusBill.CHO_XAC_NHAN, pageable);
+        // Thêm điều kiện lọc theo `typeBill`
+        if (typeBill != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("typeBill"), typeBill));
+        }
 
-        List<Bill> bills = billPage.getContent();
-        List<BillResponse> billResponses = bills.stream().map(
-                bill -> BillResponse.builder()
-                        .billCode(bill.getBillCode())
-                        .customerName(bill.getCustomer().getFullName())
-                        .customerPhone(bill.getCustomer().getPhoneNumber())
-                        .customerMoney(bill.getCustomerMoney())
-                        .discountMoney(bill.getDiscountMoney())
-                        .shipMoney(bill.getShipMoney())
-                        .totalMoney(bill.getTotalMoney())
-                        .billType(bill.getBillType())
-                        .completeDate(bill.getCompleteDate())
-                        .confirmDate(bill.getConfirmDate())
-                        .desiredDateOfReceipt(bill.getDesiredDateOfReceipt())
-                        .shipDate(bill.getShipDate())
-                        .shippingAddress(bill.getShippingAddress())
-                        .email(bill.getEmail())
-                        .status(bill.getStatus().toString())
-                        .build()
-        ).collect(Collectors.toList());
+        if (search != null && !search.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> {
+                // Thực hiện join tới thực thể Customer
+                Join<Object, Object> customerJoin = root.join("customer", JoinType.LEFT);
 
-        Page<BillResponse> pageResponse = new PageImpl<>(billResponses, PageRequest.of(billPage.getNumber(), billPage.getSize()), billPage.getTotalElements());
+                // Thêm điều kiện tìm kiếm
+                return criteriaBuilder.or(
+                        criteriaBuilder.like(customerJoin.get("fullName"), "%" + search + "%"),
+                        criteriaBuilder.like(root.get("billCode"), "%" + search + "%")
+                );
+            });
+        }
+
+        if (startDate != null && !startDate.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), DateUtil.parseDateLong(startDate)));
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), DateUtil.parseDateLong(endDate)));
+        }
+        Page<Bill> billPage = billRepository.findAll(spec, pageable);
+        List<BillResponse> billResponses = billPage.getContent().stream()
+                .map(this::convertBillToBillResponse)
+                .collect(Collectors.toList());
+        return new PageImpl<>(billResponses, pageable, billPage.getTotalElements());
+    }
 
 
-        return  pageResponse;
+    @Override
+    public BillResponse getBillResponseByBillCode(String billCode) {
+        Bill bill = billRepository.findByCode(billCode);
+        return convertBillToBillResponse(bill);
+    }
+
+    @Override
+    public Map<String, ?> updateStatusBill(String billCode, UpdateStatusBillRequest request) {
+
+        System.out.println(request);
+
+        Bill bill = billRepository.findByCode(billCode);
+
+        Staff staff = staffRepository.findById(1).orElse(null);
+        if (bill == null) {
+            throw new ApiException(ErrorCode.HOA_DON_NOT_FOUND);
+        }
+        bill.setStatus(request.getStatus());
+        Bill billUpdate = billRepository.save(bill);
+
+        BillHistory billHistory = BillHistory.builder()
+                .status(billUpdate.getStatus()).
+                description(request.getNote()).
+                staff(staff)
+                .bill(billUpdate).build();
+        billHistoryRepository.save(billHistory);
+
+        return Map.of(
+                "bill", billUpdate,
+                "billHistory", billHistoryService.findBillHistoryResponseBuilderListByBillCode(billCode));
+
+    }
+
+    @Override
+    public BillResponse updateBillInfo(String billCode, UpdateBillRequest request) {
+        System.out.println(request.toString());
+        Bill bill = billRepository.findByCode(billCode);
+        bill.setNumberPhone(request.getCustomerPhone());
+        bill.setNotes(request.getNote());
+
+        Address newAddress = bill.getShippingAddress();
+        if(newAddress == null) {
+            newAddress = new Address();
+        }
+        newAddress.setDistrictId(request.getDistrictId());
+        newAddress.setProvinceId(request.getProvinceId());
+        newAddress.setSpecificAddress(request.getSpecificAddress());
+        newAddress.setWardId(request.getWardId());
+        bill.setShippingAddress(newAddress);
+
+        if (newAddress.getId() == null) {
+            addressRepository.save(newAddress);  // Lưu mới nếu chưa có ID
+        }
+
+        billRepository.save(bill);
+        return convertBillToBillResponse(bill);
+    }
+
+
+    private BillResponse convertBillToBillResponse(Bill bill) {
+        return BillResponse.builder()
+                .billCode(bill.getCode())
+                .customerName(bill.getCustomer() != null ? bill.getCustomer().getFullName() : "")
+                .customerPhone(bill.getCustomer() != null ? bill.getCustomer().getPhoneNumber() : "")
+                .customerMoney(bill.getCustomerMoney())
+                .discountMoney(bill.getDiscountMoney())
+                .shipMoney(bill.getShipMoney())
+                .totalMoney(bill.getTotalMoney())
+                .notes(bill.getNotes())
+                .completeDate(bill.getCompleteDate())
+                .confirmDate(bill.getConfirmDate())
+                .desiredDateOfReceipt(bill.getDesiredDateOfReceipt())
+                .shipDate(bill.getShipDate())
+                .address(bill.getShippingAddress())
+                .email(bill.getEmail())
+                .status(bill.getStatus().toString())
+                .createAt(bill.getCreatedAt())
+                .build();
     }
 }

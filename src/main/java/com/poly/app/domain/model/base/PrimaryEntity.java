@@ -23,7 +23,6 @@ public abstract class PrimaryEntity extends AuditEntity implements IsIdentified 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
     private String code;
 
 }

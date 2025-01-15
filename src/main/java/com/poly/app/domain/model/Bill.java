@@ -1,15 +1,14 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
-import com.poly.app.infrastructure.constant.Status;
-import com.poly.app.infrastructure.constant.StatusBill;
+import com.poly.app.infrastructure.constant.BillStatus;
+import com.poly.app.infrastructure.constant.TypeBill;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -30,7 +29,6 @@ public class Bill extends PrimaryEntity implements Serializable {
     @JoinColumn
     Staff staff;
 
-
     String billCode;
 
     //    tiền kahcsh đưa
@@ -47,7 +45,6 @@ public class Bill extends PrimaryEntity implements Serializable {
     Double totalMoney;
 //    laoi
 
-    String billType;
     //nagyf hoàn thành
     LocalDateTime completeDate;
     //    nagyf xác nhận
@@ -58,15 +55,21 @@ public class Bill extends PrimaryEntity implements Serializable {
     //    ngày ship
     LocalDateTime shipDate;
 
-    //    dịa chỉ giao hàng
-    String shippingAddress;
+    @ManyToOne
+    @JoinColumn(name = "shipping_address_id")
+    Address shippingAddress;
 
     String numberPhone;
 
     String email;
 
     @Enumerated(EnumType.STRING)
-    StatusBill status;
+    TypeBill typeBill;
+
+    String notes;
+
+    @Enumerated(EnumType.STRING)
+    BillStatus status;
 
 
 }

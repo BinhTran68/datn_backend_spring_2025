@@ -19,22 +19,23 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "promotion")
-//dợt giảm giá
+// đợt giảm giá
 public class Promotion extends PrimaryEntity implements Serializable {
-
+    Integer id;
+// mã giảm
     String promotionCode;
-
+// tên loại giảm
     String promotionName;
-
+// loại giảm
     String promotionType;
-
-//    giá trị giảm
+// giá trị giảm
     Double discountValue;
-
+//    Integer quantity;
+    // ngày bắt đầu
     LocalDateTime startDate;
-
+// ngày kết thúc
     LocalDateTime endDate;
-
+// trạng thái
     Status status;
 
 }

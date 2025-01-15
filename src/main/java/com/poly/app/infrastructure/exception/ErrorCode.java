@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public enum ErrorCode {
+
+    NOT_BLANK(3000,"Không được để trống"),
     UNCATEGORIZED_EXCEPTION(9999, "UNCATEGORIZED ERROR"),
     INVALID_KEY(1001, "INVALID MESSAGE KEY"),
     MAUSAC_NOT_FOUND(1002, "Mausac Not Found"),
@@ -97,7 +99,8 @@ public enum ErrorCode {
     TOTAL_ITEM_CAN_BE_THAN_LIMIT(2000, "Tổng số lượng sản phẩm không được lơn hơn 20"),
     TOTAL_IN_A_ITEM(2000, "Mỗi sản phẩm không được mua quá số lượng 5"),
     ACCOUNT_NOT_ACTIVE(2000, "Tài khoản đã bị khóa không thể đăng nhập"),
-    CANT_BE_CANCEL_WHEN_SHIPPING(2000,"Không thể hủy khi đơn hàng đã chuyển sang trạng thái giao hàng hoặc đã hoàn thành" );
+    CANT_BE_CANCEL_WHEN_SHIPPING(2000,"Không thể hủy khi đơn hàng đã chuyển sang trạng thái giao hàng hoặc đã hoàn thành" ),
+    BRAND_EXISTS(1100,"hãng đã tồn tại" );
     private int code;
     private String message;
 }

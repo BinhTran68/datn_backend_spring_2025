@@ -21,6 +21,7 @@ public class RestExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.put(error.getField(), error.getDefaultMessage());
+//            errors.put(error.getField(), ErrorCode.valueOf(error.getDefaultMessage()).getMessage());
         }
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }

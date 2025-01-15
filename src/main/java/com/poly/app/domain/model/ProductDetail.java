@@ -1,5 +1,6 @@
 package com.poly.app.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.poly.app.domain.model.base.PrimaryEntity;
 
 import com.poly.app.infrastructure.constant.EntityProperties;
@@ -28,6 +29,7 @@ import java.io.Serializable;
 public class ProductDetail extends PrimaryEntity implements Serializable {
     @ManyToOne
     @JoinColumn
+    @JsonBackReference
     Product product;
 
     @ManyToOne

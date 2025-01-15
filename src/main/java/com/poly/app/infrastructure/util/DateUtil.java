@@ -1,5 +1,8 @@
 package com.poly.app.infrastructure.util;
 
+import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -24,13 +27,18 @@ public class DateUtil {
         return sdf.format(new Date(dateLong));
     }
 
-    public static Long parseDateLong(String dateString) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT+7"));
-        Date date = sdf.parse(dateString);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar.getTimeInMillis();
+    public static Long parseDateLong(String dateString)  {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+            Date date = sdf.parse(dateString);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            return calendar.getTimeInMillis();
+        }catch (Exception e) {
+            System.out.println("lấy thời gian lỗi nè");
+            throw new ApiException(ErrorCode.THOI_GIAN_INVALID);
+        }
     }
 
     public static Long parseDateTimeLong(String dateString) throws ParseException {

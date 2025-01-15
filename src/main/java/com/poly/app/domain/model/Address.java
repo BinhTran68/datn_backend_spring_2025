@@ -22,9 +22,19 @@ public class Address extends PrimaryEntity implements Serializable {
     @JoinColumn
     Customer customer;
 
+    @ManyToOne
+    @JoinColumn
+    Staff staff;
+
+    String provinceId; // tỉnh
+
+    String districtId; // quận
+
+    String wardId; // xã
+
     Boolean isAddressDefault;
 
-    String addressDetail;
+    String specificAddress; // địa chỉ cụ thể số đường, ngỗ ....
 
 
 
