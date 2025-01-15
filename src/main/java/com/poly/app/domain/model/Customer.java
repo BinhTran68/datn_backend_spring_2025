@@ -2,8 +2,6 @@ package com.poly.app.domain.model;
 import com.poly.app.domain.model.base.PrimaryEntity;
 import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.constant.EntityProperties;
-import com.poly.app.infrastructure.constant.RoleAccount;
-import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
