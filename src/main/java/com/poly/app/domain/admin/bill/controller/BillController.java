@@ -8,6 +8,7 @@ import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.infrastructure.constant.BillStatus;
+import com.poly.app.infrastructure.constant.TypeBill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/admin/bill")
@@ -29,8 +32,12 @@ public class BillController {
     @GetMapping("/index")
     public PageReponse index(@RequestParam(defaultValue = "10") Integer size,
                              @RequestParam(defaultValue = "0") Integer page,
+                             @RequestParam( required = false) TypeBill typeBill,
+                             @RequestParam( required = false) String search,
+                             @RequestParam( required = false )  String startDate,
+                             @RequestParam( required = false) String endDate,
                              @RequestParam(required = false) BillStatus statusBill) {
-        return new PageReponse(billService.getPageBill(size, page, statusBill));
+        return new PageReponse(billService.getPageBill(size, page, statusBill, typeBill,search, startDate, endDate ));
     }
 
 

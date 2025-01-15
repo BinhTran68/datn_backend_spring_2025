@@ -13,15 +13,28 @@ import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.CustomerRepository;
 import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.infrastructure.constant.BillStatus;
+import com.poly.app.infrastructure.constant.TypeBill;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
+import com.poly.app.infrastructure.util.DateUtil;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,6 +44,7 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     BillRepository billRepository;
+
 
     @Autowired
     BillHistoryRepository billHistoryRepository;
@@ -46,24 +60,57 @@ public class BillServiceImpl implements BillService {
     BillHistoryService billHistoryService;
 
     @Override
-    public Page<BillResponse> getPageBill(Integer size, Integer page, BillStatus statusBill) {
-
+    public Page<BillResponse> getPageBill(Integer size, Integer page,
+                                          BillStatus statusBill,
+                                          TypeBill typeBill,
+                                          String search,
+                                          String startDate,
+                                          String endDate
+    ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Bill> billPage;
+        // Sử dụng Specification hoặc Predicate để xây dựng các điều kiện động
+        Specification<Bill> spec = Specification.where(null);
 
-        if (statusBill == null) {
-            billPage = billRepository.findAll(pageable);
-        } else {
-            billPage = billRepository.findByStatus(statusBill, pageable);
+        // Thêm điều kiện lọc theo `statusBill`
+        if (statusBill != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("status"), statusBill));
         }
-        List<Bill> bills = billPage.getContent();
-        List<BillResponse> billResponses = bills.stream().map(
-                bill -> convertBillToBillResponse(bill)
-        ).collect(Collectors.toList());
 
+        // Thêm điều kiện lọc theo `typeBill`
+        if (typeBill != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("typeBill"), typeBill));
+        }
 
-        return new PageImpl<>(billResponses, PageRequest.of(billPage.getNumber(), billPage.getSize()), billPage.getTotalElements());
+        if (search != null && !search.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> {
+                // Thực hiện join tới thực thể Customer
+                Join<Object, Object> customerJoin = root.join("customer", JoinType.LEFT);
+
+                // Thêm điều kiện tìm kiếm
+                return criteriaBuilder.or(
+                        criteriaBuilder.like(customerJoin.get("fullName"), "%" + search + "%"),
+                        criteriaBuilder.like(root.get("billCode"), "%" + search + "%")
+                );
+            });
+        }
+
+        if (startDate != null && !startDate.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), DateUtil.parseDateLong(startDate)));
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), DateUtil.parseDateLong(endDate)));
+        }
+        Page<Bill> billPage = billRepository.findAll(spec, pageable);
+        List<BillResponse> billResponses = billPage.getContent().stream()
+                .map(this::convertBillToBillResponse)
+                .collect(Collectors.toList());
+        return new PageImpl<>(billResponses, pageable, billPage.getTotalElements());
     }
+
 
     @Override
     public BillResponse getBillResponseByBillCode(String billCode) {
@@ -103,7 +150,7 @@ public class BillServiceImpl implements BillService {
         System.out.println(request.toString());
         Bill bill = billRepository.findByCode(billCode);
         bill.setNumberPhone(request.getCustomerPhone());
-        bill.setShippingAddress(request.getShippingAddress());
+
         bill.setNotes(request.getNote());
         billRepository.save(bill);
         return convertBillToBillResponse(bill);
@@ -114,18 +161,17 @@ public class BillServiceImpl implements BillService {
         return BillResponse.builder()
                 .billCode(bill.getCode())
                 .customerName(bill.getCustomer() != null ? bill.getCustomer().getFullName() : "")
-                .customerPhone(bill.getCustomer() != null ?  bill.getCustomer().getPhoneNumber() : "")
+                .customerPhone(bill.getCustomer() != null ? bill.getCustomer().getPhoneNumber() : "")
                 .customerMoney(bill.getCustomerMoney())
                 .discountMoney(bill.getDiscountMoney())
                 .shipMoney(bill.getShipMoney())
                 .totalMoney(bill.getTotalMoney())
-                .billType(bill.getBillType())
                 .notes(bill.getNotes())
                 .completeDate(bill.getCompleteDate())
                 .confirmDate(bill.getConfirmDate())
                 .desiredDateOfReceipt(bill.getDesiredDateOfReceipt())
                 .shipDate(bill.getShipDate())
-                .shippingAddress(bill.getShippingAddress())
+
                 .email(bill.getEmail())
                 .status(bill.getStatus().toString())
                 .createAt(bill.getCreatedAt())
