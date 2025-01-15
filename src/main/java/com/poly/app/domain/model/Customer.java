@@ -4,8 +4,11 @@ import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.constant.EntityProperties;
 import com.poly.app.infrastructure.constant.RoleAccount;
 import com.poly.app.infrastructure.constant.Status;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,6 +41,9 @@ public class Customer extends PrimaryEntity implements Serializable, UserDetails
 
     @Column(unique = true)
     private String CitizenId;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Address> addresses;
 
     @Column(length = EntityProperties.LENGTH_PHONE)
     private String phoneNumber;

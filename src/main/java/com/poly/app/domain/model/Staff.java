@@ -4,10 +4,13 @@ import com.poly.app.domain.model.base.PrimaryEntity;
 import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.constant.EntityProperties;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,6 +42,8 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
     @Column(columnDefinition = EntityProperties.DEFINITION_NAME)
     private String fullName;
 
+
+
     private LocalDateTime dateBirth;
 
     @Column(unique = true)
@@ -56,6 +61,9 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
     private String password;
 
     private String avatar;
+
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Address> addresses;
 
     // Phân quyền theo role
     private AccountStatus status = AccountStatus.CHUA_KICH_HOAT;
