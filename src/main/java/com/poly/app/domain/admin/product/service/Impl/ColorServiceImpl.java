@@ -1,6 +1,8 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
 import com.poly.app.domain.admin.product.response.brand.BrandResponse;
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
+import com.poly.app.domain.admin.product.response.color.ColorResponseSelect;
 import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.model.Color;
 import com.poly.app.domain.repository.ColorRepository;
@@ -114,4 +116,10 @@ public class ColorServiceImpl implements ColorService {
     public boolean existsByColorNameAndIdNot(String brandName, Integer id) {
         return false;
     }
+
+    @Override
+    public List<ColorResponseSelect> getAll() {
+        return colorRepository.dataSelect();
+    }
+
 }

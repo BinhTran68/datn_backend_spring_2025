@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.admin.product.request.brand.BrandRequest;
@@ -106,4 +107,11 @@ public class BrandController {
                 .data(brandService.existsByBrandNameAndIdNot(brandName, id))
                 .build();
     }
-}
+
+    @GetMapping("/getallselect")
+    public ApiResponse<List<BrandResponseSelect>> getAllSelect() {
+        return ApiResponse.<List<BrandResponseSelect>>builder()
+                .message("get all selected")
+                .data(brandService.getAll())
+                .build();
+    }}

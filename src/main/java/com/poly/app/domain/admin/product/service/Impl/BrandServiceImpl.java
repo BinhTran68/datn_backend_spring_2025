@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.repository.BrandRepository;
 import com.poly.app.domain.admin.product.request.brand.BrandRequest;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -125,5 +127,10 @@ public class BrandServiceImpl implements BrandService {
     public boolean existsByBrandNameAndIdNot(String brandName, Integer id) {
         if (brandRepository.existsByBrandNameAndIdNot(brandName, id)) return true;
         return false;
+    }
+
+    @Override
+    public List<BrandResponseSelect> getAll() {
+        return brandRepository.dataSelect();
     }
 }

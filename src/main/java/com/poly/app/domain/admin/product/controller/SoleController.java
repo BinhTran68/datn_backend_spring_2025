@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.sole.SoleResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Sole;
 import com.poly.app.domain.admin.product.request.sole.SoleRequest;
@@ -104,6 +105,13 @@ public class SoleController {
         return ApiResponse.<Boolean>builder()
                 .message("existsBySoleName")
                 .data(soleService.existsBySoleNameAndIdNot(soleName, id))
+                .build();
+    }
+    @GetMapping("/getallselect")
+    public ApiResponse<List<SoleResponseSelect>> getAllSelect() {
+        return ApiResponse.<List<SoleResponseSelect>>builder()
+                .message("get all selected")
+                .data(soleService.getAll())
                 .build();
     }
 }

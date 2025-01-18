@@ -1,5 +1,6 @@
 package com.poly.app.domain.repository;
 
+import com.poly.app.domain.admin.product.response.type.TypeResponseSelect;
 import com.poly.app.domain.admin.product.response.type.TypeResponse;
 import com.poly.app.domain.admin.product.response.type.TypeResponse;
 import com.poly.app.domain.model.Type;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface TypeRepository extends JpaRepository<Type,Integer> {
@@ -21,4 +24,6 @@ public interface TypeRepository extends JpaRepository<Type,Integer> {
     boolean existsByTypeName(String name);
 
     boolean existsByTypeNameAndIdNot(String name, Integer id);
+    @Query(value = "select new com.poly.app.domain.admin.product.response.type.TypeResponseSelect(b.id,b.typeName,b.status) from Type b order by b.createdAt desc ")
+    List<TypeResponseSelect> dataSelect();
 }

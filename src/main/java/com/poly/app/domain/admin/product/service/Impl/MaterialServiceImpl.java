@@ -1,6 +1,8 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
+import com.poly.app.domain.admin.product.response.material.MaterialResponseSelect;
 import com.poly.app.domain.model.Material;
 import com.poly.app.domain.repository.MaterialRepository;
 import com.poly.app.domain.admin.product.request.material.MaterialRequest;
@@ -104,5 +106,10 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public boolean existsByMaterialNameAndIdNot(String brandName, Integer id) {
         return false;
+    }
+
+    @Override
+    public List<MaterialResponseSelect> getAll() {
+        return materialRepository.dataSelect();
     }
 }

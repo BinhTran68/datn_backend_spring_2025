@@ -1,6 +1,8 @@
 package com.poly.app.domain.admin.product.service;
 
 import com.poly.app.domain.admin.product.response.brand.BrandResponse;
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
+import com.poly.app.domain.admin.product.response.color.ColorResponseSelect;
 import com.poly.app.domain.model.Color;
 import com.poly.app.domain.admin.product.request.color.ColorRequest;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
@@ -20,4 +22,5 @@ public interface ColorService {
      boolean existsByColorName(String brandName);
 
      boolean existsByColorNameAndIdNot (String brandName, Integer id);
+     List<ColorResponseSelect> getAll();
 }

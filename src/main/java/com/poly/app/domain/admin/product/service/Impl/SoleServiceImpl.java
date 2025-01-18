@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
+import com.poly.app.domain.admin.product.response.sole.SoleResponseSelect;
 import com.poly.app.domain.model.Sole;
 import com.poly.app.domain.repository.SoleRepository;
 import com.poly.app.domain.admin.product.request.sole.SoleRequest;
@@ -116,5 +117,10 @@ public class SoleServiceImpl implements SoleService {
     public boolean existsBySoleNameAndIdNot(String soleName, Integer id) {
         if (soleRepository.existsBySoleNameAndIdNot(soleName, id)) return true;
         return false;
+    }
+
+    @Override
+    public List<SoleResponseSelect> getAll() {
+        return soleRepository.dataSelect();
     }
 }

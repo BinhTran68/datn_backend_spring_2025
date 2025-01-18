@@ -1,5 +1,7 @@
 package com.poly.app.domain.admin.product.service;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
+import com.poly.app.domain.admin.product.response.sole.SoleResponseSelect;
 import com.poly.app.domain.model.Sole;
 import com.poly.app.domain.admin.product.request.sole.SoleRequest;
 import com.poly.app.domain.admin.product.response.sole.SoleResponse;
@@ -25,4 +27,6 @@ public interface SoleService {
      boolean existsBySoleName(String soleName);
 
      boolean existsBySoleNameAndIdNot (String soleName, Integer id);
+
+     List<SoleResponseSelect> getAll();
 }

@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
@@ -104,6 +105,13 @@ public class ProductController {
         return ApiResponse.<Boolean>builder()
                 .message("existsByProductName")
                 .data(productService.existsByProductNameAndIdNot(productName, id))
+                .build();
+    }
+    @GetMapping("/getallselect")
+    public ApiResponse<List<ProductResponseSelect>> getAllSelect() {
+        return ApiResponse.<List<ProductResponseSelect>>builder()
+                .message("get all selected")
+                .data(productService.getAll())
                 .build();
     }
 }

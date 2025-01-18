@@ -1,6 +1,8 @@
 package com.poly.app.domain.admin.product.controller;
 
 import com.poly.app.domain.admin.product.response.brand.BrandResponse;
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
+import com.poly.app.domain.admin.product.response.color.ColorResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Color;
 import com.poly.app.domain.admin.product.request.color.ColorRequest;
@@ -88,6 +90,13 @@ public class ColorController {
         return ApiResponse.<String>builder()
                 .message("delete color by id")
                 .data(colorService.deleteColor(id))
+                .build();
+    }
+    @GetMapping("/getallselect")
+    public ApiResponse<List<ColorResponseSelect>> getAllSelect() {
+        return ApiResponse.<List<ColorResponseSelect>>builder()
+                .message("get all selected")
+                .data(colorService.getAll())
                 .build();
     }
 

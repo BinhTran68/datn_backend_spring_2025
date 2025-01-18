@@ -1,5 +1,6 @@
 package com.poly.app.domain.repository;
 
+import com.poly.app.domain.admin.product.response.size.SizeResponseSelect;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
 import com.poly.app.domain.model.Size;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface SizeRepository extends JpaRepository<Size,Integer> {
@@ -21,4 +24,6 @@ public interface SizeRepository extends JpaRepository<Size,Integer> {
     boolean existsBySizeName(String name);
 
     boolean existsBySizeNameAndIdNot(String name, Integer id);
+    @Query(value = "select new com.poly.app.domain.admin.product.response.size.SizeResponseSelect(b.id,b.sizeName,b.status) from Size b order by b.createdAt desc ")
+    List<SizeResponseSelect> dataSelect();
 }

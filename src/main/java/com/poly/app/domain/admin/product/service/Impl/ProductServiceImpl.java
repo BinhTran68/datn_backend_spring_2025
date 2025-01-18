@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
+import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.repository.ProductRepository;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
@@ -117,5 +118,10 @@ public class ProductServiceImpl implements ProductService {
     public boolean existsByProductNameAndIdNot(String productName, Integer id) {
         if (productRepository.existsByProductNameAndIdNot(productName, id)) return true;
         return false;
+    }
+
+    @Override
+    public List<ProductResponseSelect> getAll() {
+        return productRepository.dataSelect();
     }
 }

@@ -1,5 +1,7 @@
 package com.poly.app.domain.admin.product.service;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
+import com.poly.app.domain.admin.product.response.type.TypeResponseSelect;
 import com.poly.app.domain.model.Type;
 import com.poly.app.domain.admin.product.request.type.TypeRequest;
 import com.poly.app.domain.admin.product.response.type.TypeResponse;
@@ -25,4 +27,6 @@ public interface TypeService {
      boolean existsByTypeName(String typeName);
 
      boolean existsByTypeNameAndIdNot (String typeName, Integer id);
+
+     List<TypeResponseSelect> getAll();
 }

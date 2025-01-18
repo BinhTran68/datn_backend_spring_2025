@@ -1,5 +1,7 @@
 package com.poly.app.domain.admin.product.service;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
+import com.poly.app.domain.admin.product.response.size.SizeResponseSelect;
 import com.poly.app.domain.model.Size;
 import com.poly.app.domain.admin.product.request.size.SizeRequest;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
@@ -25,4 +27,5 @@ public interface SizeService {
      boolean existsBySizeName(String sizeName);
 
      boolean existsBySizeNameAndIdNot (String sizeName, Integer id);
+     List<SizeResponseSelect> getAll();
 }

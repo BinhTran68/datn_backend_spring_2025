@@ -1,5 +1,7 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.sole.SoleResponseSelect;
+import com.poly.app.domain.admin.product.response.type.TypeResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Type;
 import com.poly.app.domain.admin.product.request.type.TypeRequest;
@@ -104,6 +106,13 @@ public class TypeController {
         return ApiResponse.<Boolean>builder()
                 .message("existsByTypeName")
                 .data(typeService.existsByTypeNameAndIdNot(typeName, id))
+                .build();
+    }
+    @GetMapping("/getallselect")
+    public ApiResponse<List<TypeResponseSelect>> getAllSelect() {
+        return ApiResponse.<List<TypeResponseSelect>>builder()
+                .message("get all selected")
+                .data(typeService.getAll())
                 .build();
     }
 }

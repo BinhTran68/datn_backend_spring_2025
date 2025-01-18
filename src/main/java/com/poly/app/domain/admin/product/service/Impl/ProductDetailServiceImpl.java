@@ -68,7 +68,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .quantity(request.getQuantity())
                 .price(request.getPrice())
                 .weight(request.getWeight())
-                .descrition(request.getDescrition())
+                .descrition(request.getDescription())
                 .status(request.getStatus())
                 .build();
         return productDetailRepository.save(productDetail);
@@ -99,7 +99,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetail.setQuantity(request.getQuantity());
         productDetail.setPrice(request.getPrice());
         productDetail.setWeight(request.getWeight());
-        productDetail.setDescrition(request.getDescrition());
+        productDetail.setDescrition(request.getDescription());
         productDetail.setStatus(request.getStatus());
 
         productDetailRepository.save(productDetail);
@@ -117,7 +117,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .weight(productDetail.getWeight())
-                .descrition(productDetail.getDescrition())
+                .description(productDetail.getDescrition())
                 .status(productDetail.getStatus())
                 .updateAt(productDetail.getUpdatedAt())
                 .updateBy(productDetail.getUpdatedBy())
@@ -178,7 +178,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .weight(productDetail.getWeight())
-                .descrition(productDetail.getDescrition())
+                .description(productDetail.getDescrition())
                 .status(productDetail.getStatus())
                 .updateAt(productDetail.getUpdatedAt())
                 .updateBy(productDetail.getUpdatedBy())

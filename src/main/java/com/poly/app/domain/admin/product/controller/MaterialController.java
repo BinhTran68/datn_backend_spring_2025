@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.controller;
 
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
+import com.poly.app.domain.admin.product.response.material.MaterialResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Material;
 import com.poly.app.domain.admin.product.request.material.MaterialRequest;
@@ -91,7 +92,13 @@ public class MaterialController {
                         .build())
                 .build();
     }
-
+    @GetMapping("/getallselect")
+    public ApiResponse<List<MaterialResponseSelect>> getAllSelect() {
+        return ApiResponse.<List<MaterialResponseSelect>>builder()
+                .message("get all selected")
+                .data(materialService.getAll())
+                .build();
+    }
 
 
 }

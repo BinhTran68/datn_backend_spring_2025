@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
+import com.poly.app.domain.admin.product.response.size.SizeResponseSelect;
 import com.poly.app.domain.model.Size;
 import com.poly.app.domain.repository.SizeRepository;
 import com.poly.app.domain.admin.product.request.size.SizeRequest;
@@ -116,5 +117,10 @@ public class SizeServiceImpl implements SizeService {
     public boolean existsBySizeNameAndIdNot(String sizeName, Integer id) {
         if (sizeRepository.existsBySizeNameAndIdNot(sizeName, id)) return true;
         return false;
+    }
+
+    @Override
+    public List<SizeResponseSelect> getAll() {
+        return sizeRepository.dataSelect();
     }
 }

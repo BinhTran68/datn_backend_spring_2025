@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
 import com.poly.app.domain.admin.product.response.gender.GenderResponse;
+import com.poly.app.domain.admin.product.response.gender.GenderResponseSelect;
 import com.poly.app.domain.model.Gender;
 import com.poly.app.domain.repository.GenderRepository;
 import com.poly.app.domain.admin.product.request.gender.GenderRequest;
@@ -105,5 +106,10 @@ public class GenderServiceImpl implements GenderService {
     @Override
     public boolean existsByGenderNameAndIdNot(String brandName, Integer id) {
         return false;
+    }
+
+    @Override
+    public List<GenderResponseSelect> getAll() {
+        return genderRepository.dataSelect();
     }
 }

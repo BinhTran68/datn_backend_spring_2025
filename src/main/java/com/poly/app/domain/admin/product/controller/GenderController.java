@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.controller;
 
 import com.poly.app.domain.admin.product.response.gender.GenderResponse;
+import com.poly.app.domain.admin.product.response.gender.GenderResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Gender;
 import com.poly.app.domain.admin.product.request.gender.GenderRequest;
@@ -92,6 +93,12 @@ public class GenderController {
                 .build();
     }
 
-
+    @GetMapping("/getallselect")
+    public ApiResponse<List<GenderResponseSelect>> getAllSelect() {
+        return ApiResponse.<List<GenderResponseSelect>>builder()
+                .message("get all selected")
+                .data(genderService.getAll())
+                .build();
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
+import com.poly.app.domain.admin.product.response.type.TypeResponseSelect;
 import com.poly.app.domain.model.Type;
 import com.poly.app.domain.repository.TypeRepository;
 import com.poly.app.domain.admin.product.request.type.TypeRequest;
@@ -116,5 +117,10 @@ public class TypeServiceImpl implements TypeService {
     public boolean existsByTypeNameAndIdNot(String typeName, Integer id) {
         if (typeRepository.existsByTypeNameAndIdNot(typeName, id)) return true;
         return false;
+    }
+
+    @Override
+    public List<TypeResponseSelect> getAll() {
+        return typeRepository.dataSelect();
     }
 }

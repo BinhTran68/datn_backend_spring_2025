@@ -1,5 +1,6 @@
 package com.poly.app.domain.repository;
 
+import com.poly.app.domain.admin.product.response.gender.GenderResponseSelect;
 import com.poly.app.domain.admin.product.response.gender.GenderResponse;
 import com.poly.app.domain.model.Gender;
 import org.springframework.data.domain.Page;
@@ -7,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface GenderRepository extends JpaRepository<Gender, Integer> {
@@ -19,4 +22,6 @@ public interface GenderRepository extends JpaRepository<Gender, Integer> {
     boolean existsByGenderName(String name);
 
     boolean existsByGenderNameAndIdNot(String name, Integer id);
+    @Query(value = "select new com.poly.app.domain.admin.product.response.gender.GenderResponseSelect(b.id,b.genderName,b.status) from Gender b order by b.createdAt desc ")
+    List<GenderResponseSelect> dataSelect();
 }

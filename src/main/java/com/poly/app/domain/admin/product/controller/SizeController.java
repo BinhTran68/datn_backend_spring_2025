@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.size.SizeResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Size;
 import com.poly.app.domain.admin.product.request.size.SizeRequest;
@@ -104,6 +105,14 @@ public class SizeController {
         return ApiResponse.<Boolean>builder()
                 .message("existsBySizeName")
                 .data(sizeService.existsBySizeNameAndIdNot(sizeName, id))
+                .build();
+    }
+
+    @GetMapping("/getallselect")
+    public ApiResponse<List<SizeResponseSelect>> getAllSelect() {
+        return ApiResponse.<List<SizeResponseSelect>>builder()
+                .message("get all selected")
+                .data(sizeService.getAll())
                 .build();
     }
 }

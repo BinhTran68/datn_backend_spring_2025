@@ -33,7 +33,7 @@ public class ProductDetailRequest {
 
     Double weight;
 
-    String descrition;
+    String description;
 
     Status status;
 }

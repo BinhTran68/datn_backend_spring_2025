@@ -1,6 +1,8 @@
 package com.poly.app.domain.admin.product.service;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
+import com.poly.app.domain.admin.product.response.gender.GenderResponseSelect;
 import com.poly.app.domain.model.Gender;
 import com.poly.app.domain.admin.product.request.gender.GenderRequest;
 import com.poly.app.domain.admin.product.response.gender.GenderResponse;
@@ -20,4 +22,5 @@ public interface GenderService {
      boolean existsByGenderName(String brandName);
 
      boolean existsByGenderNameAndIdNot (String brandName, Integer id);
+     List<GenderResponseSelect> getAll();
 }
