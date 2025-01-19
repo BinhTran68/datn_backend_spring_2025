@@ -101,6 +101,7 @@ public enum ErrorCode {
     ACCOUNT_NOT_ACTIVE(2000, "Tài khoản đã bị khóa không thể đăng nhập"),
     CANT_BE_CANCEL_WHEN_SHIPPING(2000,"Không thể hủy khi đơn hàng đã chuyển sang trạng thái giao hàng hoặc đã hoàn thành" ),
     BRAND_EXISTS(1100,"hãng đã tồn tại" );
+
     private int code;
     private String message;
 }
