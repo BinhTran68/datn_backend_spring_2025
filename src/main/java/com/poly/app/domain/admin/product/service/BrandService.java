@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.service;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.admin.product.request.brand.BrandRequest;
 import com.poly.app.domain.admin.product.response.brand.BrandResponse;
@@ -25,4 +26,6 @@ public interface BrandService {
     boolean existsByBrandName(String brandName);
 
     boolean existsByBrandNameAndIdNot (String brandName, Integer id);
+
+    List<BrandResponseSelect> getAll();
 }

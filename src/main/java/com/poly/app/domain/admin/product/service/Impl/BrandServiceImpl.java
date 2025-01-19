@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.repository.BrandRepository;
 import com.poly.app.domain.admin.product.request.brand.BrandRequest;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -82,7 +84,7 @@ public class BrandServiceImpl implements BrandService {
     public Page<BrandResponse> fillbyBrandName(int page, int size, String name) {
         Pageable pageable = PageRequest.of(page, size);
 
-        // Thay vì stream và toList, sử dụng phương thức map của Page
+
         Page<BrandResponse> brandPage = brandRepository.fillbyname(String.format("%%%s%%", name), pageable);
         log.info(name);
         // Chuyển đổi từ Page<Brand> sang Page<BrandResponse>
@@ -125,5 +127,10 @@ public class BrandServiceImpl implements BrandService {
     public boolean existsByBrandNameAndIdNot(String brandName, Integer id) {
         if (brandRepository.existsByBrandNameAndIdNot(brandName, id)) return true;
         return false;
+    }
+
+    @Override
+    public List<BrandResponseSelect> getAll() {
+        return brandRepository.dataSelect();
     }
 }

@@ -1,5 +1,9 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponse;
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
+import com.poly.app.domain.admin.product.response.color.ColorResponseSelect;
+import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.model.Color;
 import com.poly.app.domain.repository.ColorRepository;
 import com.poly.app.domain.admin.product.request.color.ColorRequest;
@@ -9,6 +13,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,9 +58,17 @@ public class ColorServiceImpl implements ColorService {
     }
 
     @Override
-    public List<ColorResponse> getAllColor() {
-        return colorRepository.findAll().stream()
-                .map(color -> new ColorResponse(color.getId(), color.getCode(), color.getColorName(), color.getUpdatedAt(), color.getStatus())).toList();
+//    public List<ColorResponse> getAllColor() {
+//        return colorRepository.findAll().stream()
+//                .map(color -> new ColorResponse(color.getId(), color.getCode(), color.getColorName(), color.getUpdatedAt(), color.getStatus())).toList();
+//    }
+    public Page<ColorResponse> getAllColor(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ColorResponse> colorResponses = colorRepository.getAll(pageable);
+
+        // Chuyển đổi từ Page<Brand> sang Page<BrandResponse>
+        return colorResponses;
+
     }
 
     @Override
@@ -80,4 +95,31 @@ public class ColorServiceImpl implements ColorService {
                 .status(color.getStatus())
                 .build();
     }
+
+    @Override
+    public Page<ColorResponse> fillbyName(int page, int size, String name) {
+        Pageable pageable = PageRequest.of(page, size);
+
+
+        Page<ColorResponse> color = colorRepository.fillbyname(String.format("%%%s%%", name), pageable);
+        log.info(name);
+
+        return color;
+    }
+
+    @Override
+    public boolean existsByColorName(String brandName) {
+        return false;
+    }
+
+    @Override
+    public boolean existsByColorNameAndIdNot(String brandName, Integer id) {
+        return false;
+    }
+
+    @Override
+    public List<ColorResponseSelect> getAll() {
+        return colorRepository.dataSelect();
+    }
+
 }

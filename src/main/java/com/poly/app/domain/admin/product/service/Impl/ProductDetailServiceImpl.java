@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.*;
 import com.poly.app.domain.admin.product.request.productdetail.FilterRequest;
@@ -67,7 +68,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .quantity(request.getQuantity())
                 .price(request.getPrice())
                 .weight(request.getWeight())
-                .descrition(request.getDescrition())
+                .descrition(request.getDescription())
                 .status(request.getStatus())
                 .build();
         return productDetailRepository.save(productDetail);
@@ -98,7 +99,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetail.setQuantity(request.getQuantity());
         productDetail.setPrice(request.getPrice());
         productDetail.setWeight(request.getWeight());
-        productDetail.setDescrition(request.getDescrition());
+        productDetail.setDescrition(request.getDescription());
         productDetail.setStatus(request.getStatus());
 
         productDetailRepository.save(productDetail);
@@ -116,7 +117,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .weight(productDetail.getWeight())
-                .descrition(productDetail.getDescrition())
+                .description(productDetail.getDescrition())
                 .status(productDetail.getStatus())
                 .updateAt(productDetail.getUpdatedAt())
                 .updateBy(productDetail.getUpdatedBy())
@@ -177,7 +178,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .quantity(productDetail.getQuantity())
                 .price(productDetail.getPrice())
                 .weight(productDetail.getWeight())
-                .descrition(productDetail.getDescrition())
+                .description(productDetail.getDescrition())
                 .status(productDetail.getStatus())
                 .updateAt(productDetail.getUpdatedAt())
                 .updateBy(productDetail.getUpdatedBy())
@@ -258,5 +259,20 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         );
         log.info("tổng element"+Integer.toString(totalElement));
         return totalElement;
+    }
+
+    @Override
+    public Page<ColorResponse> fillbyName(int page, int size, String name) {
+        return null;
+    }
+
+    @Override
+    public boolean existsByColorName(String brandName) {
+        return false;
+    }
+
+    @Override
+    public boolean existsByColorNameAndIdNot(String brandName, Integer id) {
+        return false;
     }
 }

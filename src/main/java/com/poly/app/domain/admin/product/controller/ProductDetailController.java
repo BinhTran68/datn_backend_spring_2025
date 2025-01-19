@@ -40,7 +40,7 @@ public class ProductDetailController {
                 .build();
     }
 
-    @PostMapping("/update/{id}")
+    @PutMapping("/update/{id}")
     public ApiResponse<ProductDetailResponse> update(@RequestBody ProductDetailRequest request, @PathVariable int id) {
         return ApiResponse.<ProductDetailResponse>builder()
                 .message("update productdetail")
@@ -58,7 +58,7 @@ public class ProductDetailController {
     public ApiResponse<List<ProductDetailResponse>> getAllProductPage(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                       @RequestParam(value = "size", defaultValue = "1") int size) {
 
-        Page<ProductDetailResponse> page1 = productDetailService.getAllProductDetailPage(page, size);
+        Page<ProductDetailResponse> page1 = productDetailService.getAllProductDetailPage(page-1, size);
         return ApiResponse.<List<ProductDetailResponse>>builder()
                 .message("list product detail page")
                 .data(page1.getContent())
@@ -70,13 +70,14 @@ public class ProductDetailController {
                 .build();
     }
 
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     public ApiResponse<List<FilterProductDetailResponse>> getFilterPD(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                       @RequestParam(value = "size", defaultValue = "1") int size,
                                                                       @RequestBody FilterRequest request
     ) {
 
         Integer totalElement = productDetailService.getFillterElement(request);
+
 
         return ApiResponse.<List<FilterProductDetailResponse>>builder()
                 .message("fillter")
@@ -117,7 +118,7 @@ public class ProductDetailController {
     }
 
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("{id}")
     public ApiResponse<String> delete(@PathVariable int id) {
         return ApiResponse.<String>builder()
                 .message("delete product detail by id")
