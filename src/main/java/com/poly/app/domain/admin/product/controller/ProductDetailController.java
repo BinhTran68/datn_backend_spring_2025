@@ -70,13 +70,14 @@ public class ProductDetailController {
                 .build();
     }
 
-    @GetMapping("/filter")
+    @PostMapping("/filter")
     public ApiResponse<List<FilterProductDetailResponse>> getFilterPD(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                       @RequestParam(value = "size", defaultValue = "1") int size,
                                                                       @RequestBody FilterRequest request
     ) {
 
         Integer totalElement = productDetailService.getFillterElement(request);
+
 
         return ApiResponse.<List<FilterProductDetailResponse>>builder()
                 .message("fillter")

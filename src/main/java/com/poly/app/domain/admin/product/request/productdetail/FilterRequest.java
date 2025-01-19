@@ -21,7 +21,6 @@ public class FilterRequest {
     String status;
     String sortByQuantity;
     String sortByPrice;
-    Integer page;
-    Integer size;
+
 
 }

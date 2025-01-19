@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.response.productdetail;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.poly.app.infrastructure.constant.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -33,9 +34,14 @@ public interface FilterProductDetailResponse {
 
     String getDescrition();
 
-    String getStatus();
+    @JsonIgnore
+    String getStatusRoot();
 
     String getUpdatedAt();
 
     String getUpdatedBy();
+
+    default String getStatus() {
+        return "0".equals(getStatusRoot()) ? "HOAT_DONG" : "NGUNG_HOAT_DONG";
+    }
 }
