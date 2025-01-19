@@ -35,7 +35,7 @@ public class ColorController {
                 .build();
     }
 
-    @PutMapping("/update/{id}")
+    @PostMapping("/update/{id}")
     public ApiResponse<ColorResponse> update(@RequestBody ColorRequest request, @PathVariable int id) {
         return ApiResponse.<ColorResponse>builder()
                 .message("update color")

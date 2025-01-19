@@ -19,8 +19,6 @@ import java.io.Serializable;
 @Table(name = "color")
 //màu sắc
 public class Color extends PrimaryEntity implements Serializable {
-
-
     String colorName;
 
     Status status;
