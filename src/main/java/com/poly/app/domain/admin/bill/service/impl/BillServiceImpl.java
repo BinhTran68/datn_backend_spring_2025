@@ -185,6 +185,7 @@ public class BillServiceImpl implements BillService {
                 .discountMoney(bill.getDiscountMoney())
                 .shipMoney(bill.getShipMoney())
                 .totalMoney(bill.getTotalMoney())
+                .billType(bill.getTypeBill().toString())
                 .notes(bill.getNotes())
                 .completeDate(bill.getCompleteDate())
                 .confirmDate(bill.getConfirmDate())
