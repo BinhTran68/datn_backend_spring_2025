@@ -193,7 +193,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         ///
 
-        Customer customerExits = customerRepository.findById(1).orElseThrow(() ->
+        Customer customerExits = customerRepository.findById(1L).orElseThrow(() ->
                 new RuntimeException("Customer with ID 1 not found"));
 
         Announcement announcement1 = Announcement.builder()
@@ -409,8 +409,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         staffRepository.save(staff2);
 
 
-        Customer customerBill1 = customerRepository.findById(1).orElse(null); // Giả sử customer có id = 1
-        Customer customerBill2 = customerRepository.findById(2).orElse(null); // Giả sử customer có id = 2
+        Customer customerBill1 = customerRepository.findById(1L).orElse(null); // Giả sử customer có id = 1
+        Customer customerBill2 = customerRepository.findById(2L).orElse(null); // Giả sử customer có id = 2
         Staff staffBill1 = staffRepository.findById(1).orElse(null); // Giả sử staff có id = 1
         Staff staffBill2 = staffRepository.findById(2).orElse(null); // Giả sử staff có id = 2
 
