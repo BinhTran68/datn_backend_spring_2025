@@ -26,7 +26,7 @@ public class PaymentBillServiceImpl implements PaymentBillService {
     @Override
     public List<PaymentBillResponse> findByPaymentBill(String billCode) {
 
-        Bill bill  = billRepository.findByCode(billCode);
+        Bill bill  = billRepository.findByBillCode(billCode);
 
         List<PaymentBillResponse> paymentBillList = paymentBillRepository.findPaymentBillByBillCode(bill.getCode());
 

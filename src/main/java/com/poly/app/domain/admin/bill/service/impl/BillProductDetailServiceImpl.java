@@ -55,7 +55,7 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
     @Override
     public List<BillProductDetailResponse> getBillProductDetailResponse(String billCode) {
 
-        Bill bill = billRepository.findByCode(billCode);
+        Bill bill = billRepository.findByBillCode(billCode);
 
         List<BillDetail> billDetails = billDetailRepository.findByBill(bill);
 

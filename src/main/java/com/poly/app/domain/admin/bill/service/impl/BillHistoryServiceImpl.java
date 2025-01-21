@@ -33,7 +33,7 @@ public class BillHistoryServiceImpl implements BillHistoryService {
     @Override
     public List<BillHistoryResponseBuilder> findBillHistoryResponseBuilderListByBillCode(String billCode) {
 
-        Bill bill = billRepository.findByCode(billCode);
+        Bill bill = billRepository.findByBillCode(billCode);
         if(bill == null) {
             throw new RuntimeException();
         }

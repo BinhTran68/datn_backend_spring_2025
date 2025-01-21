@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -29,7 +30,15 @@ public class Bill extends PrimaryEntity implements Serializable {
     @JoinColumn
     Staff staff;
 
+
     String billCode;
+
+    @PrePersist
+    public void generateId() {
+        if (this.billCode == null || this.billCode.isEmpty()) {
+            this.billCode = "HD-" + UUID.randomUUID().toString().replace("-", "").toUpperCase().substring(0, 8);
+        }
+    }
 
     //    tiền kahcsh đưa
     Double customerMoney;

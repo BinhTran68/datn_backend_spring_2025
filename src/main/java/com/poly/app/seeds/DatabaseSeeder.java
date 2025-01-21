@@ -418,12 +418,12 @@ public class DatabaseSeeder implements CommandLineRunner {
             Bill bill1 = Bill.builder()
                     .customer(customerBill1)
                     .staff(staffBill1)
-                    .billCode("BILL001")
+
                     .customerMoney(500000.0)
                     .discountMoney(50000.0)
                     .shipMoney(30000.0)
                     .totalMoney(480000.0)
-                    .typeBill(TypeBill.DAT_HANG)
+                    .typeBill(TypeBill.ONLINE)
                     .completeDate(LocalDateTime.now()) // Ngày hoàn thành
                     .confirmDate(LocalDateTime.now()) // Ngày xác nhận
                     .desiredDateOfReceipt(LocalDateTime.now()) // Ngày nhận hàng mong muốn
@@ -439,12 +439,12 @@ public class DatabaseSeeder implements CommandLineRunner {
             Bill bill3 = Bill.builder()
                     .customer(customerBill1)
                     .staff(staffBill1)
-                    .billCode("BILL005")
+
                     .customerMoney(500000.0)
                     .discountMoney(50000.0)
                     .shipMoney(30000.0)
                     .totalMoney(480000.0)
-                    .typeBill(TypeBill.DAT_HANG)
+                    .typeBill(TypeBill.ONLINE)
                     .completeDate(LocalDateTime.now()) // Ngày hoàn thành
                     .confirmDate(LocalDateTime.now()) // Ngày xác nhận
                     .desiredDateOfReceipt(LocalDateTime.now()) // Ngày nhận hàng mong muốn
@@ -470,7 +470,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .discountMoney(20000.0)
                     .shipMoney(25000.0)
                     .totalMoney(305000.0)
-                    .typeBill(TypeBill.DAT_HANG)
+                    .typeBill(TypeBill.OFFLINE)
                     .completeDate(LocalDateTime.now()) // Ngày hoàn thành
                     .confirmDate(LocalDateTime.now()) // Ngày xác nhận
                     .desiredDateOfReceipt(LocalDateTime.now()) // Ngày nhận hàng mong muốn

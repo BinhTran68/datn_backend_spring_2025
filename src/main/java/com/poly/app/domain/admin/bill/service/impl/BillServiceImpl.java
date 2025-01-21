@@ -30,13 +30,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.text.ParseException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -119,7 +112,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public BillResponse getBillResponseByBillCode(String billCode) {
-        Bill bill = billRepository.findByCode(billCode);
+        Bill bill = billRepository.findByBillCode(billCode);
         return convertBillToBillResponse(bill);
     }
 
@@ -128,7 +121,7 @@ public class BillServiceImpl implements BillService {
 
         System.out.println(request);
 
-        Bill bill = billRepository.findByCode(billCode);
+        Bill bill = billRepository.findByBillCode(billCode);
 
         Staff staff = staffRepository.findById(1).orElse(null);
         if (bill == null) {
@@ -153,7 +146,7 @@ public class BillServiceImpl implements BillService {
     @Override
     public BillResponse updateBillInfo(String billCode, UpdateBillRequest request) {
         System.out.println(request.toString());
-        Bill bill = billRepository.findByCode(billCode);
+        Bill bill = billRepository.findByBillCode(billCode);
         bill.setNumberPhone(request.getCustomerPhone());
         bill.setNotes(request.getNote());
 
@@ -178,7 +171,7 @@ public class BillServiceImpl implements BillService {
 
     private BillResponse convertBillToBillResponse(Bill bill) {
         return BillResponse.builder()
-                .billCode(bill.getCode())
+                .billCode(bill.getBillCode())
                 .customerName(bill.getCustomer() != null ? bill.getCustomer().getFullName() : "")
                 .customerPhone(bill.getCustomer() != null ? bill.getCustomer().getPhoneNumber() : "")
                 .customerMoney(bill.getCustomerMoney())
