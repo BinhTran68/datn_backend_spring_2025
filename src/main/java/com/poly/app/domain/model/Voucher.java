@@ -38,6 +38,7 @@ public class Voucher extends PrimaryEntity implements Serializable {
     Double billMinValue;
     LocalDateTime startDate;
     LocalDateTime endDate;
-    Status status;
+//    Status status;
+    StatusVoucher statusVoucher;
 
 }

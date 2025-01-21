@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +56,15 @@ public class VoucherController {
                 .data(voucherService.updateVoucher(request, id))
                 .build();
     }
+//    @PutMapping("/update_tt/{id}")
+//    public ApiResponse<VoucherReponse> updateTt(@RequestBody VoucherRequest request, @PathVariable int id) {
+//        return ApiResponse.<VoucherReponse>builder()
+//                .message("Cập nhật trạng thái voucher")
+//                .data(voucherService.updateVoucher(request, id))
+//                .build();
+//    }
+
+
 
     @DeleteMapping("/delete/{id}")
     public ApiResponse<String> delete(@PathVariable int id) {
@@ -78,12 +88,27 @@ public class VoucherController {
     public ApiResponse<Page<VoucherReponse>> phanTrang(@RequestParam(value = "page") Integer page,
                                                        @RequestParam(value = "size") Integer size
                                                        ) {
-        Pageable pageable = PageRequest.of(page, size);
+
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
         Page<VoucherReponse> list = voucherService.getAllVoucher(pageable);
         return ApiResponse.<Page<VoucherReponse>>builder()
                 .message("")
                 .data(list)
                 .build();
     }
+
+//    @GetMapping("/search")
+//    public ApiResponse<Page<VoucherReponse>> searchVouchers(@RequestParam String keyword,
+//                                                            @RequestParam(value = "page", defaultValue = "0") int page,
+//                                                            @RequestParam(value = "size", defaultValue = "10") int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        Page<VoucherReponse> searchResults = voucherService.searchVouchers(keyword, pageable);
+//        return ApiResponse.<Page<VoucherReponse>>builder()
+//                .message("Search results")
+//                .data(searchResults)
+//                .build();
+//    }
+//}
 
 }
