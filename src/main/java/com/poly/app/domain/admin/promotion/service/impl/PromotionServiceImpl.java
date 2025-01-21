@@ -112,5 +112,10 @@ public class PromotionServiceImpl implements PromotionService {
                         .build()
         );
     }
+    @Override
+    public List<PromotionResponse> searchPromotions(String promotionCode, String promotionName, String promotionType, String status) {
+        return promotionRepository.searchPromotions(promotionCode, promotionName, promotionType, status);
+    }
+
 
 }

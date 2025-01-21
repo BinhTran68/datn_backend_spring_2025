@@ -77,5 +77,17 @@ public class PromotionController {
                 .build();
     }
 
+    @GetMapping("/search")
+    public ApiResponse<List<PromotionResponse>> searchPromotions(
+            @RequestParam(value = "promotionCode", required = false) String promotionCode,
+            @RequestParam(value = "promotionName", required = false) String promotionName,
+            @RequestParam(value = "promotionType", required = false) String promotionType,
+            @RequestParam(value = "status", required = false) String status) {
+        List<PromotionResponse> results = promotionService.searchPromotions(promotionCode, promotionName, promotionType, status);
+        return ApiResponse.<List<PromotionResponse>>builder()
+                .message("Search results")
+                .data(results)
+                .build();
+    }
 
 }

@@ -15,4 +15,6 @@ public interface PromotionService {
     String deletePromotion(int id);
     PromotionResponse getPromotionDetail(int id);
     Page<PromotionResponse> getAllPromotion (Pageable pageable);
+    List<PromotionResponse> searchPromotions(String promotionCode, String promotionName, String promotionType, String status);
+
 }

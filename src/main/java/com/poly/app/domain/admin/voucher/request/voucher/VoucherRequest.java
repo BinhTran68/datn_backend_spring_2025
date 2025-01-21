@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.voucher.request.voucher;
 
+import com.poly.app.domain.model.StatusVoucher;
 import com.poly.app.infrastructure.constant.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,5 +28,5 @@ public class VoucherRequest {
         Double billMinValue;
         LocalDateTime startDate;
         LocalDateTime endDate;
-        Status status;
+        StatusVoucher statusVoucher;
 }

@@ -12,9 +12,13 @@ public interface  VoucherService {
     List<VoucherReponse> getAllVoucher();
     Voucher createVoucher(VoucherRequest request);
     VoucherReponse updateVoucher(VoucherRequest request, int id);
+//    VoucherReponse updateTt(VoucherRequest request, int id);
+
     String deleteVoucher(int id);
     VoucherReponse getVoucherDetail(int id);
     Page<VoucherReponse> getAllVoucher (Pageable pageable);
+//    Page<VoucherReponse> searchVouchers(String keyword, Pageable pageable);
+
 
 
 }
