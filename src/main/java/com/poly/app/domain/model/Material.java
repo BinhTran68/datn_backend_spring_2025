@@ -21,8 +21,6 @@ import java.io.Serializable;
 //chat liệu
 public class Material extends PrimaryEntity implements Serializable {
 
-
-
     String materialName;
 
     Status status;

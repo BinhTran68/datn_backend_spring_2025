@@ -1,14 +1,21 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.poly.app.domain.admin.product.response.material.MaterialResponse;
+import com.poly.app.domain.admin.product.response.type.TypeResponseSelect;
 import com.poly.app.domain.model.Type;
 import com.poly.app.domain.repository.TypeRepository;
 import com.poly.app.domain.admin.product.request.type.TypeRequest;
 import com.poly.app.domain.admin.product.response.type.TypeResponse;
 import com.poly.app.domain.admin.product.service.TypeService;
+import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +32,9 @@ public class TypeServiceImpl implements TypeService {
 
     @Override
     public Type createType(TypeRequest request) {
+        if (typeRepository.existsByTypeName(request.getTypeName())) {
+            throw new ApiException(ErrorCode.BRAND_EXISTS );
+        }
         Type type = Type.builder()
                 .typeName(request.getTypeName())
                 .status(request.getStatus())
@@ -34,8 +44,11 @@ public class TypeServiceImpl implements TypeService {
 
     @Override
     public TypeResponse updateType(TypeRequest request, int id) {
-        Type type = typeRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
+        Type type = typeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
+        if (typeRepository.existsByTypeNameAndIdNot(request.getTypeName(),id)) {
+            throw new ApiException(ErrorCode.BRAND_EXISTS );
+        }
         type.setTypeName(request.getTypeName());
         type.setStatus(request.getStatus());
 
@@ -50,18 +63,31 @@ public class TypeServiceImpl implements TypeService {
                 .build();
     }
 
-    @Override
-    public List<TypeResponse> getAllType() {
-        return typeRepository.findAll().stream()
-                .map(type -> new TypeResponse(type.getId(), type.getCode(), type.getTypeName(), type.getUpdatedAt(), type.getStatus())).toList();
-    }
 
     @Override
-    public String deleteType(int id) {
-        if ( !typeRepository.findById(id).isEmpty()){
+    public Page<TypeResponse> getAllType(int page, int type) {
+        Pageable pageable = PageRequest.of(page, type);
+        Page<TypeResponse> response= typeRepository.getAll(pageable);
+        return response ;    }
+
+    @Override
+    public Page<TypeResponse> fillbyTypeName(int page, int type, String name) {
+        Pageable pageable = PageRequest.of(page, type);
+
+
+        Page<TypeResponse> typePage = typeRepository.fillbyname(String.format("%%%s%%", name), pageable);
+        log.info(name);
+        // Chuyển đổi từ Page<Type> sang Page<TypeResponse>
+        return typePage;
+    }
+
+
+    @Override
+    public String delete(int id) {
+        if (!typeRepository.findById(id).isEmpty()) {
             typeRepository.deleteById(id);
             return "xóa thành công";
-        }else{
+        } else {
             return "id ko tồn tại";
         }
 
@@ -70,7 +96,7 @@ public class TypeServiceImpl implements TypeService {
 
     @Override
     public TypeResponse getType(int id) {
-        Type type = typeRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
+        Type type = typeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         return TypeResponse.builder()
                 .code(type.getCode())
@@ -79,5 +105,22 @@ public class TypeServiceImpl implements TypeService {
                 .updateAt(type.getUpdatedAt())
                 .status(type.getStatus())
                 .build();
+    }
+
+    @Override
+    public boolean existsByTypeName(String typeName) {
+        if (typeRepository.existsByTypeName(typeName)) return true;
+        return false;
+    }
+
+    @Override
+    public boolean existsByTypeNameAndIdNot(String typeName, Integer id) {
+        if (typeRepository.existsByTypeNameAndIdNot(typeName, id)) return true;
+        return false;
+    }
+
+    @Override
+    public List<TypeResponseSelect> getAll() {
+        return typeRepository.dataSelect();
     }
 }

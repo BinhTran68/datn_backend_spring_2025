@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.admin.product.request.brand.BrandRequest;
@@ -46,13 +47,13 @@ public class BrandController {
                                                         @RequestParam(value = "size", defaultValue = "2") int size
     ) {
 
-        Page<BrandResponse> page1 = brandService.getAllBrand(page-1, size);
+        Page<BrandResponse> page1 = brandService.getAllBrand(page - 1, size);
         return ApiResponse.<List<BrandResponse>>builder()
                 .message("list brand")
                 .data(page1.getContent())
                 .meta(Meta.builder()
                         .totalElement(page1.getTotalElements())
-                        .currentPage(page1.getNumber()+1)
+                        .currentPage(page1.getNumber() + 1)
                         .totalPages(page1.getTotalPages())
                         .build())
                 .build();
@@ -64,18 +65,20 @@ public class BrandController {
                 .message("get brand by id")
                 .data(brandService.getBrand(id))
                 .build();
-    }@GetMapping("/search")
-    public ApiResponse<List<BrandResponse>> getBrand(@RequestParam("name") String name,
-                                               @RequestParam(value = "page", defaultValue = "1") int page,
-                                               @RequestParam(value = "size", defaultValue = "5") int size) {
+    }
 
-        Page<BrandResponse> page1 = brandService.fillbyBrandName(page-1, size, name);
+    @GetMapping("/search")
+    public ApiResponse<List<BrandResponse>> getBrand(@RequestParam("name") String name,
+                                                     @RequestParam(value = "page", defaultValue = "1") int page,
+                                                     @RequestParam(value = "size", defaultValue = "5") int size) {
+
+        Page<BrandResponse> page1 = brandService.fillbyBrandName(page - 1, size, name);
         return ApiResponse.<List<BrandResponse>>builder()
                 .message("get brand by id")
                 .data(page1.getContent())
                 .meta(Meta.builder()
                         .totalElement(page1.getTotalElements())
-                        .currentPage(page1.getNumber()+1)
+                        .currentPage(page1.getNumber() + 1)
                         .totalPages(page1.getTotalPages())
                         .build())
                 .build();
@@ -89,17 +92,26 @@ public class BrandController {
                 .build();
     }
 
-@GetMapping("/existsbybrandname")
-    public ApiResponse<Boolean> existsByBrandName(@RequestParam String brandName){
+    @GetMapping("/existsbybrandname")
+    public ApiResponse<Boolean> existsByBrandName(@RequestParam String brandName) {
         return ApiResponse.<Boolean>builder()
                 .message("existsByBrandName")
                 .data(brandService.existsByBrandName(brandName))
                 .build();
-}@GetMapping("/existsbybrandnameandidnot")
-    public ApiResponse<Boolean> existsByBrandNameAndIdNot(@RequestParam String brandName,@RequestParam Integer id){
+    }
+
+    @GetMapping("/existsbybrandnameandidnot")
+    public ApiResponse<Boolean> existsByBrandNameAndIdNot(@RequestParam String brandName, @RequestParam Integer id) {
         return ApiResponse.<Boolean>builder()
                 .message("existsByBrandName")
                 .data(brandService.existsByBrandNameAndIdNot(brandName, id))
                 .build();
-}
-}
+    }
+
+    @GetMapping("/getallselect")
+    public ApiResponse<List<BrandResponseSelect>> getAllSelect() {
+        return ApiResponse.<List<BrandResponseSelect>>builder()
+                .message("get all selected")
+                .data(brandService.getAll())
+                .build();
+    }}
