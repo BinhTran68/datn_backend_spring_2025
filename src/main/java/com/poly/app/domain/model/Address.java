@@ -37,5 +37,4 @@ public class Address extends PrimaryEntity implements Serializable {
     String specificAddress; // địa chỉ cụ thể số đường, ngỗ ....
 
 
-
 }
