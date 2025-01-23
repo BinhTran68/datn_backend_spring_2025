@@ -197,19 +197,19 @@ public class CustomerController {
     }
 
     @PutMapping("update/{id}")
-    public ResponseEntity<CustomerResponse> updateCustomer(@PathVariable Long id, @RequestBody CustomerRequest customerRequest) {
+    public ResponseEntity<CustomerResponse> updateCustomer(@PathVariable Integer id, @RequestBody CustomerRequest customerRequest) {
         CustomerResponse customerResponse = customerService.updateCustomer(id, customerRequest);
         return ResponseEntity.ok(customerResponse);
     }
 
     @DeleteMapping("delete/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Integer id) {
         customerService.deleteCustomer(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("detail/{id}")
-    public ResponseEntity<CustomerResponse> getCustomerById(@PathVariable Long id) {
+    public ResponseEntity<CustomerResponse> getCustomerById(@PathVariable Integer id) {
         CustomerResponse customerResponse = customerService.getCustomerById(id);
         return ResponseEntity.ok(customerResponse);
     }

@@ -76,10 +76,11 @@ public class CustomerRequest {
     private String password;
     private String avatar;
     private Integer status;
-    private List<AddressRequest> addresses = new ArrayList<>();
+    private String provinceId;
+    private String districtId;
+    private String wardId;
+    private Boolean isAddressDefault;
+    private String specificAddress;
 
     // Constructor
-    public CustomerRequest() {
-        this.addresses = new ArrayList<>(); // Ensure addresses is never null
-    }
 }

@@ -294,11 +294,10 @@ import com.poly.app.domain.admin.customer.response.CustomerResponse;
 import com.poly.app.domain.admin.customer.service.CustomerService;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Customer;
+import com.poly.app.domain.repository.AddressRepository;
 import com.poly.app.domain.repository.CustomerRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -309,10 +308,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private AddressRepository addressRepository;
+
     @Override
     public CustomerResponse createCustomer(CustomerRequest customerRequest) {
         Customer customer = new Customer();
-        // Convert CustomerRequest to Customer entity
         customer.setFullName(customerRequest.getFullName());
         customer.setEmail(customerRequest.getEmail());
         customer.setPhoneNumber(customerRequest.getPhoneNumber());
@@ -322,26 +323,24 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setGender(customerRequest.getGender());
         customer.setAvatar(customerRequest.getAvatar());
         customer.setStatus(customerRequest.getStatus());
+        customerRepository.save(customer);
+        Address address = Address.builder()
+                .provinceId(customerRequest.getProvinceId())
+                .districtId(customerRequest.getDistrictId())
+                .wardId(customerRequest.getWardId())
+                .specificAddress(customerRequest.getSpecificAddress())
+                .build();
+        address.setCustomer(customer);
+        address.setIsAddressDefault(true);
+        addressRepository.save(address);
 
-        // Map AddressRequest to Address entity
-        List<Address> addresses = customerRequest.getAddresses().stream().map(addressRequest -> {
-            Address address = new Address();
-            address.setProvinceId(addressRequest.getProvinceId());
-            address.setDistrictId(addressRequest.getDistrictId());
-            address.setWardId(addressRequest.getWardId());
-            address.setIsAddressDefault(addressRequest.getIsAddressDefault());
-            address.setSpecificAddress(addressRequest.getSpecificAddress());
-            address.setCustomer(customer);
-            return address;
-        }).collect(Collectors.toList());
-        customer.setAddresses(addresses);
-
-        Customer savedCustomer = customerRepository.save(customer);
-        return new CustomerResponse(savedCustomer);
+        Customer customerFromDB = customerRepository.findById(customer.getId()).orElse(null);
+        assert customerFromDB != null;
+        return new CustomerResponse(customerFromDB);
     }
 
     @Override
-    public CustomerResponse updateCustomer(Long id, CustomerRequest customerRequest) {
+    public CustomerResponse updateCustomer(Integer id, CustomerRequest customerRequest) {
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
         if (optionalCustomer.isPresent()) {
             Customer customer = optionalCustomer.get();
@@ -359,18 +358,7 @@ public class CustomerServiceImpl implements CustomerService {
             // Clear existing addresses
             customer.getAddresses().clear();
 
-            // Map AddressRequest to Address entity
-            List<Address> addresses = customerRequest.getAddresses().stream().map(addressRequest -> {
-                Address address = new Address();
-                address.setProvinceId(addressRequest.getProvinceId());
-                address.setDistrictId(addressRequest.getDistrictId());
-                address.setWardId(addressRequest.getWardId());
-                address.setIsAddressDefault(addressRequest.getIsAddressDefault());
-                address.setSpecificAddress(addressRequest.getSpecificAddress());
-                address.setCustomer(customer);
-                return address;
-            }).collect(Collectors.toList());
-            customer.setAddresses(addresses);
+
 
             Customer updatedCustomer = customerRepository.save(customer);
             return new CustomerResponse(updatedCustomer);
@@ -380,12 +368,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void deleteCustomer(Long id) {
+    public void deleteCustomer(Integer id) {
         customerRepository.deleteById(id);
     }
 
     @Override
-    public CustomerResponse getCustomerById(Long id) {
+    public CustomerResponse getCustomerById(Integer id) {
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
         return optionalCustomer.map(CustomerResponse::new).orElseThrow(() -> new RuntimeException("Customer not found"));
     }

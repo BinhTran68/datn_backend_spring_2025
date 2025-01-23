@@ -30,9 +30,9 @@ import java.util.List;
 
 public interface CustomerService {
     CustomerResponse createCustomer(CustomerRequest customerRequest);
-    CustomerResponse updateCustomer(Long id, CustomerRequest customerRequest);
-    void deleteCustomer(Long id);
-    CustomerResponse getCustomerById(Long id);
+    CustomerResponse updateCustomer(Integer id, CustomerRequest customerRequest);
+    void deleteCustomer(Integer id);
+    CustomerResponse getCustomerById(Integer id);
     List<CustomerResponse> getAllCustomers();
     CustomerResponse getCustomerByEmail(String email);
 }

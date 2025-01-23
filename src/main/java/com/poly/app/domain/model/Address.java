@@ -1,5 +1,7 @@
 package com.poly.app.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.poly.app.domain.model.base.PrimaryEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,6 +22,7 @@ public class Address extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
+    @JsonBackReference
     Customer customer;
 
     @ManyToOne

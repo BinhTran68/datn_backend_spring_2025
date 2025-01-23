@@ -50,6 +50,7 @@
 
 
 package com.poly.app.domain.admin.customer.response;
+import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Customer;
 import lombok.Data;
 
@@ -70,7 +71,7 @@ public class CustomerResponse {
     private Integer status;
     private LocalDateTime dateBirth;
     // List of addresses
-    private List<AddressResponse> addresses;
+    private List<Address> addresses;
 
     public CustomerResponse(Customer customer) {
         this.id = customer.getId();
@@ -83,6 +84,6 @@ public class CustomerResponse {
         this.dateBirth = customer.getDateBirth();
         this.avatar = customer.getAvatar();
         this.status = customer.getStatus();
-        this.addresses = customer.getAddresses().stream().map(AddressResponse::new).collect(Collectors.toList());
+        this.addresses = customer.getAddresses();
     }
 }

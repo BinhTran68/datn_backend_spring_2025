@@ -1,4 +1,5 @@
 package com.poly.app.domain.model;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.poly.app.domain.model.base.PrimaryEntity;
 import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.constant.EntityProperties;
@@ -42,6 +43,7 @@ public class Customer extends PrimaryEntity implements Serializable, UserDetails
     private String CitizenId;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference // tránh vòng lặp
     private List<Address> addresses;
 
     @Column(length = EntityProperties.LENGTH_PHONE)
