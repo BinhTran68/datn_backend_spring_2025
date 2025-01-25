@@ -7,6 +7,7 @@ import com.poly.app.domain.repository.ProductRepository;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
 import com.poly.app.domain.admin.product.response.product.ProductResponse;
 import com.poly.app.domain.admin.product.service.ProductService;
+import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
@@ -38,7 +39,7 @@ public class ProductServiceImpl implements ProductService {
         }
         Product product = Product.builder()
                 .productName(request.getProductName())
-                .status(request.getStatus())
+                .status(Status.HOAT_DONG)
                 .build();
         return productRepository.save(product);
     }

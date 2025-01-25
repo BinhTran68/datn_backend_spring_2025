@@ -37,7 +37,7 @@ public interface FilterProductDetailResponse {
     @JsonIgnore
     String getStatusRoot();
 
-    String getUpdatedAt();
+    String getUpdateAt();
 
     String getUpdatedBy();
 

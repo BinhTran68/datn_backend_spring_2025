@@ -9,6 +9,7 @@ import com.poly.app.domain.repository.ColorRepository;
 import com.poly.app.domain.admin.product.request.color.ColorRequest;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.service.ColorService;
+import com.poly.app.infrastructure.constant.Status;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,7 +35,7 @@ public class ColorServiceImpl implements ColorService {
     public Color createColor(ColorRequest request) {
         Color color = Color.builder()
                 .colorName(request.getColorName())
-                .status(request.getStatus())
+                .status(Status.HOAT_DONG)
                 .build();
         return colorRepository.save(color);
     }

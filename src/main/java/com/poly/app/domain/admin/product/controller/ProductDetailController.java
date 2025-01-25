@@ -125,6 +125,12 @@ public class ProductDetailController {
                 .data(productDetailService.deleteProductDetail(id))
                 .build();
     }
-
+    @PostMapping("/create")
+    public ApiResponse<List<ProductDetailResponse> > createProductDetailList(@RequestBody List<ProductDetailRequest> requests) {
+        return ApiResponse.<List<ProductDetailResponse>>builder()
+                .message("add")
+                .data(productDetailService.createProductDetailList(requests))
+                .build();
+    }
 
 }

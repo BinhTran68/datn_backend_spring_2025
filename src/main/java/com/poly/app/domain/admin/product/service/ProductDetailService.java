@@ -30,4 +30,7 @@ public interface ProductDetailService {
      boolean existsByColorName(String brandName);
 
      boolean existsByColorNameAndIdNot (String brandName, Integer id);
+
+     List<ProductDetailResponse> createProductDetailList(List<ProductDetailRequest> request);
+
 }

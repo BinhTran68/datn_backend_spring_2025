@@ -7,6 +7,7 @@ import com.poly.app.domain.repository.GenderRepository;
 import com.poly.app.domain.admin.product.request.gender.GenderRequest;
 import com.poly.app.domain.admin.product.response.gender.GenderResponse;
 import com.poly.app.domain.admin.product.service.GenderService;
+import com.poly.app.infrastructure.constant.Status;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,7 +33,7 @@ public class GenderServiceImpl implements GenderService {
     public Gender createGender(GenderRequest request) {
         Gender gender = Gender.builder()
                 .genderName(request.getGenderName())
-                .status(request.getStatus())
+                .status(Status.HOAT_DONG)
                 .build();
         return genderRepository.save(gender);
     }

@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductDetailRepository extends JpaRepository<ProductDetail, Integer> {
@@ -18,7 +19,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
     @Query(value = "select  new com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse" +
             "(pd.id,pd.code,pd.product.productName,pd.brand.brandName,pd.type.typeName,pd.color.colorName" +
             ",pd.material.materialName,pd.size.sizeName,pd.sole.soleName,pd.gender.genderName,pd.quantity" +
-            ",pd.price,pd.weight,pd.descrition,pd.status,pd.updatedAt,pd.updatedBy) from ProductDetail pd order by pd.createdAt desc ")
+            ",pd.price,pd.weight,pd.descrition,pd.status,pd.updatedAt,pd.updatedBy) from ProductDetail pd order by pd.updatedAt desc ")
     Page<ProductDetailResponse> getAllProductDetailPage(Pageable pageable);
 
 
@@ -75,4 +76,13 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
                          @Param("status") String status
 
     );
+
+    @Query(value = "SELECT *\n" +
+            "FROM product_detail\n" +
+            "WHERE product_id = :productId AND size_id = :sizeId AND color_id = :colorId\n And brand_id = :brandId" +
+            " and gender_id = :genderId and material_id =:materialId and type_id = :typeId and sole_id =:soleId"
+            , nativeQuery = true)
+    ProductDetail findByProductIdAndSizeIdAndColorId(Integer productId, Integer sizeId, Integer colorId, Integer
+            brandId, Integer genderId, Integer materialId, Integer typeId, Integer soleId);
+
 }

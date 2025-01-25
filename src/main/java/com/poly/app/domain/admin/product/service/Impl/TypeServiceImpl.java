@@ -7,6 +7,7 @@ import com.poly.app.domain.repository.TypeRepository;
 import com.poly.app.domain.admin.product.request.type.TypeRequest;
 import com.poly.app.domain.admin.product.response.type.TypeResponse;
 import com.poly.app.domain.admin.product.service.TypeService;
+import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
@@ -37,7 +38,7 @@ public class TypeServiceImpl implements TypeService {
         }
         Type type = Type.builder()
                 .typeName(request.getTypeName())
-                .status(request.getStatus())
+                .status(Status.HOAT_DONG)
                 .build();
         return typeRepository.save(type);
     }
