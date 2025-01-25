@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -55,12 +56,14 @@ public class VoucherServiceImpl implements VoucherService {
     public Voucher createVoucher(VoucherRequest request) {
 
         StatusVoucher saStatusVoucher = checkVoucherStatus(request.getStartDate(), request.getEndDate());
+        // Sinh mã voucher tự động (định nghĩa logic trong createVoucher)
+        String generatedVoucherCode = "MGG" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
 
 
         Voucher voucher = Voucher.builder()
                 .id(request.getId())
-                .voucherCode(request.getVoucherCode())
+                .voucherCode(generatedVoucherCode)
                 .quantity(request.getQuantity())
                 .voucherType(request.getVoucherType())
                 .discountValue(request.getDiscountValue())
@@ -79,7 +82,7 @@ public class VoucherServiceImpl implements VoucherService {
         StatusVoucher saStatusVoucher = checkVoucherStatus(request.getStartDate(), request.getEndDate());
 
 //        voucher.setId(request.getId());
-        voucher.setVoucherCode(request.getVoucherCode());
+//        voucher.setVoucherCode(request.getVoucherCode());
         voucher.setQuantity(request.getQuantity());
         voucher.setVoucherType(request.getVoucherType());
         voucher.setDiscountValue(request.getDiscountValue());
