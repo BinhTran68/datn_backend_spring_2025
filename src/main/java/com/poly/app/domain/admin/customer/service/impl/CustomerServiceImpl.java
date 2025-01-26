@@ -1,295 +1,9 @@
-////package com.poly.app.domain.admin.customer.service.impl;
-////
-////import com.poly.app.domain.admin.customer.request.CustomerRequest;
-////import com.poly.app.domain.admin.customer.service.CustomerService;
-////import com.poly.app.domain.model.Address;
-////import com.poly.app.domain.model.Customer;
-////import com.poly.app.domain.repository.CustomerRepository;
-////import org.springframework.beans.factory.annotation.Autowired;
-////import org.springframework.stereotype.Service;
-////
-////import java.util.ArrayList;
-////import java.util.Collections;
-////import java.util.List;
-////
-////@Service
-////public class CustomerServiceImpl implements CustomerService {
-////
-////    @Autowired
-////    private CustomerRepository customerRepository;
-////
-////    @Override
-////    public Customer createCustomer(CustomerRequest customerRequest) {
-////        Customer customer = new Customer();
-////        customer.setCode(customerRequest.getCode());
-////        customer.setFullName(customerRequest.getFullName());
-////        customer.setDateBirth(customerRequest.getDateBirth());
-////        customer.setCitizenId(customerRequest.getCitizenId());
-////        customer.setPhoneNumber(customerRequest.getPhoneNumber());
-////        customer.setEmail(customerRequest.getEmail());
-////        customer.setGender(customerRequest.getGender());
-////        customer.setPassword(customerRequest.getPassword());
-////
-////        // Đảm bảo danh sách addresses được khởi tạo không null
-////        customer.setAddresses(new ArrayList<>());
-////
-////        return customerRepository.save(customer);
-////    }
-////
-////    @Override
-////    public Customer updateCustomer(Long id, CustomerRequest customerRequest) {
-////        Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
-////        customer.setFullName(customerRequest.getFullName());
-////        customer.setDateBirth(customerRequest.getDateBirth());
-////        customer.setCitizenId(customerRequest.getCitizenId());
-////        customer.setPhoneNumber(customerRequest.getPhoneNumber());
-////        customer.setEmail(customerRequest.getEmail());
-////        customer.setGender(customerRequest.getGender());
-////        customer.setPassword(customerRequest.getPassword());
-////
-////        // Đảm bảo danh sách addresses được khởi tạo không null
-////        if (customer.getAddresses() == null) {
-////            customer.setAddresses(new ArrayList<>());
-////        }
-////
-////        return customerRepository.save(customer);
-////    }
-////
-////    @Override
-////    public void deleteCustomer(Long id) {
-////        customerRepository.deleteById(id);
-////    }
-////
-////    @Override
-////    public Customer getCustomerById(Long id) {
-////        return customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
-////    }
-////
-////    @Override
-////    public List<Customer> getAllCustomers() {
-////        return customerRepository.findAll();
-////    }
-////
-////    public void processCustomerAddresses(Long customerId) {
-////        Customer customer = getCustomerById(customerId);
-////
-////        // Lấy danh sách địa chỉ của khách hàng và đảm bảo không null
-////        List<Address> addresses = customer.getAddresses() != null ? customer.getAddresses() : Collections.emptyList();
-////
-////        if (!addresses.isEmpty()) {
-////            addresses.stream().forEach(address -> {
-////                // Thực hiện các thao tác với từng address
-////                System.out.println("Processing address: " + address);
-////            });
-////        } else {
-////            System.out.println("No addresses to process.");
-////        }
-////    }
-////}
-//
-//
-//
-//
-//package com.poly.app.domain.admin.customer.service.impl;
-//
-//import com.poly.app.domain.admin.customer.request.CustomerRequest;
-//import com.poly.app.domain.admin.customer.service.CustomerService;
-//import com.poly.app.domain.model.Address;
-//import com.poly.app.domain.model.Customer;
-//import com.poly.app.domain.repository.CustomerRepository;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//
-//import java.util.List;
-//import java.util.stream.Collectors;
-//
-//@Service
-//public class CustomerServiceImpl implements CustomerService {
-//
-//    @Autowired
-//    private CustomerRepository customerRepository;
-//
-//    @Override
-//    public Customer createCustomer(CustomerRequest customerRequest) {
-//        Customer customer = new Customer();
-//        customer.setCode(customerRequest.getCode());
-//        customer.setFullName(customerRequest.getFullName());
-//        customer.setDateBirth(customerRequest.getDateBirth());
-//        customer.setCitizenId(customerRequest.getCitizenId());
-//        customer.setPhoneNumber(customerRequest.getPhoneNumber());
-//        customer.setEmail(customerRequest.getEmail());
-//        customer.setGender(customerRequest.getGender());
-//        customer.setPassword(customerRequest.getPassword());
-//
-//        // Chuyển AddressRequest sang Address và gán vào danh sách addresses của Customer
-//        List<Address> addresses = customerRequest.getAddresses().stream()
-//                .map(addressRequest -> {
-//                    Address address = new Address();
-//                    address.setProvinceId(addressRequest.getProvinceId());
-//                    address.setDistrictId(addressRequest.getDistrictId());
-//                    address.setWardId(addressRequest.getWardId());
-//                    address.setIsAddressDefault(addressRequest.getIsAddressDefault());
-//                    address.setSpecificAddress(addressRequest.getSpecificAddress());
-//                    address.setCustomer(customer);  // Gán customer vào mỗi address
-//                    return address;
-//                })
-//                .collect(Collectors.toList());
-//
-//        customer.setAddresses(addresses); // Gán danh sách địa chỉ vào customer
-//        return customerRepository.save(customer); // Lưu customer và địa chỉ vào DB
-//    }
-//
-//    @Override
-//    public Customer updateCustomer(Long id, CustomerRequest customerRequest) {
-//        Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
-//        customer.setFullName(customerRequest.getFullName());
-//        customer.setDateBirth(customerRequest.getDateBirth());
-//        customer.setCitizenId(customerRequest.getCitizenId());
-//        customer.setPhoneNumber(customerRequest.getPhoneNumber());
-//        customer.setEmail(customerRequest.getEmail());
-//        customer.setGender(customerRequest.getGender());
-//        customer.setPassword(customerRequest.getPassword());
-//
-//        // Chuyển AddressRequest sang Address và cập nhật danh sách địa chỉ
-//        List<Address> addresses = customerRequest.getAddresses().stream()
-//                .map(addressRequest -> {
-//                    Address address = new Address();
-//                    address.setProvinceId(addressRequest.getProvinceId());
-//                    address.setDistrictId(addressRequest.getDistrictId());
-//                    address.setWardId(addressRequest.getWardId());
-//                    address.setIsAddressDefault(addressRequest.getIsAddressDefault());
-//                    address.setSpecificAddress(addressRequest.getSpecificAddress());
-//                    address.setCustomer(customer);  // Gán customer vào mỗi address
-//                    return address;
-//                })
-//                .collect(Collectors.toList());
-//
-//        customer.setAddresses(addresses); // Cập nhật danh sách địa chỉ vào customer
-//        return customerRepository.save(customer); // Lưu customer và địa chỉ vào DB
-//    }
-//
-//    @Override
-//    public void deleteCustomer(Long id) {
-//        customerRepository.deleteById(id);
-//    }
-//
-//    @Override
-//    public Customer getCustomerById(Long id) {
-//        return customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
-//    }
-//
-//    @Override
-//    public List<Customer> getAllCustomers() {
-//        return customerRepository.findAll();
-//    }
-//}
-
-
-
-//package com.poly.app.domain.admin.customer.service.impl;
-//
-//import com.poly.app.domain.admin.customer.request.CustomerRequest;
-//import com.poly.app.domain.admin.customer.service.CustomerService;
-//import com.poly.app.domain.model.Address;
-//import com.poly.app.domain.model.Customer;
-//import com.poly.app.domain.repository.CustomerRepository;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.stream.Collectors;
-//
-//@Service
-//public class CustomerServiceImpl implements CustomerService {
-//
-//    @Autowired
-//    private CustomerRepository customerRepository;
-//
-//    @Override
-//    public Customer createCustomer(CustomerRequest customerRequest) {
-//        Customer customer = new Customer();
-//        customer.setCode(customerRequest.getCode());
-//        customer.setFullName(customerRequest.getFullName());
-//        customer.setDateBirth(customerRequest.getDateBirth());
-//        customer.setCitizenId(customerRequest.getCitizenId());
-//        customer.setPhoneNumber(customerRequest.getPhoneNumber());
-//        customer.setEmail(customerRequest.getEmail());
-//        customer.setGender(customerRequest.getGender());
-//        customer.setPassword(customerRequest.getPassword());
-//
-//        // Kiểm tra nếu addresses là null, gán nó thành một danh sách rỗng
-//        List<Address> addresses = customerRequest.getAddresses() != null
-//                ? customerRequest.getAddresses().stream()
-//                .map(addressRequest -> {
-//                    Address address = new Address();
-//                    address.setProvinceId(addressRequest.getProvinceId());
-//                    address.setDistrictId(addressRequest.getDistrictId());
-//                    address.setWardId(addressRequest.getWardId());
-//                    address.setIsAddressDefault(addressRequest.getIsAddressDefault());
-//                    address.setSpecificAddress(addressRequest.getSpecificAddress());
-//                    address.setCustomer(customer);  // Liên kết với customer
-//                    return address;
-//                })
-//                .collect(Collectors.toList())
-//                : new ArrayList<>();  // Tránh NullPointerException nếu addresses là null
-//
-//        customer.setAddresses(addresses); // Gán danh sách địa chỉ vào customer
-//        return customerRepository.save(customer); // Lưu customer và địa chỉ vào DB
-//    }
-//
-//    @Override
-//    public Customer updateCustomer(Long id, CustomerRequest customerRequest) {
-//        Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
-//        customer.setFullName(customerRequest.getFullName());
-//        customer.setDateBirth(customerRequest.getDateBirth());
-//        customer.setCitizenId(customerRequest.getCitizenId());
-//        customer.setPhoneNumber(customerRequest.getPhoneNumber());
-//        customer.setEmail(customerRequest.getEmail());
-//        customer.setGender(customerRequest.getGender());
-//        customer.setPassword(customerRequest.getPassword());
-//
-//        // Chuyển AddressRequest sang Address và cập nhật danh sách địa chỉ
-//        List<Address> addresses = customerRequest.getAddresses().stream()
-//                .map(addressRequest -> {
-//                    Address address = new Address();
-//                    address.setProvinceId(addressRequest.getProvinceId());
-//                    address.setDistrictId(addressRequest.getDistrictId());
-//                    address.setWardId(addressRequest.getWardId());
-//                    address.setIsAddressDefault(addressRequest.getIsAddressDefault());
-//                    address.setSpecificAddress(addressRequest.getSpecificAddress());
-//                    address.setCustomer(customer);  // Liên kết với customer
-//                    return address;
-//                })
-//                .collect(Collectors.toList());
-//
-//        customer.setAddresses(addresses); // Cập nhật danh sách địa chỉ vào customer
-//        return customerRepository.save(customer); // Lưu customer và địa chỉ vào DB
-//    }
-//
-//    @Override
-//    public void deleteCustomer(Long id) {
-//        customerRepository.deleteById(id);
-//    }
-//
-//    @Override
-//    public Customer getCustomerById(Long id) {
-//        return customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
-//    }
-//
-//    @Override
-//    public List<Customer> getAllCustomers() {
-//        return customerRepository.findAll();
-//    }
-//}
-
-
-
-
 
 package com.poly.app.domain.admin.customer.service.impl;
 
+import com.poly.app.domain.admin.customer.request.AddressRequest;
 import com.poly.app.domain.admin.customer.request.CustomerRequest;
+import com.poly.app.domain.admin.customer.response.AddressResponse;
 import com.poly.app.domain.admin.customer.response.CustomerResponse;
 import com.poly.app.domain.admin.customer.service.CustomerService;
 import com.poly.app.domain.model.Address;
@@ -389,4 +103,74 @@ public class CustomerServiceImpl implements CustomerService {
         Optional<Customer> optionalCustomer = Optional.ofNullable(customerRepository.findByEmail(email));
         return optionalCustomer.map(CustomerResponse::new).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
+
+
+
+
+
+
+    @Override
+    public AddressResponse updateAddress(Integer addressId, AddressRequest addressRequest) {
+        Optional<Address> optionalAddress = addressRepository.findById(addressId);
+        if (optionalAddress.isPresent()) {
+            Address address = optionalAddress.get();
+            address.setProvinceId(addressRequest.getProvinceId());
+            address.setDistrictId(addressRequest.getDistrictId());
+            address.setWardId(addressRequest.getWardId());
+            address.setSpecificAddress(addressRequest.getSpecificAddress());
+            address.setIsAddressDefault(addressRequest.getIsAddressDefault());
+            Address updatedAddress = addressRepository.save(address);
+            return new AddressResponse(updatedAddress);
+        } else {
+            throw new RuntimeException("Address not found");
+        }
+    }
+
+    @Override
+    public void deleteAddress(Integer addressId) {
+        addressRepository.deleteById(addressId);
+    }
+
+    @Override
+    public AddressResponse addAddress(Integer customerId, AddressRequest addressRequest) {
+        Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+        if (optionalCustomer.isPresent()) {
+            Customer customer = optionalCustomer.get();
+            Address address = Address.builder()
+                    .provinceId(addressRequest.getProvinceId())
+                    .districtId(addressRequest.getDistrictId())
+                    .wardId(addressRequest.getWardId())
+                    .specificAddress(addressRequest.getSpecificAddress())
+                    .isAddressDefault(addressRequest.getIsAddressDefault())
+                    .build();
+            address.setCustomer(customer);
+            Address savedAddress = addressRepository.save(address);
+            return new AddressResponse(savedAddress);
+        } else {
+            throw new RuntimeException("Customer not found");
+        }
+    }
+
+    @Override
+    public void setDefaultAddress(Integer addressId) {
+        Optional<Address> optionalAddress = addressRepository.findById(addressId);
+        if (optionalAddress.isPresent()) {
+            Address address = optionalAddress.get();
+            // Set existing default address to false
+            List<Address> addresses = addressRepository.findByCustomerId(address.getCustomer().getId());
+            addresses.forEach(addr -> {
+                if (addr.getIsAddressDefault()) {
+                    addr.setIsAddressDefault(false);
+                    addressRepository.save(addr);
+                }
+            });
+            // Set the selected address to default
+            address.setIsAddressDefault(true);
+            addressRepository.save(address);
+        } else {
+            throw new RuntimeException("Address not found");
+        }
+    }
+
+
 }
