@@ -7,6 +7,7 @@ import com.poly.app.domain.repository.SoleRepository;
 import com.poly.app.domain.admin.product.request.sole.SoleRequest;
 import com.poly.app.domain.admin.product.response.sole.SoleResponse;
 import com.poly.app.domain.admin.product.service.SoleService;
+import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
@@ -37,7 +38,7 @@ public class SoleServiceImpl implements SoleService {
         }
         Sole sole = Sole.builder()
                 .soleName(request.getSoleName())
-                .status(request.getStatus())
+                .status(Status.HOAT_DONG)
                 .build();
         return soleRepository.save(sole);
     }

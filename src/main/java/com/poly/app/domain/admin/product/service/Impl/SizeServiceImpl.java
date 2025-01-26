@@ -7,6 +7,7 @@ import com.poly.app.domain.repository.SizeRepository;
 import com.poly.app.domain.admin.product.request.size.SizeRequest;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
 import com.poly.app.domain.admin.product.service.SizeService;
+import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
@@ -37,7 +38,7 @@ public class SizeServiceImpl implements SizeService {
         }
         Size size = Size.builder()
                 .sizeName(request.getSizeName())
-                .status(request.getStatus())
+                .status(Status.HOAT_DONG)
                 .build();
         return sizeRepository.save(size);
     }

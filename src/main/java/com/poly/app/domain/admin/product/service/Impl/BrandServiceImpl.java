@@ -6,6 +6,7 @@ import com.poly.app.domain.repository.BrandRepository;
 import com.poly.app.domain.admin.product.request.brand.BrandRequest;
 import com.poly.app.domain.admin.product.response.brand.BrandResponse;
 import com.poly.app.domain.admin.product.service.BrandService;
+import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
@@ -37,7 +38,7 @@ public class BrandServiceImpl implements BrandService {
         }
         Brand brand = Brand.builder()
                 .brandName(request.getBrandName())
-                .status(request.getStatus())
+                .status(Status.HOAT_DONG)
                 .build();
         return brandRepository.save(brand);
     }

@@ -8,6 +8,7 @@ import com.poly.app.domain.repository.MaterialRepository;
 import com.poly.app.domain.admin.product.request.material.MaterialRequest;
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
 import com.poly.app.domain.admin.product.service.MaterialService;
+import com.poly.app.infrastructure.constant.Status;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -33,7 +34,7 @@ public class MaterialServiceImpl implements MaterialService {
     public Material createMaterial(MaterialRequest request) {
         Material material = Material.builder()
                 .materialName(request.getMaterialName())
-                .status(request.getStatus())
+                .status(Status.HOAT_DONG)
                 .build();
         return materialRepository.save(material);
     }
