@@ -26,5 +26,8 @@ public interface BillHistoryRepository extends JpaRepository<BillHistory,Integer
 
     List<BillHistory> findByBill(Bill bill);
 
+    BillHistory findDistinctFirstByBillOrderByCreatedAtDesc(Bill bill);
+
+
 
 }

@@ -7,9 +7,12 @@ import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
+import com.poly.app.domain.model.BillDetail;
 import com.poly.app.domain.model.BillHistory;
+import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Staff;
 import com.poly.app.domain.repository.AddressRepository;
+import com.poly.app.domain.repository.BillDetailRepository;
 import com.poly.app.domain.repository.BillHistoryRepository;
 import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.CustomerRepository;
@@ -19,6 +22,7 @@ import com.poly.app.infrastructure.constant.TypeBill;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.util.DateUtil;
+import com.poly.app.infrastructure.util.GenHoaDon;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -30,6 +34,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -56,6 +62,11 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     BillHistoryService billHistoryService;
+
+    @Autowired
+    GenHoaDon genHoaDon;
+    @Autowired
+    private BillDetailRepository billDetailRepository;
 
     @Override
     public Page<BillResponse> getPageBill(Integer size, Integer page,
@@ -166,6 +177,15 @@ public class BillServiceImpl implements BillService {
 
         billRepository.save(bill);
         return convertBillToBillResponse(bill);
+    }
+
+    @Override
+    public File printBillById(String billCode) {
+        Bill bill = billRepository.findByBillCode(billCode);
+        BillHistory billHistory = billHistoryRepository.findDistinctFirstByBillOrderByCreatedAtDesc(bill);
+        Customer account = bill.getCustomer();
+        List<BillDetail> lstBillDetail = billDetailRepository.findByBill(bill);
+        return genHoaDon.genHoaDon(bill, lstBillDetail, billHistory, account);
     }
 
 

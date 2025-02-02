@@ -52,6 +52,8 @@ public class Bill extends PrimaryEntity implements Serializable {
 
     //    tổng tiền
     Double totalMoney;
+
+    Double moneyAfter;
 //    laoi
 
     //nagyf hoàn thành

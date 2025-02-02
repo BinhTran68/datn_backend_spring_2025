@@ -7,6 +7,7 @@ import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.TypeBill;
 import org.springframework.data.domain.Page;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -22,5 +23,5 @@ public interface BillService {
      BillResponse updateBillInfo(String billCode, UpdateBillRequest request);
 
 
-
+    File printBillById(String billCode);
 }
