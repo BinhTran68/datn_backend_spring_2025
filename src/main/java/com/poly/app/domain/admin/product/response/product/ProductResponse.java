@@ -14,6 +14,7 @@ public class ProductResponse {
     Integer id;
     String code;
     String productName;
+    Integer totalQuantity;
     Long updateAt;
     Status status;
 }

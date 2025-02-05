@@ -15,4 +15,5 @@ public class ColorRequest {
     @NotBlank(message = "NOT_BLANK")
     String colorName;
     Status status;
+    String code;
 }

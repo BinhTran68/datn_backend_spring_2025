@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.service;
 
 import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
+import com.poly.app.domain.admin.product.response.product.IProductResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
@@ -16,9 +17,9 @@ public interface ProductService {
 
      ProductResponse updateProduct(ProductRequest request, int id);
 
-     Page<ProductResponse> getAllProduct(int page, int product);
+     Page<IProductResponse> getAllProduct(int page, int product);
 
-     Page<ProductResponse> fillbyProductName(int page, int product, String name);
+     Page<IProductResponse> fillbyProductName(int page, int product, String name);
 
      String delete(int id);
 

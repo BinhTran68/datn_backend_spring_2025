@@ -21,7 +21,7 @@ public interface ColorRepository extends JpaRepository<Color, Integer> {
     @Query(value = "select new com.poly.app.domain.admin.product.response.color.ColorResponse(c.id,c.code,c.colorName,c.updatedAt,c.status) from Color c order by c.createdAt desc")
     Page<ColorResponse> getAll(Pageable pageable);
 
-    @Query(value = "select new com.poly.app.domain.admin.product.response.color.ColorResponseSelect(b.id,b.colorName,b.status) from Color b order by b.createdAt desc ")
+    @Query(value = "select new com.poly.app.domain.admin.product.response.color.ColorResponseSelect(b.id,b.colorName,b.status,b.code) from Color b order by b.createdAt desc ")
     List<ColorResponseSelect> dataSelect();
 
     boolean existsByColorName(String name);
