@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
+import com.poly.app.domain.admin.product.response.product.IProductResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.repository.ProductRepository;
@@ -67,17 +68,17 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public Page<ProductResponse> getAllProduct(int page, int product) {
+    public Page<IProductResponse> getAllProduct(int page, int product) {
         Pageable pageable = PageRequest.of(page, product);
-        Page<ProductResponse> response= productRepository.getAll(pageable);
+        Page<IProductResponse> response= productRepository.getAll(pageable);
         return response ;    }
 
     @Override
-    public Page<ProductResponse> fillbyProductName(int page, int product, String name) {
+    public Page<IProductResponse> fillbyProductName(int page, int product, String name) {
         Pageable pageable = PageRequest.of(page, product);
 
 
-        Page<ProductResponse> productPage = productRepository.fillbyname(String.format("%%%s%%", name), pageable);
+        Page<IProductResponse> productPage = productRepository.fillbyname(String.format("%%%s%%", name), pageable);
         log.info(name);
         // Chuyển đổi từ Page<Product> sang Page<ProductResponse>
         return productPage;

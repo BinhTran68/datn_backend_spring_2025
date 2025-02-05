@@ -37,15 +37,19 @@ public class ColorServiceImpl implements ColorService {
                 .colorName(request.getColorName())
                 .status(Status.HOAT_DONG)
                 .build();
-        return colorRepository.save(color);
+
+        Color color1 = colorRepository.save(color);
+        color1.setCode(request.getCode());
+        return colorRepository.save(color1);
     }
 
     @Override
     public ColorResponse updateColor(ColorRequest request, int id) {
-        Color color = colorRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
+        Color color = colorRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         color.setColorName(request.getColorName());
         color.setStatus(request.getStatus());
+        color.setCode(request.getCode());
 
         colorRepository.save(color);
 
@@ -74,10 +78,10 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public String deleteColor(int id) {
-        if ( !colorRepository.findById(id).isEmpty()){
+        if (!colorRepository.findById(id).isEmpty()) {
             colorRepository.deleteById(id);
             return "xóa thành công";
-        }else{
+        } else {
             return "id ko tồn tại";
         }
 
@@ -86,7 +90,7 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public ColorResponse getColor(int id) {
-        Color color = colorRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
+        Color color = colorRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         return ColorResponse.builder()
                 .code(color.getCode())

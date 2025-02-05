@@ -14,4 +14,5 @@ public class ColorResponseSelect {
     Integer id;
     String ColorName;
     Status status;
+    String code;
 }

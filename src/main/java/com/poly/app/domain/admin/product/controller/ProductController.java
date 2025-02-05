@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.product.IProductResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Product;
@@ -43,12 +44,12 @@ public class ProductController {
     }
 
     @GetMapping()
-    public ApiResponse<List<ProductResponse>> getAllProduct(@RequestParam(value = "page", defaultValue = "1") int page,
+    public ApiResponse<List<IProductResponse>> getAllProduct(@RequestParam(value = "page", defaultValue = "1") int page,
                                                       @RequestParam(value = "size", defaultValue = "5") int product
     ) {
 
-        Page<ProductResponse> page1 = productService.getAllProduct(page - 1, product);
-        return ApiResponse.<List<ProductResponse>>builder()
+        Page<IProductResponse> page1 = productService.getAllProduct(page - 1, product);
+        return ApiResponse.<List<IProductResponse>>builder()
                 .message("list product")
                 .data(page1.getContent())
                 .meta(Meta.builder()
@@ -67,12 +68,12 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ApiResponse<List<ProductResponse>> getProduct(@RequestParam("name") String name,
+    public ApiResponse<List<IProductResponse>> getProduct(@RequestParam("name") String name,
                                                    @RequestParam(value = "page", defaultValue = "1") int page,
                                                    @RequestParam(value = "size", defaultValue = "5") int product) {
 
-        Page<ProductResponse> page1 = productService.fillbyProductName(page - 1, product, name);
-        return ApiResponse.<List<ProductResponse>>builder()
+        Page<IProductResponse> page1 = productService.fillbyProductName(page - 1, product, name);
+        return ApiResponse.<List<IProductResponse>>builder()
                 .message("get product by id")
                 .data(page1.getContent())
                 .meta(Meta.builder()
