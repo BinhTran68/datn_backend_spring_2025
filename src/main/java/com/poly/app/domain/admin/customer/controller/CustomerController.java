@@ -58,10 +58,6 @@ public class CustomerController {
     }
 
 
-
-
-
-
     @PutMapping("/update-address/{addressId}")
     public ResponseEntity<AddressResponse> updateAddress(@PathVariable Integer addressId, @RequestBody AddressRequest addressRequest) {
         AddressResponse addressResponse = customerService.updateAddress(addressId, addressRequest);

@@ -109,7 +109,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 "</html>\n");
 
 
-
         emailSender.sendEmail(email);
         return true;
     }

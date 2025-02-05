@@ -10,8 +10,11 @@ import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.repository.AddressRepository;
 import com.poly.app.domain.repository.CustomerRepository;
+import com.poly.app.infrastructure.email.Email;
+import com.poly.app.infrastructure.email.EmailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,6 +27,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private AddressRepository addressRepository;
+
+    @Autowired
+    private EmailSender emailSender;
 
     @Override
     public CustomerResponse createCustomer(CustomerRequest customerRequest) {
@@ -50,6 +56,28 @@ public class CustomerServiceImpl implements CustomerService {
 
         Customer customerFromDB = customerRepository.findById(customer.getId()).orElse(null);
         assert customerFromDB != null;
+        Email email = new Email();
+        String[] emailSend = {customerRequest.getEmail()};
+        email.setToEmail(emailSend);
+        email.setSubject("Tạo tài khoản thành công");
+        email.setTitleEmail("");
+        email.setBody("<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; margin: 50px;\">\n" +
+                "\n" +
+                "    <div class=\"success-message\" style=\"background-color: #FFFFF; color: black; padding: 20px; border-radius: 10px; margin-top: 50px;\">\n" +
+                "        <h2 style=\"color: #333;\">Tài khoản đã được tạo thành công!</h2>\n" +
+                "        <p style=\"color: #555;\">Cảm ơn bạn đã đăng ký tại TheHands. Dưới đây là thông tin đăng nhập của bạn:</p>\n" +
+                "        <p><strong>Email:</strong> " + customerRequest.getEmail() + "</p>\n" +
+                "        <p><strong>Mật khẩu:</strong> " + customerRequest.getPassword() + "</p>\n" +
+                "        <p style=\"color: #555;\">Đăng nhập ngay để trải nghiệm!</p>\n" +
+                "    </div>\n" +
+                "\n" +
+                "</body>\n" +
+                "</html>\n");
+
+
+        emailSender.sendEmail(email);
         return new CustomerResponse(customerFromDB);
     }
 
@@ -71,7 +99,6 @@ public class CustomerServiceImpl implements CustomerService {
 
             // Clear existing addresses
             customer.getAddresses().clear();
-
 
 
             Customer updatedCustomer = customerRepository.save(customer);
@@ -103,10 +130,6 @@ public class CustomerServiceImpl implements CustomerService {
         Optional<Customer> optionalCustomer = Optional.ofNullable(customerRepository.findByEmail(email));
         return optionalCustomer.map(CustomerResponse::new).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
-
-
-
-
 
 
     @Override
