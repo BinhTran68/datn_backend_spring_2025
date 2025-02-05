@@ -1,4 +1,5 @@
-package com.poly.app.domain.admin.customer.request;
+
+package com.poly.app.domain.admin.address;
 
 import lombok.Data;
 

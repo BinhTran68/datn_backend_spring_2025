@@ -1,63 +1,80 @@
 package com.poly.app.domain.admin.staff.controller;
 
-import com.poly.app.domain.admin.customer.response.CustomerResponse;
-import com.poly.app.domain.admin.customer.service.CustomerService;
-import com.poly.app.domain.auth.Repo.StaffRepo;
-import com.poly.app.domain.model.Staff;
-import com.poly.app.domain.repository.StaffRepository;
+import com.poly.app.domain.admin.address.AddressRequest;
+import com.poly.app.domain.admin.customer.response.AddressResponse;
+import com.poly.app.domain.admin.staff.request.StaffRequest;
+import com.poly.app.domain.admin.staff.response.StaffReponse;
+import com.poly.app.domain.admin.staff.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @RestController
 @RequestMapping("/api/admin/staff")
 public class StaffController {
-//    @Autowired
-//    private StaffRepo staffRepo;
     @Autowired
-    private StaffRepository staffRepository;
-
-
-    @GetMapping("/hienthi")
-    public List<Staff> hienThi(){
-        return staffRepository.findAll();
-    }
+    private StaffService staffService;
 
     @PostMapping("/add")
-    public String add(@RequestBody Staff staff){
-        staffRepository.save(staff);
-        return "Thêm thành công!";
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Integer id){
-        staffRepository.deleteById(id);
-        return "Xóa thành công!";
+    public ResponseEntity<StaffReponse> createStaff(@RequestBody StaffRequest staffRequest) {
+        StaffReponse staffReponse = staffService.createStaff(staffRequest);
+        return ResponseEntity.ok(staffReponse);
     }
 
     @PutMapping("/update/{id}")
-    public String edit(@PathVariable Integer id, @RequestBody Staff staff){
-        Staff staffUpdate = staffRepository.findById(id).orElseThrow();
-            staffUpdate.setFullName(staff.getFullName());
-            staffUpdate.setDateBirth(staff.getDateBirth());
-            staffUpdate.setPhoneNumber(staff.getPhoneNumber());
-            staffUpdate.setEmail(staff.getEmail());
-            staffUpdate.setGender(staff.getGender());
-            staffUpdate.setPassword(staff.getPassword());
-            staffUpdate.setStatus(staff.getStatus());
-            staffRepository.save(staffUpdate);
-            return "Cập nhật thành công!";
-
+    public ResponseEntity<StaffReponse> updateStaff(@PathVariable Integer id, @RequestBody StaffRequest staffRequest) {
+        StaffReponse staffReponse = staffService.updateStaff(id, staffRequest);
+        return ResponseEntity.ok(staffReponse);
     }
-//    @GetMapping("/detail/{fullName}")
-//    public List<Staff> getDetail(@PathVariable ("fullName") String fullName){
-//        return staffRepo.findAll().stream().filter(item -> item.getFullName().equals(fullName)).toList();
-//    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteStaff(@PathVariable Integer id) {
+        staffService.deleteStaff(id);
+        return ResponseEntity.noContent().build();
+    }
 
     @GetMapping("/detail/{id}")
-    public ResponseEntity<Staff> getDetail(@PathVariable Integer id) {
-        Staff staff = staffRepository.findById(id).orElseThrow();
-        return ResponseEntity.ok(staff);
+    public ResponseEntity<StaffReponse> getStaffById(@PathVariable Integer id) {
+        StaffReponse staffReponse = staffService.getStaffById(id);
+        return ResponseEntity.ok(staffReponse);
     }
+
+    @GetMapping("/hienthi")
+    public ResponseEntity<List<StaffReponse>> getAllStaffs() {
+        List<StaffReponse> staffs = staffService.getAllStaff();
+        return ResponseEntity.ok(staffs);
+    }
+
+    @GetMapping("/detail/email")
+    public ResponseEntity<StaffReponse> getStaffByEmail(@RequestParam String email) {
+        StaffReponse staffReponse = staffService.getStaffByEmail(email);
+        return ResponseEntity.ok(staffReponse);
+    }
+
+    @PutMapping("/update-address/{addressId}")
+    public ResponseEntity<AddressResponse> updateAddress(@PathVariable Integer addressId, @RequestBody AddressRequest addressRequest) {
+        AddressResponse addressResponse = staffService.updateAddress(addressId, addressRequest);
+        return ResponseEntity.ok(addressResponse);
+    }
+
+    @DeleteMapping("/delete-address/{addressId}")
+    public ResponseEntity<Void> deleteAddress(@PathVariable Integer addressId) {
+        staffService.deleteAddress(addressId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/add-address/{customerId}")
+    public ResponseEntity<AddressResponse> addAddress(@PathVariable Integer customerId, @RequestBody AddressRequest addressRequest) {
+        AddressResponse addressResponse = staffService.addAddress(customerId, addressRequest);
+        return ResponseEntity.ok(addressResponse);
+    }
+
+    @PutMapping("/set-default-address/{addressId}")
+    public ResponseEntity<Void> setDefaultAddress(@PathVariable Integer addressId) {
+        staffService.setDefaultAddress(addressId);
+        return ResponseEntity.ok().build();
+    }
+
 }

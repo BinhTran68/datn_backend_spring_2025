@@ -113,6 +113,7 @@
 
 package com.poly.app.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.poly.app.domain.model.base.PrimaryEntity;
 import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.constant.EntityProperties;
@@ -177,10 +178,11 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
     private String avatar;
 
     @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference // tránh vòng lặp
     private List<Address> addresses;
 
     // Phân quyền theo role
-    private AccountStatus status = AccountStatus.CHUA_KICH_HOAT;
+    private AccountStatus status = AccountStatus.HOAT_DONG;
 
     public Integer getStatus() {
         return status.ordinal();

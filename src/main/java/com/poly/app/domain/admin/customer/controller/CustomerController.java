@@ -2,7 +2,7 @@
 package com.poly.app.domain.admin.customer.controller;
 
 
-import com.poly.app.domain.admin.customer.request.AddressRequest;
+import com.poly.app.domain.admin.address.AddressRequest;
 import com.poly.app.domain.admin.customer.request.CustomerRequest;
 import com.poly.app.domain.admin.customer.response.AddressResponse;
 import com.poly.app.domain.admin.customer.response.CustomerResponse;
@@ -56,10 +56,6 @@ public class CustomerController {
         CustomerResponse customerResponse = customerService.getCustomerByEmail(email);
         return ResponseEntity.ok(customerResponse);
     }
-
-
-
-
 
 
     @PutMapping("/update-address/{addressId}")

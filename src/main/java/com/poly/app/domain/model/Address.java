@@ -27,6 +27,7 @@
 
         @ManyToOne
         @JoinColumn
+        @JsonBackReference
         Staff staff;
 
         String provinceId; // tỉnh
