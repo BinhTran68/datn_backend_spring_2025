@@ -189,7 +189,7 @@ public class GenHoaDon {
             for (BillDetail billDetail : billDetails) {
                 // Thêm dữ liệu sản phẩm
                 table.addCell(String.valueOf(sttCounter));
-                table.addCell("Sản phẩm 1");
+                table.addCell(billDetail.getProductDetail().getProduct().getProductName());
                 table.addCell(String.valueOf(billDetail.getQuantity()));
                 table.addCell(decimalFormat.format(billDetail.getPrice()));
                 table.addCell(decimalFormat.format(billDetail.getPrice()));

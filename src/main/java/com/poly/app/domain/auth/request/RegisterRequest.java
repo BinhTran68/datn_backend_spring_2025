@@ -15,10 +15,7 @@ import java.util.Date;
 public class RegisterRequest {
 
     @NotBlank(message = MessageValidateConstants.nameRequired)
-    private String name;
-
-    @NotBlank(message = MessageValidateConstants.usernameRequired)
-    private String username;
+    private String fullName;
 
     @NotBlank(message = MessageValidateConstants.emailRequired)
     private String email;
