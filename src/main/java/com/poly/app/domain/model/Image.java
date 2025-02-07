@@ -27,6 +27,8 @@ public class Image extends PrimaryEntity implements Serializable {
 
     String url;
 
+    String publicId;
+
     Status status;
 
 }

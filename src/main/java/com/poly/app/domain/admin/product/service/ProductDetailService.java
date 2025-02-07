@@ -12,25 +12,32 @@ import java.util.List;
 
 public interface ProductDetailService {
 
-     ProductDetail createProductDetail(ProductDetailRequest request);
-     ProductDetailResponse updateProductDetail(ProductDetailRequest request, int id);
+    ProductDetail createProductDetail(ProductDetailRequest request);
 
-//     chua phan trang
-     List<ProductDetail> getAllProductDetail();
-     String deleteProductDetail (int id);
-     ProductDetailResponse getProductDetail(int id);
+    ProductDetailResponse updateProductDetail(ProductDetailRequest request, int id);
 
-     Page<ProductDetailResponse> getAllProductDetailPage(int page, int size);
-     List<FilterProductDetailResponse> filterProductDetail(int page, int size, FilterRequest request);
+    //     chua phan trang
+    List<ProductDetail> getAllProductDetail();
 
-     Integer getFillterElement (FilterRequest request);
+    String deleteProductDetail(int id);
 
-     Page<ColorResponse> fillbyName(int page, int size, String name);
+    ProductDetailResponse getProductDetail(int id);
 
-     boolean existsByColorName(String brandName);
+    Page<ProductDetailResponse> getAllProductDetailPage(int page, int size);
 
-     boolean existsByColorNameAndIdNot (String brandName, Integer id);
+    //     getall
+    List<ProductDetailResponse> getAllProductDetailExportData();
 
-     List<ProductDetailResponse> createProductDetailList(List<ProductDetailRequest> request);
+    List<FilterProductDetailResponse> filterProductDetail(int page, int size, FilterRequest request);
+
+    Integer getFillterElement(FilterRequest request);
+
+    Page<ColorResponse> fillbyName(int page, int size, String name);
+
+    boolean existsByColorName(String brandName);
+
+    boolean existsByColorNameAndIdNot(String brandName, Integer id);
+
+    List<ProductDetailResponse> createProductDetailList(List<ProductDetailRequest> request);
 
 }

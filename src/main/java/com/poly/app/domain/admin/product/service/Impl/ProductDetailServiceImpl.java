@@ -1,6 +1,9 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.poly.app.domain.admin.product.request.img.ImgRequest;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
+import com.poly.app.domain.admin.product.response.img.ImgResponse;
+import com.poly.app.domain.admin.product.service.CloundinaryService;
 import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.*;
 import com.poly.app.domain.admin.product.request.productdetail.FilterRequest;
@@ -45,6 +48,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     SoleRepository soleRepository;
 
     GenderRepository genderRepository;
+
+    ImageRepository imageRepository;
+
+    CloundinaryService cloundinaryService;
 
 
     @Override
@@ -203,8 +210,20 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     @Override
     public Page<ProductDetailResponse> getAllProductDetailPage(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDetailResponse> page1 = productDetailRepository.getAllProductDetailPage(pageable);
-        return page1;
+        Page<ProductDetailResponse> productDetails = productDetailRepository.getAllProductDetailPage(pageable);
+
+        // Gán danh sách ảnh cho từng sản phẩm
+        productDetails.forEach(pd -> {
+            List<ImgResponse> images = imageRepository.findByProductDetailId(pd.getId());
+            pd.setImage(images);
+        });
+
+        return productDetails;
+    }
+
+    @Override
+    public List<ProductDetailResponse> getAllProductDetailExportData() {
+        return productDetailRepository.getAllProductDetail();
     }
 
     @Override
@@ -224,7 +243,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 request.getStatus(),
                 request.getSortByQuantity(),
                 request.getSortByPrice(),
-                page, size);
+                (page-1)*size, size);
 
 //        List<FilterProductDetailResponse> list = productDetailRepository.getFilterProductDetail(
 //                null,
@@ -301,13 +320,44 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
                 System.out.println("ở đoạn trùng---------------------------------------------------");
                 // Nếu bản ghi đã tồn tại, cập nhật bản ghi hiện tại
-                existingProductDetail.setQuantity(request.getQuantity()+existingProductDetail.getQuantity());
+                existingProductDetail.setQuantity(request.getQuantity() + existingProductDetail.getQuantity());
                 existingProductDetail.setPrice(request.getPrice());
                 existingProductDetail.setWeight(request.getWeight());
                 existingProductDetail.setDescrition(request.getDescription());
                 existingProductDetail.setStatus(Status.HOAT_DONG);
 
                 // Lưu lại bản ghi đã được cập nhật
+
+//                xóa ảnh
+                List<ImgResponse> images = imageRepository.findByProductDetailId(existingProductDetail.getId());
+
+                for (ImgResponse res : images
+                ) {
+                    try {
+                        //                    xóa khỏi cloud
+                        cloundinaryService.deleteImage(res.getPublicId());
+//                    xóa khỏi bảng img
+                        imageRepository.deleteById(res.getId());
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw new IllegalArgumentException("lỗi xóa ảnh");
+                    }
+                }
+//                thêm lại ảnh vào bảng
+                for (ImgRequest i : request.getImage()
+                ) {
+                    Image image = Image.builder()
+                            .productDetail(existingProductDetail)
+                            .publicId(i.getPublicId())
+                            .url(i.getUrl())
+                            .status(Status.HOAT_DONG)
+                            .build();
+                    imageRepository.save(image);
+
+                }
+
+
                 existingProductDetail = productDetailRepository.save(existingProductDetail);
 
                 // Chuyển đổi ProductDetail thành ProductDetailResponse và thêm vào danh sách
@@ -372,6 +422,19 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 // Lưu ProductDetail vào cơ sở dữ liệu
                 productDetail = productDetailRepository.save(productDetail);
                 log.info(productDetail.toString());
+//                lưu ảnh
+
+                for (ImgRequest i : request.getImage()
+                ) {
+                    Image image = Image.builder()
+                            .productDetail(productDetail)
+                            .publicId(i.getPublicId())
+                            .url(i.getUrl())
+                            .status(Status.HOAT_DONG)
+                            .build();
+                    imageRepository.save(image);
+
+                }
 
                 // Chuyển đổi ProductDetail thành ProductDetailResponse và thêm vào danh sách
                 ProductDetailResponse response = ProductDetailResponse.builder()
@@ -391,6 +454,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                         .status(productDetail.getStatus())
                         .updateAt(productDetail.getUpdatedAt())  // Giả sử có trường updatedAt trong entity
                         .updateBy(productDetail.getUpdatedBy())  // Giả sử có trường updatedBy trong entity
+
                         .build();
 
                 productDetailResponses.add(response);
