@@ -15,6 +15,7 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
+@ToString
 @Table(name = "image")
 //ảnh
 public class Image extends PrimaryEntity implements Serializable {
@@ -26,6 +27,8 @@ public class Image extends PrimaryEntity implements Serializable {
     Boolean isDefault;
 
     String url;
+
+    String publicId;
 
     Status status;
 
