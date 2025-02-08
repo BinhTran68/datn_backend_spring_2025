@@ -1,6 +1,8 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
 import com.poly.app.domain.admin.product.service.CloundinaryService;
+import com.poly.app.domain.model.Image;
+import com.poly.app.domain.repository.ImageRepository;
 import com.poly.app.infrastructure.util.CloudinaryUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class CloundinaryServiceImp implements CloundinaryService {
 
     private final RestTemplate restTemplate;  // Inject RestTemplate từ Spring
+    private final ImageRepository imageRepository;
 
     private static final String CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dieyhvcou/image/destroy";
     private static final String API_KEY = "526492658683127";  // Thay thế bằng API key thực tế của bạn
@@ -57,6 +60,17 @@ public class CloundinaryServiceImp implements CloundinaryService {
             ResponseEntity<Map> response = restTemplate.postForEntity(CLOUDINARY_URL, requestBody, Map.class);
 
             log.info("Xóa ảnh thành công: {}", publicId);
+
+            try {
+                Image image = imageRepository.getImageByPublicId(publicId);
+                log.info(image.toString());
+                imageRepository.deleteById(image.getId());
+
+            } catch (Exception e) {
+                log.info("chua co image nay");
+            }
+
+
             return ResponseEntity.ok(response.getBody());
         } catch (Exception e) {
             log.error("Lỗi khi xóa ảnh {}: {}", publicId, e.getMessage());

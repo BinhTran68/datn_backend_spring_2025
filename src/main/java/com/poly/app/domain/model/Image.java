@@ -15,6 +15,7 @@ import java.io.Serializable;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
+@ToString
 @Table(name = "image")
 //ảnh
 public class Image extends PrimaryEntity implements Serializable {

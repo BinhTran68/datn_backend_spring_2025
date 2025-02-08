@@ -96,6 +96,28 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         Sole sole = soleRepository.findById(request.getSoleId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
         Gender gender = genderRepository.findById(request.getGenderId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
 
+//        thêm url
+        List<ImgResponse> imgResponses = imageRepository.findByProductDetailId(productDetail.getId());
+        for (ImgRequest req : request.getImage()) {
+            boolean found = false; // Cờ kiểm tra xem publicId đã tồn tại chưa
+
+            for (ImgResponse resdb : imgResponses) {
+                if (req.getPublicId().equals(resdb.getPublicId())) {
+                    found = true; // Nếu tìm thấy publicId, đặt cờ thành true
+                    break; // Dừng vòng lặp khi tìm thấy
+                }
+            }
+
+            // Nếu publicId không tồn tại, thêm mới vào cơ sở dữ liệu
+            if (!found) {
+                imageRepository.save(Image.builder()
+                        .publicId(req.getPublicId())
+                        .url(req.getUrl())
+                        .status(Status.HOAT_DONG)
+                        .productDetail(productDetail)
+                        .build());
+            }
+        }
 
         productDetail.setProduct(product);
         productDetail.setBrand(brand);
@@ -172,7 +194,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     @Override
     public ProductDetailResponse getProductDetail(int id) {
         ProductDetail productDetail = productDetailRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko ton tai"));
-
+        List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
                 .code(productDetail.getCode())
@@ -191,6 +213,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .status(productDetail.getStatus())
                 .updateAt(productDetail.getUpdatedAt())
                 .updateBy(productDetail.getUpdatedBy())
+                .image(images)
                 .build();
     }
 //
@@ -243,7 +266,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 request.getStatus(),
                 request.getSortByQuantity(),
                 request.getSortByPrice(),
-                (page-1)*size, size);
+                (page - 1) * size, size);
 
 //        List<FilterProductDetailResponse> list = productDetailRepository.getFilterProductDetail(
 //                null,

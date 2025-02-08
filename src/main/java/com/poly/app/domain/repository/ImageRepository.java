@@ -18,4 +18,6 @@ public interface ImageRepository extends JpaRepository<Image,Integer> {
            "FROM Image i WHERE i.productDetail.id = :productDetailId")
     List<ImgResponse> findByProductDetailId(@Param("productDetailId") Integer productDetailId);
 
+    Image getImageByPublicId(String publicId);
+
 }
