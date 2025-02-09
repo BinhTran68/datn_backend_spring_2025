@@ -19,6 +19,6 @@ public interface  VoucherService {
     Page<VoucherReponse> getAllVoucher (Pageable pageable);
 //    Page<VoucherReponse> searchVouchers(String keyword, Pageable pageable);
 
-
+    List<VoucherReponse> getAllVouchersWithCustomer(Integer customerId);
 
 }

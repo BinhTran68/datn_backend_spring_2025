@@ -33,11 +33,7 @@ public class VoucherServiceImpl implements VoucherService {
 
 //        List<VoucherReponse> voucherReponses = voucherRepository.getAllVou();
 
-        return voucherRepository.findAll().stream()
-                .map(voucher -> new VoucherReponse(voucher.getId(), voucher.getVoucherCode(),
-                        voucher.getQuantity(), voucher.getVoucherType(), voucher.getDiscountValue(),
-                        voucher.getDiscountMaxValue(), voucher.getBillMinValue(), voucher.getStartDate(),
-                        voucher.getEndDate(), voucher.getStatusVoucher())).toList();
+        return List.of();
     }
 
     public StatusVoucher checkVoucherStatus(LocalDateTime startDate, LocalDateTime endDate) {
@@ -154,8 +150,6 @@ public class VoucherServiceImpl implements VoucherService {
     }
     public Page<VoucherReponse> getAllVoucher(Pageable pageable) {
 
-
-
         return voucherRepository.findAll(pageable).map(voucher ->
                 VoucherReponse.builder()
                         .id(voucher.getId())
@@ -170,6 +164,27 @@ public class VoucherServiceImpl implements VoucherService {
                         .statusVoucher(voucher.getStatusVoucher())
                         .build()
         );
+    }
+
+    @Override
+    public List<VoucherReponse> getAllVouchersWithCustomer(Integer customerId) {
+        // Lấy danh sách các voucher public
+
+        // Lấy danh sách voucher của người dùng
+        return voucherRepository.findAll().stream()
+                .map(voucher -> VoucherReponse.builder()
+                        .id(voucher.getId())
+                        .voucherCode(voucher.getVoucherCode())
+                        .quantity(voucher.getQuantity())
+                        .voucherName(voucher.getVoucherName())
+                        .voucherType(voucher.getVoucherType())
+                        .discountValue(voucher.getDiscountValue())
+                        .discountMaxValue(voucher.getDiscountMaxValue())
+                        .billMinValue(voucher.getBillMinValue())
+                        .startDate(voucher.getStartDate())
+                        .endDate(voucher.getEndDate())
+                        .statusVoucher(voucher.getStatusVoucher())
+                        .build()).toList();
     }
 }
 

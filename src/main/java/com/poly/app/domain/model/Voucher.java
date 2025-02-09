@@ -26,6 +26,7 @@ public class Voucher extends PrimaryEntity implements Serializable {
     Integer id;
     //mã phiếu
     String voucherCode;
+    String voucherName;
     //số lượng
     Integer quantity;
     //loại giảm

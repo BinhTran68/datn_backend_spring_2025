@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class VoucherReponse {
     Integer id;
     String voucherCode;
+    String voucherName;
     Integer quantity;
     String voucherType;
     Double discountValue;
