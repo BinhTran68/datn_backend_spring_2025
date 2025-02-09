@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -80,5 +81,17 @@ public class CustomerController {
     public ResponseEntity<Void> setDefaultAddress(@PathVariable Integer addressId) {
         customerService.setDefaultAddress(addressId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<CustomerResponse>> filterCustomers(
+            @RequestParam String searchText,
+            @RequestParam String status,
+            @RequestParam(required = false) LocalDateTime startDate,
+            @RequestParam(required = false) LocalDateTime endDate,
+            @RequestParam Integer minAge,
+            @RequestParam Integer maxAge) {
+        List<CustomerResponse> customers = customerService.filterCustomers(searchText, status, startDate, endDate, minAge, maxAge);
+        return ResponseEntity.ok(customers);
     }
 }

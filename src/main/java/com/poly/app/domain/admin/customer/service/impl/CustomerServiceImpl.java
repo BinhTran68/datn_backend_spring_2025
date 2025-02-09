@@ -18,6 +18,7 @@ import com.poly.app.infrastructure.email.EmailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -156,8 +157,31 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void deleteAddress(Integer addressId) {
+
         addressRepository.deleteById(addressId);
     }
+
+//    @Override
+//    public AddressResponse addAddress(Integer customerId, AddressRequest addressRequest) {
+//        Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+//        if (optionalCustomer.isPresent()) {
+//            Customer customer = optionalCustomer.get();
+//            Address address = Address.builder()
+//                    .provinceId(addressRequest.getProvinceId())
+//                    .districtId(addressRequest.getDistrictId())
+//                    .wardId(addressRequest.getWardId())
+//                    .specificAddress(addressRequest.getSpecificAddress())
+//                    .isAddressDefault(addressRequest.getIsAddressDefault())
+//                    .build();
+//            address.setCustomer(customer);
+//            Address savedAddress = addressRepository.save(address);
+//            return new AddressResponse(savedAddress);
+//        } else {
+//            throw new RuntimeException("Customer not found");
+//        }
+//    }
+
+
 
     @Override
     public AddressResponse addAddress(Integer customerId, AddressRequest addressRequest) {
@@ -169,7 +193,7 @@ public class CustomerServiceImpl implements CustomerService {
                     .districtId(addressRequest.getDistrictId())
                     .wardId(addressRequest.getWardId())
                     .specificAddress(addressRequest.getSpecificAddress())
-                    .isAddressDefault(addressRequest.getIsAddressDefault())
+                    .isAddressDefault(addressRequest.getIsAddressDefault() != null ? addressRequest.getIsAddressDefault() : false)
                     .build();
             address.setCustomer(customer);
             Address savedAddress = addressRepository.save(address);
@@ -179,25 +203,78 @@ public class CustomerServiceImpl implements CustomerService {
         }
     }
 
+
+//    @Override
+//    public void setDefaultAddress(Integer addressId) {
+//        Optional<Address> optionalAddress = addressRepository.findById(addressId);
+//        if (optionalAddress.isPresent()) {
+//            Address address = optionalAddress.get();
+//            // Set existing default address to false
+//            List<Address> addresses = addressRepository.findByCustomerId(address.getCustomer().getId());
+//            addresses.forEach(addr -> {
+//                if (addr.getIsAddressDefault()) {
+//                    addr.setIsAddressDefault(false);
+//                    addressRepository.save(addr);
+//                }
+//            });
+//            // Set the selected address to default
+//            address.setIsAddressDefault(true);
+//            addressRepository.save(address);
+//        } else {
+//            throw new RuntimeException("Address not found");
+//        }
+//    }
+
+
+
     @Override
     public void setDefaultAddress(Integer addressId) {
         Optional<Address> optionalAddress = addressRepository.findById(addressId);
         if (optionalAddress.isPresent()) {
             Address address = optionalAddress.get();
-            // Set existing default address to false
+
+            // Đặt tất cả địa chỉ về không phải mặc định
             List<Address> addresses = addressRepository.findByCustomerId(address.getCustomer().getId());
             addresses.forEach(addr -> {
-                if (addr.getIsAddressDefault()) {
+                if (Boolean.TRUE.equals(addr.getIsAddressDefault())) {
                     addr.setIsAddressDefault(false);
                     addressRepository.save(addr);
                 }
             });
-            // Set the selected address to default
+
+            // Đặt địa chỉ hiện tại làm mặc định
             address.setIsAddressDefault(true);
             addressRepository.save(address);
         } else {
             throw new RuntimeException("Address not found");
         }
+    }
+
+
+
+
+    @Override
+    public List<CustomerResponse> filterCustomers(String searchText, String status, LocalDateTime startDate, LocalDateTime endDate, Integer minAge, Integer maxAge) {
+        List<Customer> customers = customerRepository.findAll();
+        customers = customers.stream()
+                .filter(customer -> customer.getFullName().toLowerCase().contains(searchText.toLowerCase()) ||
+                        customer.getPhoneNumber().contains(searchText))
+                .filter(customer -> status.equals("Tất cả") ||
+                        (status.equals("Kích hoạt") && customer.getStatus() == 1) ||
+                        (status.equals("Khóa") && customer.getStatus() == 0))
+                .filter(customer -> {
+                    if (startDate != null && endDate != null) {
+                        return !customer.getDateBirth().isBefore(startDate) && !customer.getDateBirth().isAfter(endDate);
+                    }
+                    return true;
+                })
+                .filter(customer -> {
+                    int age = LocalDateTime.now().getYear() - customer.getDateBirth().getYear();
+                    return age >= minAge && age <= maxAge;
+                })
+                .collect(Collectors.toList());
+
+        return customers.stream().map(CustomerResponse::new).collect(Collectors.toList());
     }
 
 

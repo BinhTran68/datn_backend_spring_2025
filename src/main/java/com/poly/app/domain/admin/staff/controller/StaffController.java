@@ -76,5 +76,23 @@ public class StaffController {
         staffService.setDefaultAddress(addressId);
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/filterr")
+    public ResponseEntity<List<StaffReponse>> filterStaff(
+            @RequestParam(required = false) String searchText,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String dobFrom,
+            @RequestParam(required = false) String dobTo,
+            @RequestParam(required = false) Integer ageFrom,
+            @RequestParam(required = false) Integer ageTo) {
+        List<StaffReponse> filteredStaffs = staffService.filterStaff(searchText, status, dobFrom, dobTo, ageFrom, ageTo);
+        return ResponseEntity.ok(filteredStaffs);
+    }
 
 }
+
+
+
+
+
+
+

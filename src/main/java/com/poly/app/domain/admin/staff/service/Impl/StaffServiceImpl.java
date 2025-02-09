@@ -14,6 +14,7 @@ import com.poly.app.infrastructure.email.EmailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -190,5 +191,33 @@ public class StaffServiceImpl implements StaffService {
         }
     }
 
+    @Override
+    public List<StaffReponse> filterStaff(String searchText, String status, String dobFrom, String dobTo, Integer ageFrom, Integer ageTo) {
+        List<Staff> staffList = staffRepository.findAll();
+        staffList = staffList.stream()
+                .filter(staff -> searchText == null || searchText.isEmpty() ||
+                        staff.getFullName().toLowerCase().contains(searchText.toLowerCase()) ||
+                        staff.getPhoneNumber().contains(searchText))
+                .filter(staff -> status == null || status.equals("Tất cả") ||
+                        (status.equals("Kích hoạt") && staff.getStatus() == 0) ||
+                        (status.equals("Khóa") && staff.getStatus() == 1))
+                .filter(staff -> {
+                    if (dobFrom != null && dobTo != null) {
+                        LocalDateTime dobFromDateTime = LocalDateTime.parse(dobFrom);
+                        LocalDateTime dobToDateTime = LocalDateTime.parse(dobTo);
+                        return !staff.getDateBirth().isBefore(dobFromDateTime) && !staff.getDateBirth().isAfter(dobToDateTime);
+                    }
+                    return true;
+                })
+                .filter(staff -> {
+                    if (ageFrom != null && ageTo != null) {
+                        int age = LocalDateTime.now().getYear() - staff.getDateBirth().getYear();
+                        return age >= ageFrom && age <= ageTo;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
 
+        return staffList.stream().map(StaffReponse::new).collect(Collectors.toList());
+    }
 }
