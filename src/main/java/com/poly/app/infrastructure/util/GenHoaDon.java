@@ -140,7 +140,7 @@ public class GenHoaDon {
 
             PdfPCell cell5 = new PdfPCell(new Paragraph("Nhân viên: " +
 //                    account.getCode() + " - " +
-                    account.getFullName(), normalFont));
+                  account != null ?  account.getFullName() : "Nhân viên", normalFont));
             cell5.setHorizontalAlignment(Element.ALIGN_LEFT);
             cell5.setBorder(Rectangle.NO_BORDER);
             invoiceTable.addCell(cell5);

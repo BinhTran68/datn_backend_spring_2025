@@ -121,8 +121,6 @@ public class DatabaseSeeder implements CommandLineRunner {
     PasswordEncoder passwordEncoder;
 
 
-
-
     @Override
     public void run(String... args) throws Exception {
         Role role = Role.builder().roleName("ROLE_ADMIN").build();
@@ -336,7 +334,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .gender(gender)
                 .productDetailCode("PD001")
                 .quantity(100)
-                .price(99.99)
+                .price(9990000.0)
                 .weight(0.5)
                 .descrition("Nike Air Max 2023, High comfort and design.")
                 .status(Status.HOAT_DONG)
@@ -353,7 +351,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .gender(gender)
                 .productDetailCode("PD002")
                 .quantity(200)
-                .price(89.99)
+                .price(1000000.0)
                 .weight(0.6)
                 .descrition("Adidas UltraBoost 2023, Advanced cushioning.")
                 .status(Status.HOAT_DONG)
@@ -369,7 +367,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         // Nếu chưa có role, tạo mới
         if (adminRole == null) {
-            adminRole = roleRepository.save(new Role("ADMIN",Status.HOAT_DONG));
+            adminRole = roleRepository.save(new Role("ADMIN", Status.HOAT_DONG));
         }
         if (userRole == null) {
             userRole = roleRepository.save(new Role("USER", Status.HOAT_DONG));
@@ -458,7 +456,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 
 
         }
-
 
 
         if (customerBill2 != null && staffBill2 != null) {

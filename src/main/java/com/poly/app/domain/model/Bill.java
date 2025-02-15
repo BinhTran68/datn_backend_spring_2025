@@ -60,8 +60,7 @@ public class Bill extends PrimaryEntity implements Serializable {
     LocalDateTime completeDate;
     //    nagyf xác nhận
     LocalDateTime confirmDate;
-//    ngày mong muốn nhận hàng
-
+    //    ngày mong muốn nhận hàng
     LocalDateTime desiredDateOfReceipt;
     //    ngày ship
     LocalDateTime shipDate;
@@ -82,5 +81,8 @@ public class Bill extends PrimaryEntity implements Serializable {
     @Enumerated(EnumType.STRING)
     BillStatus status;
 
+    @ManyToOne
+    @JoinColumn(name = "voucher_id", referencedColumnName = "id")
+    private Voucher voucher;
 
 }

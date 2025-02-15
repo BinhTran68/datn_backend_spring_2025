@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.bill.service;
 
+import com.poly.app.domain.admin.bill.request.CreateBillRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
@@ -20,8 +21,9 @@ public interface BillService {
 
     Map<String,?> updateStatusBill(String billCode, UpdateStatusBillRequest request);
 
-     BillResponse updateBillInfo(String billCode, UpdateBillRequest request);
-
+    BillResponse updateBillInfo(String billCode, UpdateBillRequest request);
 
     File printBillById(String billCode);
+
+    BillResponse createBill(CreateBillRequest request);
 }

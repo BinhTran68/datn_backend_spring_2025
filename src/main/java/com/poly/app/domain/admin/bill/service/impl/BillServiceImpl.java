@@ -1,23 +1,38 @@
 package com.poly.app.domain.admin.bill.service.impl;
 
+import com.poly.app.domain.admin.bill.request.BillDetailRequest;
+import com.poly.app.domain.admin.bill.request.CreateBillRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
+import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequest;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillDetail;
 import com.poly.app.domain.model.BillHistory;
 import com.poly.app.domain.model.Customer;
+import com.poly.app.domain.model.PaymentBill;
+import com.poly.app.domain.model.PaymentMethods;
+import com.poly.app.domain.model.Product;
+import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.model.Staff;
+import com.poly.app.domain.model.Voucher;
 import com.poly.app.domain.repository.AddressRepository;
 import com.poly.app.domain.repository.BillDetailRepository;
 import com.poly.app.domain.repository.BillHistoryRepository;
 import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.CustomerRepository;
+import com.poly.app.domain.repository.PaymentBillRepository;
+import com.poly.app.domain.repository.PaymentMethodsRepository;
+import com.poly.app.domain.repository.ProductDetailRepository;
 import com.poly.app.domain.repository.StaffRepository;
+import com.poly.app.domain.repository.VoucherRepository;
 import com.poly.app.infrastructure.constant.BillStatus;
+import com.poly.app.infrastructure.constant.PaymentMethod;
+import com.poly.app.infrastructure.constant.PaymentMethodEnum;
+import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.TypeBill;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
@@ -26,6 +41,7 @@ import com.poly.app.infrastructure.util.GenHoaDon;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -36,6 +52,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -67,6 +84,14 @@ public class BillServiceImpl implements BillService {
     GenHoaDon genHoaDon;
     @Autowired
     private BillDetailRepository billDetailRepository;
+    @Autowired
+    private ProductDetailRepository productDetailRepository;
+    @Autowired
+    private PaymentMethodsRepository paymentMethodsRepository;
+    @Autowired
+    private PaymentBillRepository paymentBillRepository;
+    @Autowired
+    private VoucherRepository voucherRepository;
 
     @Override
     public Page<BillResponse> getPageBill(Integer size, Integer page,
@@ -162,7 +187,7 @@ public class BillServiceImpl implements BillService {
         bill.setNotes(request.getNote());
 
         Address newAddress = bill.getShippingAddress();
-        if(newAddress == null) {
+        if (newAddress == null) {
             newAddress = new Address();
         }
         newAddress.setDistrictId(request.getDistrictId());
@@ -188,6 +213,97 @@ public class BillServiceImpl implements BillService {
         return genHoaDon.genHoaDon(bill, lstBillDetail, billHistory, account);
     }
 
+    @Override
+    @Transactional
+    public BillResponse createBill(CreateBillRequest request) {
+        Customer customer = null;
+        if (request.getCustomerId() != null) {
+            customer = customerRepository.findById(request.getCustomerId()).orElse(null);
+        }
+        Voucher voucher = null;
+        if (request.getVoucherId() != null) {
+            voucher = voucherRepository.findById(request.getVoucherId()).orElse(null);
+        }
+
+        Bill bill = Bill
+                .builder()
+                .typeBill(request.getTypeBill())
+                .customer(customer)
+                .customerMoney(request.getCustomerMoney())
+                .discountMoney(request.getDiscountMoney())
+                .moneyAfter(request.getMoneyAfter())
+                .shipDate(request.getShipDate())
+                .shipMoney(request.getShipMoney())
+                .totalMoney(request.getTotalMoney())
+                .completeDate(request.getCompleteDate())
+                .shipDate(request.getShipDate())
+                .voucher(voucher)
+                .status(request.getStatus())
+                .build();
+        Bill billSave = billRepository.save(bill);
+
+        for (BillDetailRequest billDetailRequest : request.getBillDetailRequests()) {
+            ProductDetail productDetail = productDetailRepository.findById(billDetailRequest.getProductDetailId()).orElse(null);
+            if (productDetail != null) {
+                BillDetail billDetail = BillDetail
+                        .builder()
+                        .productDetail(productDetail)
+                        .bill(billSave)
+                        .price(billDetailRequest.getPrice())
+                        .totalMoney(billDetailRequest.getPrice() * billDetailRequest.getQuantity())
+                        .quantity(billDetailRequest.getQuantity())
+                        .build();
+                billDetailRepository.save(billDetail);
+            }
+        }
+
+        if (request.getIsCashAndBank()) {
+            PaymentMethods cashPaymentMethods = createAndSavePaymentMethod(
+                    request.getCashCustomerMoney(), PaymentMethodEnum.TIEN_MAT);
+            PaymentMethods bankPaymentMethods = createAndSavePaymentMethod(
+                    request.getBankCustomerMoney(), PaymentMethodEnum.CHUYEN_KHOAN);
+
+            savePaymentBill(billSave, cashPaymentMethods);
+            savePaymentBill(billSave, bankPaymentMethods);
+        } else if (request.getCashCustomerMoney() != null) {
+            createAndSavePaymentMethod(request.getCashCustomerMoney(), PaymentMethodEnum.TIEN_MAT);
+        } else if (request.getBankCustomerMoney() != null) {
+            createAndSavePaymentMethod(request.getBankCustomerMoney(), PaymentMethodEnum.CHUYEN_KHOAN);
+        }
+        BillHistory billHistory = BillHistory
+                .builder()
+                .customer(customer)
+                .bill(billSave)
+                .status(BillStatus.DA_THANH_TOAN)
+                .build();
+        billHistoryRepository.save(billHistory);
+
+        return convertBillToBillResponse(billSave);
+    }
+
+    private PaymentMethods createAndSavePaymentMethod(Double amount, PaymentMethodEnum methodEnum) {
+        if (amount == null) return null;
+
+        PaymentMethods paymentMethods = PaymentMethods.builder()
+                .totalMoney(amount)
+                .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
+                .paymentMethod(methodEnum)
+                .build();
+
+        return paymentMethodsRepository.save(paymentMethods);
+    }
+
+    private void savePaymentBill(Bill bill, PaymentMethods paymentMethods) {
+        if (paymentMethods == null) return;
+
+        PaymentBill paymentBill = PaymentBill.builder()
+                .bill(bill)
+                .paymentMethods(paymentMethods)
+                .build();
+
+        paymentBillRepository.save(paymentBill);
+    }
+
 
     private BillResponse convertBillToBillResponse(Bill bill) {
         return BillResponse.builder()
@@ -206,7 +322,7 @@ public class BillServiceImpl implements BillService {
                 .shipDate(bill.getShipDate())
                 .address(bill.getShippingAddress())
                 .email(bill.getEmail())
-                .status(bill.getStatus().toString())
+                .status(bill.getStatus() != null ? bill.getStatus().toString() : null)
                 .createAt(bill.getCreatedAt())
                 .build();
     }
