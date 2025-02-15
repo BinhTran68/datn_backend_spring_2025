@@ -26,12 +26,14 @@ public class Voucher extends PrimaryEntity implements Serializable {
     Integer id;
     //mã phiếu
     String voucherCode;
+    String voucherName;
     //số lượng
     Integer quantity;
     //loại giảm
-    String voucherType;
+    Integer voucherType;
     //giá trị giảm
     Double discountValue;
+    String discountValueType;
     //giá trị giảm tối đa
     Double discountMaxValue;
     //giá trị giảm tối thiểu
@@ -40,5 +42,6 @@ public class Voucher extends PrimaryEntity implements Serializable {
     LocalDateTime endDate;
 //    Status status;
     StatusVoucher statusVoucher;
+
 
 }

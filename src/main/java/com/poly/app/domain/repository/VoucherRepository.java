@@ -15,8 +15,8 @@ import java.util.List;
 public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
     @Query("""
                     SELECT new  com.poly.app.domain.admin.voucher.response.VoucherReponse
-                     (vc.id, vc.voucherCode, vc.quantity, vc.voucherType, vc.discountValue,
-                     vc.discountMaxValue, vc.billMinValue, vc.startDate, vc.endDate, vc.statusVoucher)
+                     (vc.id, vc.voucherCode,vc.voucherName, vc.quantity, vc.voucherType, vc.discountValue,
+                     vc.discountMaxValue, vc.billMinValue, vc.startDate, vc.endDate, vc.statusVoucher,vc.discountValueType)
                     FROM Voucher vc 
             """)
     List<VoucherReponse> getAllVou();

@@ -5,6 +5,7 @@ import com.poly.app.domain.admin.address.AddressRequest;
 import com.poly.app.domain.admin.customer.request.CustomerRequest;
 import com.poly.app.domain.admin.customer.response.AddressResponse;
 import com.poly.app.domain.admin.customer.response.CustomerResponse;
+import com.poly.app.domain.model.Customer;
 
 
 import java.util.List;
@@ -21,6 +22,7 @@ public interface CustomerService {
     List<CustomerResponse> getAllCustomers();
 
     CustomerResponse getCustomerByEmail(String email);
+    Customer getEntityCustomerByEmail(String email);
 
 
     AddressResponse updateAddress(Integer addressId, AddressRequest addressRequest);

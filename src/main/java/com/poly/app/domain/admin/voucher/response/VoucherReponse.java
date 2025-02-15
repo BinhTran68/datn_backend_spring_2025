@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,8 +18,9 @@ import java.time.LocalDateTime;
 public class VoucherReponse {
     Integer id;
     String voucherCode;
+    String voucherName;
     Integer quantity;
-    String voucherType;
+    Integer voucherType;
     Double discountValue;
     Double discountMaxValue;
     Double billMinValue;
@@ -27,5 +29,5 @@ public class VoucherReponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime endDate;
     StatusVoucher statusVoucher;
-
+    String discountValueType;
 }
