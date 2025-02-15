@@ -27,8 +27,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -149,10 +151,14 @@ public class VoucherServiceImpl implements VoucherService {
         voucher.setVoucherType(request.getVoucherType());
         voucher.setDiscountValueType(request.getDiscountValueType());
         // Nếu là voucher dành riêng cho khách hàng (loaivoucher == 1), gửi email thông báo
-        if (request.getLoaivoucher() != null && request.getLoaivoucher() == 1 && request.getGmailkh() != null) {
-            for (String emailKH : request.getGmailkh()) {
-                Customer customer = customerService.getEntityCustomerByEmail(emailKH);
+        List<Customer> customers = new ArrayList<>();
+        if(request.getVoucherType() == VoucherType.PRIVATE) {
+            List<CustomerVoucher> customerVouchers = customerVoucherRepository.findCustomerVouchersByVoucher(voucher);
+            customers  = customerVouchers.stream().map(customer -> customer.getCustomer()).toList();
+        }
 
+        if (request.getLoaivoucher() != null && request.getLoaivoucher() == 1 && request.getGmailkh() != null) {
+            for (Customer customer : customers) {
                 if (customer != null) {
                     Email email = new Email();
                     String[] emailSend = {customer.getEmail()};
