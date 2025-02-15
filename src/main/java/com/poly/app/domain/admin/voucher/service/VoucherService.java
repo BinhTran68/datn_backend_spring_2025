@@ -2,6 +2,7 @@ package com.poly.app.domain.admin.voucher.service;
 
 import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
+import com.poly.app.domain.auth.request.RegisterRequest;
 import com.poly.app.domain.model.Voucher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,8 @@ public interface  VoucherService {
     VoucherReponse getVoucherDetail(int id);
     Page<VoucherReponse> getAllVoucher (Pageable pageable);
 //    Page<VoucherReponse> searchVouchers(String keyword, Pageable pageable);
+Boolean register(RegisterRequest request);
+
 
     List<VoucherReponse> getAllVouchersWithCustomer(Integer customerId);
 

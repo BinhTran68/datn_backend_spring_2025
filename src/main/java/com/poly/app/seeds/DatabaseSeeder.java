@@ -588,7 +588,6 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .voucherCode("VOUCHER10")
 
                 .discountValue(10.0) // Giảm 10%
-                .voucherType("PERCENT") // Loại giảm theo phần trăm
                 .discountMaxValue(50.0) // Giảm tối đa 50.000đ
                 .billMinValue(200.0) // Giá trị hóa đơn tối thiểu 200.000đ
                 .startDate(LocalDateTime.now()) // Ngày bắt đầu là ngày hiện tại
@@ -599,7 +598,6 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .voucherCode("VOUCHER200")
 
                 .discountValue(200.0) // Giảm 200.000đ
-                .voucherType("MONEY") // Loại giảm theo số tiền
                 .discountMaxValue(200.0)
                 .billMinValue(500.0) // Hóa đơn tối thiểu 500.000đ
                 .startDate(LocalDateTime.now())
