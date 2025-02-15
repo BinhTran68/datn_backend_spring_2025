@@ -3,7 +3,11 @@ package com.poly.app.domain.admin.promotion.service.impl;
 import com.poly.app.domain.admin.promotion.request.PromotionRequest;
 import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.admin.promotion.service.PromotionService;
+import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.model.Promotion;
+import com.poly.app.domain.model.PromotionDetail;
+import com.poly.app.domain.repository.ProductDetailRepository;
+import com.poly.app.domain.repository.PromotionDetailRepository;
 import com.poly.app.domain.repository.PromotionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PromotionServiceImpl implements PromotionService {
     PromotionRepository promotionRepository;
+    private final ProductDetailRepository productDetailRepository;
+    private final PromotionDetailRepository promotionDetailRepository;
 
     @Override
     public List<PromotionResponse> getAllPromotion() {
@@ -43,7 +49,20 @@ public class PromotionServiceImpl implements PromotionService {
                 .endDate(request.getEndDate())
                 .status(request.getStatus())
                 .build();
-        return promotionRepository.save(promotion);
+        Promotion promotionSave =  promotionRepository.save(promotion);
+
+        for (Integer productId : request.getProductIds()) {
+            ProductDetail productDetail = productDetailRepository.findById(productId).orElse(null);
+            if(productDetail != null) {
+                PromotionDetail promotionDetail = PromotionDetail.builder()
+                        .productDetail(productDetail)
+                        .promotion(promotionSave)
+                        .build();
+                promotionDetailRepository.save(promotionDetail);
+            }
+        }
+
+        return promotion;
     }
 
     @Override

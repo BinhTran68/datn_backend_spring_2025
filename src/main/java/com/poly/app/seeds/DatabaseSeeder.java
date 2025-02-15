@@ -19,14 +19,17 @@ import com.poly.app.domain.model.Role;
 import com.poly.app.domain.model.Size;
 import com.poly.app.domain.model.Sole;
 import com.poly.app.domain.model.Staff;
+import com.poly.app.domain.model.StatusVoucher;
 import com.poly.app.domain.model.Type;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.infrastructure.constant.AccountStatus;
+import com.poly.app.infrastructure.constant.DiscountType;
 import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.TypeBill;
+import com.poly.app.infrastructure.constant.VoucherType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 
@@ -586,7 +589,9 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Voucher voucher1 = Voucher.builder()
                 .voucherCode("VOUCHER10")
-
+                .statusVoucher(StatusVoucher.dang_kich_hoat)
+                .voucherType(VoucherType.PUBLIC)
+                .discountType(DiscountType.MONEY)
                 .discountValue(10.0) // Giảm 10%
                 .discountMaxValue(50.0) // Giảm tối đa 50.000đ
                 .billMinValue(200.0) // Giá trị hóa đơn tối thiểu 200.000đ
@@ -596,8 +601,10 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Voucher voucher2 = Voucher.builder()
                 .voucherCode("VOUCHER200")
-
-                .discountValue(200.0) // Giảm 200.000đ
+                .statusVoucher(StatusVoucher.dang_kich_hoat)
+                .voucherType(VoucherType.PUBLIC)
+                .discountType(DiscountType.MONEY)
+                .discountValue(200000.0) // Giảm 200.000đ
                 .discountMaxValue(200.0)
                 .billMinValue(500.0) // Hóa đơn tối thiểu 500.000đ
                 .startDate(LocalDateTime.now())

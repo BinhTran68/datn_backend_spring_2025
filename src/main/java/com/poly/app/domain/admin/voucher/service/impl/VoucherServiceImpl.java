@@ -9,9 +9,12 @@ import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.admin.customer.service.impl.CustomerServiceImpl;
 import com.poly.app.domain.admin.customer.service.CustomerService;
 
+import com.poly.app.domain.model.CustomerVoucher;
 import com.poly.app.domain.model.StatusVoucher;
 import com.poly.app.domain.model.Voucher;
+import com.poly.app.domain.repository.CustomerVoucherRepository;
 import com.poly.app.domain.repository.VoucherRepository;
+import com.poly.app.infrastructure.constant.VoucherType;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
 import lombok.AccessLevel;
@@ -38,6 +41,7 @@ public class VoucherServiceImpl implements VoucherService {
 //    @Autowired
 //            CustomerServiceImpl customerServiceImpl;
     VoucherRepository voucherRepository;
+    private CustomerVoucherRepository customerVoucherRepository;
 
     @Override
     public List<VoucherReponse> getAllVoucher() {
@@ -45,10 +49,7 @@ public class VoucherServiceImpl implements VoucherService {
 //        List<VoucherReponse> voucherReponses = voucherRepository.getAllVou();
 
         return voucherRepository.findAll().stream()
-                .map(voucher -> new VoucherReponse(voucher.getId(), voucher.getVoucherCode(),voucher.getVoucherName(),
-                        voucher.getQuantity(), voucher.getVoucherType(), voucher.getDiscountValue(),
-                        voucher.getDiscountMaxValue(), voucher.getBillMinValue(), voucher.getStartDate(),
-                        voucher.getEndDate(), voucher.getStatusVoucher(),voucher.getDiscountValueType())).toList();
+                .map(voucher -> VoucherReponse.formEntity(voucher) ).toList();
     }
 
     public StatusVoucher checkVoucherStatus(LocalDateTime startDate, LocalDateTime endDate) {
@@ -70,13 +71,13 @@ public class VoucherServiceImpl implements VoucherService {
         // Sinh mã voucher tự động (định nghĩa logic trong createVoucher)
         String generatedVoucherCode = "MGG" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-
-
         Voucher voucher = Voucher.builder()
                 .id(request.getId())
                 .voucherCode(generatedVoucherCode)
                 .quantity(request.getQuantity())
+                .voucherName(request.getVoucherName())
                 .voucherType(request.getVoucherType())
+                .discountType(request.getDiscountType())
                 .discountValue(request.getDiscountValue())
                 .discountMaxValue(request.getDiscountMaxValue())
                 .billMinValue(request.getBillMinValue())
@@ -84,7 +85,48 @@ public class VoucherServiceImpl implements VoucherService {
                 .endDate(request.getEndDate())
                 .statusVoucher(saStatusVoucher)
                 .build();
-        return voucherRepository.save(voucher);
+             voucherRepository.save(voucher);
+
+        if (request.getVoucherType() != null && request.getVoucherType() == VoucherType.PRIVATE  && request.getGmailkh() != null) {
+            for (String emailKH : request.getGmailkh()) {
+                Customer customer = customerService.getEntityCustomerByEmail(emailKH);
+                CustomerVoucher customerVoucher = CustomerVoucher.builder()
+                        .customer(customer)
+                        .quantity(request.getQuantity())
+                        .voucher(voucher).build();
+                customerVoucherRepository.save(customerVoucher);
+
+                // Đưa ra luồng khác
+                if (customer != null) {
+                    Email email = new Email();
+                    String[] emailSend = {customer.getEmail()};
+                    email.setToEmail(emailSend);
+                    email.setSubject("Bạn đã nhận được phiếu giảm giá từ TheHands!");
+                    email.setTitleEmail("Mã giảm giá đặc biệt dành cho bạn!");
+                    email.setBody("<!DOCTYPE html>\n" +
+                            "<html lang=\"vi\">\n" +
+                            "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 20px;\">\n" +
+                            "    <div style=\"background-color: white; padding: 20px; border-radius: 10px;\">\n" +
+                            "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
+                            "        <p style=\"color: #555;\">Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của TheHands. Chúng tôi dành tặng bạn một mã giảm giá đặc biệt!</p>\n" +
+                            "        <p><strong>Mã voucher:</strong> " + generatedVoucherCode + "</p>\n" +
+                            "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountValueType() + "</p>\n" +
+                            "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "</p>\n" +
+                            "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " VNĐ</p>\n" +
+                            "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
+                            "        <p style=\"color: #555;\">Hãy mua hàng để sử dụng phiếu giảm giá!</p>\n" +
+                            "    </div>\n" +
+                            "</body>\n" +
+                            "</html>\n");
+
+                    emailSender.sendEmail(email);
+
+                }
+            }
+        }
+
+        return voucher;
+
     }
 
     @Override
@@ -187,23 +229,7 @@ public class VoucherServiceImpl implements VoucherService {
     }
     public Page<VoucherReponse> getAllVoucher(Pageable pageable) {
 
-
-
-        return voucherRepository.findAll(pageable).map(voucher ->
-                VoucherReponse.builder()
-                        .id(voucher.getId())
-                        .voucherCode(voucher.getVoucherCode())
-                        .voucherName(voucher.getVoucherName())
-                        .quantity(voucher.getQuantity())
-                        .voucherType(voucher.getVoucherType())
-                        .discountValue(voucher.getDiscountValue())
-                        .discountMaxValue(voucher.getDiscountMaxValue())
-                        .billMinValue(voucher.getBillMinValue())
-                        .startDate(voucher.getStartDate())
-                        .endDate(voucher.getEndDate())
-                        .statusVoucher(voucher.getStatusVoucher())
-                        .discountValueType(voucher.getDiscountValueType())
-                        .build()
+        return voucherRepository.findAll(pageable).map(VoucherReponse::formEntity
         );
     }
 

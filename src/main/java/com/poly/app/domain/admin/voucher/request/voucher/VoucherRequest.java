@@ -1,7 +1,9 @@
 package com.poly.app.domain.admin.voucher.request.voucher;
 
 import com.poly.app.domain.model.StatusVoucher;
+import com.poly.app.infrastructure.constant.DiscountType;
 import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.constant.VoucherType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
@@ -21,7 +23,8 @@ public class VoucherRequest {
         //số lượng
         Integer quantity;
         //loại giảm
-        Integer voucherType;
+        VoucherType voucherType;
+        DiscountType discountType;
         //giá trị giảm
         Double discountValue;
         String discountValueType;
