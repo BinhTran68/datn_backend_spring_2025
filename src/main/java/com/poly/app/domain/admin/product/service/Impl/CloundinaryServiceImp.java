@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -62,12 +63,17 @@ public class CloundinaryServiceImp implements CloundinaryService {
             log.info("Xóa ảnh thành công: {}", publicId);
 
             try {
-                Image image = imageRepository.getImageByPublicId(publicId);
-                log.info(image.toString());
-                imageRepository.deleteById(image.getId());
+                List<Image> images = imageRepository.getImageByPublicId(publicId);
+                if (images.isEmpty()) {
+                    log.info("chua co image nay");
 
+                }
+                images.forEach(image -> {
+                    log.info(image.toString());
+                    imageRepository.deleteById(image.getId());
+                });
             } catch (Exception e) {
-                log.info("chua co image nay");
+                log.info("Lỗi xảy ra: " + e.getMessage());
             }
 
 
