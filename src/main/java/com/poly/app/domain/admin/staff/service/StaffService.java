@@ -32,5 +32,5 @@ public interface StaffService {
     void setDefaultAddress(Integer addressId);
 
     List<StaffReponse> filterStaff(String searchText, String status, String dobFrom, String dobTo, Integer ageFrom, Integer ageTo);
-
+    boolean checkEmailExists(String email);
 }
