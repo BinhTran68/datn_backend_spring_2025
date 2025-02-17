@@ -12,8 +12,11 @@ import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +37,9 @@ public class StaffServiceImpl implements StaffService {
     @Override
 
     public StaffReponse createStaff(StaffRequest staffRequest) {
+        if (staffRepository.findByEmail(staffRequest.getEmail()) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+        }
         Staff staff = new Staff();
         staff.setFullName(staffRequest.getFullName());
         staff.setEmail(staffRequest.getEmail());
@@ -190,5 +196,37 @@ public class StaffServiceImpl implements StaffService {
         }
     }
 
+    @Override
+    public List<StaffReponse> filterStaff(String searchText, String status, String dobFrom, String dobTo, Integer ageFrom, Integer ageTo) {
+        List<Staff> staffList = staffRepository.findAll();
+        staffList = staffList.stream()
+                .filter(staff -> searchText == null || searchText.isEmpty() ||
+                        staff.getFullName().toLowerCase().contains(searchText.toLowerCase()) ||
+                        staff.getPhoneNumber().contains(searchText))
+                .filter(staff -> status == null || status.equals("Tất cả") ||
+                        (status.equals("Kích hoạt") && staff.getStatus() == 0) ||
+                        (status.equals("Khóa") && staff.getStatus() == 1))
+                .filter(staff -> {
+                    if (dobFrom != null && dobTo != null) {
+                        LocalDateTime dobFromDateTime = LocalDateTime.parse(dobFrom);
+                        LocalDateTime dobToDateTime = LocalDateTime.parse(dobTo);
+                        return !staff.getDateBirth().isBefore(dobFromDateTime) && !staff.getDateBirth().isAfter(dobToDateTime);
+                    }
+                    return true;
+                })
+                .filter(staff -> {
+                    if (ageFrom != null && ageTo != null) {
+                        int age = LocalDateTime.now().getYear() - staff.getDateBirth().getYear();
+                        return age >= ageFrom && age <= ageTo;
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
 
+        return staffList.stream().map(StaffReponse::new).collect(Collectors.toList());
+    }
+    @Override
+    public boolean checkEmailExists(String email) {
+        return staffRepository.findByEmail(email) != null;
+    }
 }

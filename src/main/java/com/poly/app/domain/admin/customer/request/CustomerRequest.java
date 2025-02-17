@@ -24,4 +24,5 @@ public class CustomerRequest {
     private Boolean isAddressDefault;
     private String specificAddress;
 
+
 }

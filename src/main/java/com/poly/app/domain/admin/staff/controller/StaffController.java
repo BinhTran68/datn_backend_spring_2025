@@ -4,18 +4,24 @@ import com.poly.app.domain.admin.address.AddressRequest;
 import com.poly.app.domain.admin.customer.response.AddressResponse;
 import com.poly.app.domain.admin.staff.request.StaffRequest;
 import com.poly.app.domain.admin.staff.response.StaffReponse;
+import com.poly.app.domain.admin.staff.service.Impl.StaffServiceImpl;
 import com.poly.app.domain.admin.staff.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/staff")
 public class StaffController {
     @Autowired
     private StaffService staffService;
+    @Autowired
+    private StaffServiceImpl staffServiceImpl;
 
     @PostMapping("/add")
     public ResponseEntity<StaffReponse> createStaff(@RequestBody StaffRequest staffRequest) {
@@ -76,5 +82,32 @@ public class StaffController {
         staffService.setDefaultAddress(addressId);
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/filterr")
+    public ResponseEntity<List<StaffReponse>> filterStaff(
+            @RequestParam(required = false) String searchText,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String dobFrom,
+            @RequestParam(required = false) String dobTo,
+            @RequestParam(required = false) Integer ageFrom,
+            @RequestParam(required = false) Integer ageTo) {
+        List<StaffReponse> filteredStaffs = staffService.filterStaff(searchText, status, dobFrom, dobTo, ageFrom, ageTo);
+        return ResponseEntity.ok(filteredStaffs);
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<Map<String, Boolean>> checkEmail(@RequestParam String email) {
+        boolean exists = staffServiceImpl.checkEmailExists(email);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        HttpStatus status = exists ? HttpStatus.CONFLICT : HttpStatus.OK; // Or another appropriate status
+        return new ResponseEntity<>(response, status);
+    }
 
 }
+
+
+
+
+
+
+
