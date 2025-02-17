@@ -5,6 +5,7 @@ import com.poly.app.domain.admin.customer.request.CustomerRequest;
 import com.poly.app.domain.admin.customer.response.CustomerResponse;
 import com.poly.app.domain.admin.address.AddressRequest;
 import com.poly.app.domain.admin.customer.response.AddressResponse;
+import com.poly.app.domain.model.Customer;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,6 +34,6 @@ public interface CustomerService {
     List<CustomerResponse> filterCustomers(String searchText, String status, LocalDateTime startDate, LocalDateTime endDate, Integer minAge, Integer maxAge);
 
     boolean checkEmailExists(String email);
-
+    Customer getEntityCustomerByEmail(String email);
 
 }
