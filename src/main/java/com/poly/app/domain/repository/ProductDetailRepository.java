@@ -161,4 +161,6 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
     ProductDetail findByProductIdAndSizeIdAndColorId(Integer productId, Integer sizeId, Integer colorId, Integer
             brandId, Integer genderId, Integer materialId, Integer typeId, Integer soleId);
 
+
+    List<ProductDetail> findByProductIdAndColorId(int productId, int colorId);
 }

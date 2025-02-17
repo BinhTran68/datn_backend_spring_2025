@@ -12,6 +12,7 @@ import com.poly.app.domain.admin.product.response.productdetail.FilterProductDet
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.service.ProductDetailService;
 import com.poly.app.infrastructure.constant.Status;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -83,42 +84,142 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         return productDetailRepository.save(productDetail);
     }
 
+    //    @Override
+//    public ProductDetailResponse updateProductDetail(ProductDetailRequest request, int id) {
+//        ProductDetail productDetail = productDetailRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko ton tai"));
+//
+//        Product product = productRepository.findById(request.getProductId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+//        Brand brand = brandRepository.findById(request.getBrandId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+//        Type type = typeRepository.findById(request.getTypeId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+//        Color color = colorRepository.findById(request.getColorId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+//        Material material = materialRepository.findById(request.getMaterialId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+//        Size size = sizeRepository.findById(request.getSizeId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+//        Sole sole = soleRepository.findById(request.getSoleId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+//        Gender gender = genderRepository.findById(request.getGenderId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+//
+////        thêm url
+//        List<ImgResponse> imgResponses = imageRepository.findByProductDetailId(productDetail.getId());
+//        for (ImgRequest req : request.getImage()) {
+//            boolean found = false; // Cờ kiểm tra xem publicId đã tồn tại chưa
+//
+//            for (ImgResponse resdb : imgResponses) {
+//                if (req.getPublicId().equals(resdb.getPublicId())) {
+//                    found = true; // Nếu tìm thấy publicId, đặt cờ thành true
+//                    break; // Dừng vòng lặp khi tìm thấy
+//                }
+//            }
+//
+//            // Nếu publicId không tồn tại, thêm mới vào cơ sở dữ liệu
+//            if (!found) {
+////                set lại ảnh cho toàn bộ ảnh cho màu đó
+//
+//
+//
+//                imageRepository.save(Image.builder()
+//                        .publicId(req.getPublicId())
+//                        .url(req.getUrl())
+//                        .status(Status.HOAT_DONG)
+//                        .productDetail(productDetail)
+//                        .build());
+//            }
+//        }
+//
+//        productDetail.setProduct(product);
+//        productDetail.setBrand(brand);
+//        productDetail.setType(type);
+//        productDetail.setColor(color);
+//        productDetail.setMaterial(material);
+//        productDetail.setSize(size);
+//        productDetail.setSole(sole);
+//        productDetail.setGender(gender);
+//        productDetail.setQuantity(request.getQuantity());
+//        productDetail.setPrice(request.getPrice());
+//        productDetail.setWeight(request.getWeight());
+//        productDetail.setDescrition(request.getDescription());
+//        productDetail.setStatus(request.getStatus());
+//
+//        productDetailRepository.save(productDetail);
+//        return ProductDetailResponse.builder()
+//                .id(productDetail.getId())
+//                .code(productDetail.getCode())
+//                .productName(productDetail.getProduct().getProductName())
+//                .brandName(productDetail.getBrand().getBrandName())
+//                .typeName(productDetail.getType().getTypeName())
+//                .colorName(productDetail.getColor().getColorName())
+//                .materialName(productDetail.getMaterial().getMaterialName())
+//                .sizeName(productDetail.getSize().getSizeName())
+//                .soleName(productDetail.getSole().getSoleName())
+//                .genderName(productDetail.getGender().getGenderName())
+//                .quantity(productDetail.getQuantity())
+//                .price(productDetail.getPrice())
+//                .weight(productDetail.getWeight())
+//                .description(productDetail.getDescrition())
+//                .status(productDetail.getStatus())
+//                .updateAt(productDetail.getUpdatedAt())
+//                .updateBy(productDetail.getUpdatedBy())
+//                .build();
+//    }
+    @Transactional
     @Override
     public ProductDetailResponse updateProductDetail(ProductDetailRequest request, int id) {
-        ProductDetail productDetail = productDetailRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko ton tai"));
+        ProductDetail productDetail = productDetailRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("id ko ton tai"));
 
-        Product product = productRepository.findById(request.getProductId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        Brand brand = brandRepository.findById(request.getBrandId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        Type type = typeRepository.findById(request.getTypeId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        Color color = colorRepository.findById(request.getColorId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        Material material = materialRepository.findById(request.getMaterialId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        Size size = sizeRepository.findById(request.getSizeId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        Sole sole = soleRepository.findById(request.getSoleId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        Gender gender = genderRepository.findById(request.getGenderId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+        Brand brand = brandRepository.findById(request.getBrandId())
+                .orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+        Type type = typeRepository.findById(request.getTypeId())
+                .orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+        Color color = colorRepository.findById(request.getColorId())
+                .orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+        Material material = materialRepository.findById(request.getMaterialId())
+                .orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+        Size size = sizeRepository.findById(request.getSizeId())
+                .orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+        Sole sole = soleRepository.findById(request.getSoleId())
+                .orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
+        Gender gender = genderRepository.findById(request.getGenderId())
+                .orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
 
-//        thêm url
-        List<ImgResponse> imgResponses = imageRepository.findByProductDetailId(productDetail.getId());
-        for (ImgRequest req : request.getImage()) {
-            boolean found = false; // Cờ kiểm tra xem publicId đã tồn tại chưa
+        //  Tìm danh sách tất cả ProductDetail có cùng productId và colorId
+        List<ProductDetail> relatedProductDetails = productDetailRepository
+                .findByProductIdAndColorId(request.getProductId(), request.getColorId());
 
-            for (ImgResponse resdb : imgResponses) {
-                if (req.getPublicId().equals(resdb.getPublicId())) {
-                    found = true; // Nếu tìm thấy publicId, đặt cờ thành true
-                    break; // Dừng vòng lặp khi tìm thấy
-                }
+        log.warn("đay la ds theo product id va color");
+        relatedProductDetails.toString();
+
+
+
+        if (productDetail.getProduct().getId() != request.getProductId() || productDetail.getColor().getId() != request.getColorId()) {
+            List<ImgResponse> imgResponses = imageRepository.findByProductDetailId(productDetail.getId());
+            for (ImgResponse i :
+                    imgResponses) {
+//                cloundinaryService.deleteImage(i.getPublicId());
+                log.warn(i.toString());
+
             }
+        }
 
-            // Nếu publicId không tồn tại, thêm mới vào cơ sở dữ liệu
-            if (!found) {
+
+        //  Xóa toàn bộ ảnh cũ của các ProductDetail liên quan
+        for (ProductDetail pd : relatedProductDetails) {
+            imageRepository.deleteByProductDetailId(pd.getId());
+        }
+
+        //  Thêm ảnh mới vào tất cả ProductDetail cùng productId & colorId
+        for (ProductDetail pd : relatedProductDetails) {
+            for (ImgRequest req : request.getImage()) {
                 imageRepository.save(Image.builder()
                         .publicId(req.getPublicId())
                         .url(req.getUrl())
                         .status(Status.HOAT_DONG)
-                        .productDetail(productDetail)
+                        .productDetail(pd)
                         .build());
             }
         }
 
+        //  Cập nhật thông tin ProductDetail
         productDetail.setProduct(product);
         productDetail.setBrand(brand);
         productDetail.setType(type);
@@ -134,6 +235,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetail.setStatus(request.getStatus());
 
         productDetailRepository.save(productDetail);
+
+        // 🏷 Trả về response
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
                 .code(productDetail.getCode())
@@ -154,6 +257,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .updateBy(productDetail.getUpdatedBy())
                 .build();
     }
+
 
 //    @Override
 //    public ProductDetailResponse updateProductDetail(ProductDetailRequest request, int id) {

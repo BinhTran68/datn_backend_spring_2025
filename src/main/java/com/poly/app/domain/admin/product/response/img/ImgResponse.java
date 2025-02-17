@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ImgResponse {
