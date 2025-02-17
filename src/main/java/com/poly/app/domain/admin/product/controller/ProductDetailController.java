@@ -49,11 +49,11 @@ public class ProductDetailController {
     }
 
 
-    //teest
-//    @GetMapping()
-//    public List<ProductDetail> getAllType() {
-//        return productDetailService.getAllProductDetail();
-//    }
+//    teest
+    @GetMapping("/test")
+    public List<ProductDetail> getAllType() {
+        return productDetailService.getAllProductDetail();
+    }
     @GetMapping()
     public ApiResponse<List<ProductDetailResponse>> getAllProductPage(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                       @RequestParam(value = "size", defaultValue = "1") int size) {
@@ -72,7 +72,7 @@ public class ProductDetailController {
 
     @PostMapping("/filter")
     public ApiResponse<List<FilterProductDetailResponse>> getFilterPD(@RequestParam(value = "page", defaultValue = "1") int page,
-                                                                      @RequestParam(value = "size", defaultValue = "1") int size,
+                                                                      @RequestParam(value = "size", defaultValue = "5") int size,
                                                                       @RequestBody FilterRequest request
     ) {
 
@@ -130,6 +130,14 @@ public class ProductDetailController {
         return ApiResponse.<List<ProductDetailResponse>>builder()
                 .message("add")
                 .data(productDetailService.createProductDetailList(requests))
+                .build();
+    }
+
+    @GetMapping("/exportdata")
+    public ApiResponse<List<ProductDetailResponse> > getAllProductDetailExportData() {
+        return ApiResponse.<List<ProductDetailResponse>>builder()
+                .message("export data to excel")
+                .data(productDetailService.getAllProductDetailExportData())
                 .build();
     }
 

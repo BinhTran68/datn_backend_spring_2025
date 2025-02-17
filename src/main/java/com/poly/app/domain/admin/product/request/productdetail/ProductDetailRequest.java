@@ -1,8 +1,11 @@
 package com.poly.app.domain.admin.product.request.productdetail;
 
+import com.poly.app.domain.admin.product.request.img.ImgRequest;
 import com.poly.app.infrastructure.constant.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -36,4 +39,6 @@ public class ProductDetailRequest {
     String description;
 
     Status status;
+
+    List<ImgRequest> image;
 }

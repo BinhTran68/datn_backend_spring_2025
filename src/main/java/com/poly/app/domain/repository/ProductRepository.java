@@ -25,7 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "    p.status, \n" +
             "    MAX(pd.updated_at) AS lastUpdated\n" +
             "FROM product p \n" +
-            "JOIN product_detail pd ON p.id = pd.product_id \n" +
+            "left JOIN product_detail pd ON p.id = pd.product_id \n" +
             "WHERE p.product_name LIKE :name "+
             "GROUP BY p.id, p.code, p.product_name, p.updated_at, p.status\n" +
             "ORDER BY lastUpdated DESC",
@@ -41,7 +41,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "    p.status, \n" +
             "    MAX(pd.updated_at) AS lastUpdated\n" +
             "FROM product p \n" +
-            "JOIN product_detail pd ON p.id = pd.product_id \n" +
+            "left JOIN product_detail pd ON p.id = pd.product_id \n" +
             "GROUP BY p.id, p.code, p.product_name, p.updated_at, p.status\n" +
             "ORDER BY lastUpdated DESC",
             nativeQuery = true)

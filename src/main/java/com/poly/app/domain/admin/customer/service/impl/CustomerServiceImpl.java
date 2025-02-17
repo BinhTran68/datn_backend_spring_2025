@@ -387,6 +387,11 @@ public class CustomerServiceImpl implements CustomerService {
         return optionalCustomer.map(CustomerResponse::new).orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
+    @Override
+    public Customer getEntityCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email);
+    }
+
 
     @Override
     public AddressResponse updateAddress(Integer addressId, AddressRequest addressRequest) {

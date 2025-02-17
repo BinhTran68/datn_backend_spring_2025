@@ -19,14 +19,17 @@ import com.poly.app.domain.model.Role;
 import com.poly.app.domain.model.Size;
 import com.poly.app.domain.model.Sole;
 import com.poly.app.domain.model.Staff;
+import com.poly.app.domain.model.StatusVoucher;
 import com.poly.app.domain.model.Type;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.infrastructure.constant.AccountStatus;
+import com.poly.app.infrastructure.constant.DiscountType;
 import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.TypeBill;
+import com.poly.app.infrastructure.constant.VoucherType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 
@@ -119,8 +122,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Autowired
     PasswordEncoder passwordEncoder;
-
-
 
 
     @Override
@@ -336,7 +337,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .gender(gender)
                 .productDetailCode("PD001")
                 .quantity(100)
-                .price(99.99)
+                .price(9990000.0)
                 .weight(0.5)
                 .descrition("Nike Air Max 2023, High comfort and design.")
                 .status(Status.HOAT_DONG)
@@ -353,7 +354,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .gender(gender)
                 .productDetailCode("PD002")
                 .quantity(200)
-                .price(89.99)
+                .price(1000000.0)
                 .weight(0.6)
                 .descrition("Adidas UltraBoost 2023, Advanced cushioning.")
                 .status(Status.HOAT_DONG)
@@ -369,7 +370,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         // Nếu chưa có role, tạo mới
         if (adminRole == null) {
-            adminRole = roleRepository.save(new Role("ADMIN",Status.HOAT_DONG));
+            adminRole = roleRepository.save(new Role("ADMIN", Status.HOAT_DONG));
         }
         if (userRole == null) {
             userRole = roleRepository.save(new Role("USER", Status.HOAT_DONG));
@@ -458,7 +459,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 
 
         }
-
 
 
         if (customerBill2 != null && staffBill2 != null) {
@@ -589,9 +589,10 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Voucher voucher1 = Voucher.builder()
                 .voucherCode("VOUCHER10")
-
+                .statusVoucher(StatusVoucher.dang_kich_hoat)
+                .voucherType(VoucherType.PUBLIC)
+                .discountType(DiscountType.MONEY)
                 .discountValue(10.0) // Giảm 10%
-                .voucherType("PERCENT") // Loại giảm theo phần trăm
                 .discountMaxValue(50.0) // Giảm tối đa 50.000đ
                 .billMinValue(200.0) // Giá trị hóa đơn tối thiểu 200.000đ
                 .startDate(LocalDateTime.now()) // Ngày bắt đầu là ngày hiện tại
@@ -600,9 +601,10 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Voucher voucher2 = Voucher.builder()
                 .voucherCode("VOUCHER200")
-
-                .discountValue(200.0) // Giảm 200.000đ
-                .voucherType("MONEY") // Loại giảm theo số tiền
+                .statusVoucher(StatusVoucher.dang_kich_hoat)
+                .voucherType(VoucherType.PUBLIC)
+                .discountType(DiscountType.MONEY)
+                .discountValue(200000.0) // Giảm 200.000đ
                 .discountMaxValue(200.0)
                 .billMinValue(500.0) // Hóa đơn tối thiểu 500.000đ
                 .startDate(LocalDateTime.now())

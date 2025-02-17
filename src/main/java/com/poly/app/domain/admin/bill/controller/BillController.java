@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.bill.controller;
 
 
+import com.poly.app.domain.admin.bill.request.CreateBillRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillService;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,12 +41,12 @@ public class BillController {
     @GetMapping("/index")
     public PageReponse index(@RequestParam(defaultValue = "10") Integer size,
                              @RequestParam(defaultValue = "0") Integer page,
-                             @RequestParam( required = false) TypeBill typeBill,
-                             @RequestParam( required = false) String search,
-                             @RequestParam( required = false )  String startDate,
-                             @RequestParam( required = false) String endDate,
+                             @RequestParam(required = false) TypeBill typeBill,
+                             @RequestParam(required = false) String search,
+                             @RequestParam(required = false) String startDate,
+                             @RequestParam(required = false) String endDate,
                              @RequestParam(required = false) BillStatus statusBill) {
-        return new PageReponse(billService.getPageBill(size, page, statusBill, typeBill,search, startDate, endDate ));
+        return new PageReponse(billService.getPageBill(size, page, statusBill, typeBill, search, startDate, endDate));
     }
 
 
@@ -54,13 +56,13 @@ public class BillController {
     }
 
 
-    @PutMapping ("/{code}/update")
+    @PutMapping("/{code}/update")
     public ApiResponse<?> updateBillStatus(@PathVariable String code, @RequestBody UpdateStatusBillRequest request) {
         return ApiResponse.builder().data(billService.updateStatusBill(code, request)).build();
     }
 
 
-    @PutMapping ("/{code}/update-info-bill")
+    @PutMapping("/{code}/update-info-bill")
     public ApiResponse<?> updateInfoBillStatus(@PathVariable String code, @RequestBody UpdateBillRequest request) {
         return ApiResponse.builder().data(billService.updateBillInfo(code, request)).build();
     }
@@ -73,7 +75,7 @@ public class BillController {
             byte[] pdfBytes = Files.readAllBytes(pdfFile.toPath());
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDisposition(ContentDisposition.attachment().filename(pdfFile.getName()).build());
+            headers.setContentDisposition(ContentDisposition.inline().filename(pdfFile.getName()).build());
             pdfFile.delete();
             return ResponseEntity.ok()
                     .headers(headers)
@@ -84,7 +86,10 @@ public class BillController {
         }
     }
 
-
+    @PostMapping("/create")
+    ResponseEntity<?> createBill(@RequestBody CreateBillRequest request) {
+        return ResponseEntity.ok(billService.createBill(request));
+    }
 
 
 }

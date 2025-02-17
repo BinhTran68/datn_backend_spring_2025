@@ -32,6 +32,15 @@ public class VoucherController {
     VoucherRepository voucherRepository;
     VoucherService voucherService;
 
+
+    @GetMapping("/with-customer")
+    public ApiResponse<List<VoucherReponse>> getAllVouchersWithCustomer(@RequestParam(required = false) Integer customerId) {
+        return ApiResponse.<List<VoucherReponse>>builder()
+                .message("list voucher")
+                .data(voucherService.getAllVouchersWithCustomer(customerId))
+                .build();
+    }
+
     @GetMapping("/hien")
     public ApiResponse<List<VoucherReponse>> getAllVoucher() {
         return ApiResponse.<List<VoucherReponse>>builder()
