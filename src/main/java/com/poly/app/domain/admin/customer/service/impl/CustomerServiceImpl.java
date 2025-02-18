@@ -388,7 +388,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer getEntityCustomerByEmail(String email) {
+    public Customer  getEntityCustomerByEmail(String email) {
         return customerRepository.findByEmail(email);
     }
 
