@@ -40,4 +40,8 @@ public interface ProductDetailService {
 
     List<ProductDetailResponse> createProductDetailList(List<ProductDetailRequest> request);
 
+//    kiểm tra xem đã tồn tại hay chưa
+
+    boolean existsProductDetail(ProductDetailRequest request);
+
 }

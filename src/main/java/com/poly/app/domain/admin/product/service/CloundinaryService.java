@@ -11,5 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface CloundinaryService {
-     ResponseEntity<?> deleteImage(String publicId);
+    ResponseEntity<?> deleteImage(String publicId);
+
+    ResponseEntity<?> deleteImageAndUpdateDB(String publicId,int productId, int colorId);
 }
