@@ -10,6 +10,7 @@ import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.service.ProductDetailService;
+import com.poly.app.infrastructure.constant.Status;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -148,6 +149,15 @@ public class ProductDetailController {
         return ApiResponse.<List<ProductDetailResponse>>builder()
                 .message("export data to excel")
                 .data(productDetailService.getAllProductDetailExportData())
+                .build();
+    }
+    @GetMapping("/switchstatus")
+    public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
+                                       @RequestParam("id") int id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("get all selected")
+                .data(productDetailService.switchStatus(id,status))
                 .build();
     }
 

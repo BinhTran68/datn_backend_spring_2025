@@ -126,4 +126,19 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponseSelect> getAll() {
         return productRepository.dataSelect();
     }
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        Product brand = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            productRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            productRepository.save(brand);
+            return "ngung hoat dong";
+
+        }
+
+    }
 }

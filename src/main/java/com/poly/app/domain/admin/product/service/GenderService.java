@@ -6,6 +6,7 @@ import com.poly.app.domain.admin.product.response.gender.GenderResponseSelect;
 import com.poly.app.domain.model.Gender;
 import com.poly.app.domain.admin.product.request.gender.GenderRequest;
 import com.poly.app.domain.admin.product.response.gender.GenderResponse;
+import com.poly.app.infrastructure.constant.Status;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -23,4 +24,6 @@ public interface GenderService {
 
      boolean existsByGenderNameAndIdNot (String brandName, Integer id);
      List<GenderResponseSelect> getAll();
+     String switchStatus(Integer id, Status status);
+
 }

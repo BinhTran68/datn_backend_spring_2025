@@ -8,6 +8,7 @@ import com.poly.app.domain.admin.product.request.material.MaterialRequest;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
 import com.poly.app.domain.admin.product.service.MaterialService;
+import com.poly.app.infrastructure.constant.Status;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -100,5 +101,13 @@ public class MaterialController {
                 .build();
     }
 
-
+    @GetMapping("/switchstatus")
+    public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
+                                       @RequestParam("id") int id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("get all selected")
+                .data(materialService.switchStatus(id,status))
+                .build();
+    }
 }

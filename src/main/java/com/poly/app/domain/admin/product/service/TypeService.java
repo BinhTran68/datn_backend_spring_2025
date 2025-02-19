@@ -5,6 +5,7 @@ import com.poly.app.domain.admin.product.response.type.TypeResponseSelect;
 import com.poly.app.domain.model.Type;
 import com.poly.app.domain.admin.product.request.type.TypeRequest;
 import com.poly.app.domain.admin.product.response.type.TypeResponse;
+import com.poly.app.infrastructure.constant.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -29,4 +30,6 @@ public interface TypeService {
      boolean existsByTypeNameAndIdNot (String typeName, Integer id);
 
      List<TypeResponseSelect> getAll();
+     String switchStatus(Integer id, Status status);
+
 }

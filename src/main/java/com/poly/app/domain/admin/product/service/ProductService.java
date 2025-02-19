@@ -6,6 +6,7 @@ import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
 import com.poly.app.domain.admin.product.response.product.ProductResponse;
+import com.poly.app.infrastructure.constant.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -29,4 +30,7 @@ public interface ProductService {
 
      boolean existsByProductNameAndIdNot (String productName, Integer id);
      List<ProductResponseSelect> getAll();
+
+     String switchStatus(Integer id, Status status);
+
 }

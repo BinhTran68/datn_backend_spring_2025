@@ -318,7 +318,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         Product product = productRepository.findById(1).orElse(null); // Assuming there is a product with id 1
         Brand brand = brandRepository.findById(1).orElse(null); // Assuming there is a brand with id 1
         Type type = typeRepository.findById(1).orElse(null); // Assuming there is a type with id 1
-        Color color = colorRepository.findById(1).orElse(null); // Assuming there is a color with id 1
+        Color color = colorRepository.findById(2).orElse(null); // Assuming there is a color with id 1
         Material material = materialRepository.findById(1).orElse(null); // Assuming there is a material with id 1
         Size size = sizeRepository.findById(1).orElse(null); // Assuming there is a size with id 1
         Sole sole = soleRepository.findById(1).orElse(null); // Assuming there is a sole with id 1

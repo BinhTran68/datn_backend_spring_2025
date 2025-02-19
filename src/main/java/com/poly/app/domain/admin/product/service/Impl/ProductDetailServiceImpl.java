@@ -633,5 +633,19 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 //        log.warn(existingProductDetail.toString());
         return existingProductDetail != null ? true : false;
     }
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        ProductDetail brand = productDetailRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            productDetailRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            productDetailRepository.save(brand);
+            return "ngung hoat dong";
 
+        }
+
+    }
 }

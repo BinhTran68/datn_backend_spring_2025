@@ -7,6 +7,7 @@ import com.poly.app.domain.admin.product.request.size.SizeRequest;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
 import com.poly.app.domain.admin.product.service.SizeService;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -113,6 +114,15 @@ public class SizeController {
         return ApiResponse.<List<SizeResponseSelect>>builder()
                 .message("get all selected")
                 .data(sizeService.getAll())
+                .build();
+    }
+    @GetMapping("/switchstatus")
+    public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
+                                       @RequestParam("id") int id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("get all selected")
+                .data(sizeService.switchStatus(id,status))
                 .build();
     }
 }

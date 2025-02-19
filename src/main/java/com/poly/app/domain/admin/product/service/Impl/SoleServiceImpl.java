@@ -34,7 +34,7 @@ public class SoleServiceImpl implements SoleService {
     @Override
     public Sole createSole(SoleRequest request) {
         if (soleRepository.existsBySoleName(request.getSoleName())) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS );
         }
         Sole sole = Sole.builder()
                 .soleName(request.getSoleName())
@@ -48,10 +48,10 @@ public class SoleServiceImpl implements SoleService {
         Sole sole = soleRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         if (soleRepository.existsBySoleNameAndIdNot(request.getSoleName(),id)) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS );
         }
         sole.setSoleName(request.getSoleName());
-        sole.setStatus(request.getStatus());
+
 
         soleRepository.save(sole);
 
@@ -123,5 +123,20 @@ public class SoleServiceImpl implements SoleService {
     @Override
     public List<SoleResponseSelect> getAll() {
         return soleRepository.dataSelect();
+    }
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        Sole brand = soleRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            soleRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            soleRepository.save(brand);
+            return "ngung hoat dong";
+
+        }
+
     }
 }

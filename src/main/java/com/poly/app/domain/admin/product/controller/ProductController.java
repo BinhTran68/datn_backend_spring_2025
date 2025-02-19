@@ -8,6 +8,7 @@ import com.poly.app.domain.admin.product.request.product.ProductRequest;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponse;
 import com.poly.app.domain.admin.product.service.ProductService;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -112,6 +113,15 @@ public class ProductController {
         return ApiResponse.<List<ProductResponseSelect>>builder()
                 .message("get all selected")
                 .data(productService.getAll())
+                .build();
+    }
+    @GetMapping("/switchstatus")
+    public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
+                                       @RequestParam("id") int id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("get all selected")
+                .data(productService.switchStatus(id,status))
                 .build();
     }
 }
