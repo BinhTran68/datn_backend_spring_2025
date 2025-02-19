@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product createProduct(ProductRequest request) {
         if (productRepository.existsByProductName(request.getProductName())) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS );
         }
         Product product = Product.builder()
                 .productName(request.getProductName())
@@ -50,10 +50,9 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         if (productRepository.existsByProductNameAndIdNot(request.getProductName(),id)) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS );
         }
         product.setProductName(request.getProductName());
-        product.setStatus(request.getStatus());
 
         productRepository.save(product);
 
