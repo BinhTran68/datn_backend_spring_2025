@@ -17,6 +17,7 @@ import com.poly.app.domain.repository.VoucherRepository;
 import com.poly.app.infrastructure.constant.VoucherType;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,9 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,19 +38,14 @@ import java.util.stream.Collectors;
 
 public class VoucherServiceImpl implements VoucherService {
     @Autowired
-            CustomerService customerService;
-//    @Autowired
-//            CustomerServiceImpl customerServiceImpl;
+    CustomerService customerService;
     VoucherRepository voucherRepository;
     private CustomerVoucherRepository customerVoucherRepository;
 
     @Override
     public List<VoucherReponse> getAllVoucher() {
-
-//        List<VoucherReponse> voucherReponses = voucherRepository.getAllVou();
-
         return voucherRepository.findAll().stream()
-                .map(voucher -> VoucherReponse.formEntity(voucher) ).toList();
+                .map(voucher -> VoucherReponse.formEntity(voucher)).toList();
     }
 
     public StatusVoucher checkVoucherStatus(LocalDateTime startDate, LocalDateTime endDate) {
@@ -87,9 +81,9 @@ public class VoucherServiceImpl implements VoucherService {
                 .endDate(request.getEndDate())
                 .statusVoucher(saStatusVoucher)
                 .build();
-             voucherRepository.save(voucher);
+        voucherRepository.save(voucher);
 
-        if (request.getVoucherType() != null && request.getVoucherType() == VoucherType.PRIVATE  && request.getGmailkh() != null) {
+        if (request.getVoucherType() != null && request.getVoucherType() == VoucherType.PRIVATE && request.getGmailkh() != null) {
             for (String emailKH : request.getGmailkh()) {
                 Customer customer = customerService.getEntityCustomerByEmail(emailKH);
                 CustomerVoucher customerVoucher = CustomerVoucher.builder()
@@ -112,9 +106,9 @@ public class VoucherServiceImpl implements VoucherService {
                             "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
                             "        <p style=\"color: #555;\">Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của TheHands. Chúng tôi dành tặng bạn một mã giảm giá đặc biệt!</p>\n" +
                             "        <p><strong>Mã voucher:</strong> " + generatedVoucherCode + "</p>\n" +
-                            "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountValueType() + "</p>\n" +
-                            "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "</p>\n" +
-                            "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " VNĐ</p>\n" +
+                            "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+                            "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "Đ</p>\n" +
+                            "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " Đ</p>\n" +
                             "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
                             "        <p style=\"color: #555;\">Hãy mua hàng để sử dụng phiếu giảm giá!</p>\n" +
                             "    </div>\n" +
@@ -130,62 +124,144 @@ public class VoucherServiceImpl implements VoucherService {
         return voucher;
 
     }
+    //phần test update
 
     @Override
+    @Transactional
     public VoucherReponse updateVoucher(VoucherRequest request, int id) {
-        Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        StatusVoucher saStatusVoucher = checkVoucherStatus(request.getStartDate(), request.getEndDate());
+        String generatedVoucherCode = "MGG" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
+        Voucher voucher = voucherRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ID không tồn tại"));
+
         // Giữ nguyên mã voucher cũ
         String existingVoucherCode = voucher.getVoucherCode();
-//        voucher.setId(request.getId());
-//        voucher.setVoucherCode(request.getVoucherCode());
+
+        // Danh sách khách hàng trước khi cập nhật
+        List<CustomerVoucher> oldCustomerVouchers = customerVoucherRepository.findCustomerVouchersByVoucher(voucher);
+        Set<String> oldCustomerEmails = oldCustomerVouchers.stream()
+                .map(cv -> cv.getCustomer().getEmail())
+                .collect(Collectors.toSet());
+
+
+        // Cập nhật thông tin voucher
         voucher.setVoucherName(request.getVoucherName());
         voucher.setQuantity(request.getQuantity());
         voucher.setVoucherType(request.getVoucherType());
+        voucher.setDiscountType(request.getDiscountType());
         voucher.setDiscountValue(request.getDiscountValue());
         voucher.setDiscountMaxValue(request.getDiscountMaxValue());
         voucher.setBillMinValue(request.getBillMinValue());
         voucher.setStartDate(request.getStartDate());
         voucher.setEndDate(request.getEndDate());
-        voucher.setStatusVoucher(saStatusVoucher);
-        voucher.setVoucherType(request.getVoucherType());
+        voucher.setStatusVoucher(checkVoucherStatus(request.getStartDate(), request.getEndDate()));
         voucher.setDiscountValueType(request.getDiscountValueType());
-        // Nếu là voucher dành riêng cho khách hàng (loaivoucher == 1), gửi email thông báo
-        List<Customer> customers = new ArrayList<>();
-        if(request.getVoucherType() == VoucherType.PRIVATE) {
-            List<CustomerVoucher> customerVouchers = customerVoucherRepository.findCustomerVouchersByVoucher(voucher);
-            customers  = customerVouchers.stream().map(customer -> customer.getCustomer()).toList();
-        }
 
-        if (request.getLoaivoucher() != null && request.getLoaivoucher() == 1 && request.getGmailkh() != null) {
-            for (Customer customer : customers) {
-                if (customer != null) {
-                    Email email = new Email();
-                    String[] emailSend = {customer.getEmail()};
-                    email.setToEmail(emailSend);
-                    email.setSubject("Phiếu giảm giá của bạn có thay đổi từ TheHands!");
-                    email.setTitleEmail("Mã giảm giá đặc biệt dành cho bạn!");
-                    email.setBody("<!DOCTYPE html>\n" +
-                            "<html lang=\"vi\">\n" +
-                            "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 20px;\">\n" +
-                            "    <div style=\"background-color: white; padding: 20px; border-radius: 10px;\">\n" +
-                            "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
-                            "        <p style=\"color: #555;\">Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của TheHands. Chúng tôi dành tặng bạn một mã giảm giá đặc biệt!</p>\n" +
-                            "        <p><strong>Mã voucher:</strong> " + existingVoucherCode + "</p>\n" + // Giữ nguyên mã cũ
-                            "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountValueType() + "</p>\n" +
-                            "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "</p>\n" +
-                            "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " VNĐ</p>\n" +
-                            "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
-                            "        <p style=\"color: #555;\">Hãy mua hàng để sử dụng phiếu giảm giá!</p>\n" +
-                            "    </div>\n" +
-                            "</body>\n" +
-                            "</html>\n");
+        // Danh sách khách hàng mới
+        Set<String> newCustomerEmails = request.getGmailkh() != null ? new HashSet<>(request.getGmailkh()) : new HashSet<>();
 
-                    emailSender.sendEmail(email);
-                }
+        // Tìm khách hàng mới được thêm vào
+        Set<String> addedCustomers = new HashSet<>(newCustomerEmails);
+        addedCustomers.removeAll(oldCustomerEmails);
+
+        // Tìm khách hàng bị xóa khỏi danh sách
+        Set<String> removedCustomers = new HashSet<>(oldCustomerEmails);
+        removedCustomers.removeAll(newCustomerEmails);
+
+        // Gửi email cho khách hàng mới được thêm vào danh sách
+        for (String emailKH : addedCustomers) {
+            Customer customer = customerService.getEntityCustomerByEmail(emailKH);
+            if (customer != null) {
+                CustomerVoucher customerVoucher = CustomerVoucher.builder()
+                        .customer(customer)
+                        .quantity(request.getQuantity())
+                        .voucher(voucher)
+                        .build();
+                customerVoucherRepository.save(customerVoucher);
+
+                Email email = new Email();
+                email.setToEmail(new String[]{customer.getEmail()});
+                email.setSubject("Bạn đã nhận được phiếu giảm giá từ TheHands!");
+                email.setTitleEmail("Mã giảm giá đặc biệt dành cho bạn!");
+                email.setBody("<!DOCTYPE html>\n" +
+                        "<html lang=\"vi\">\n" +
+                        "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 20px;\">\n" +
+                        "    <div style=\"background-color: white; padding: 20px; border-radius: 10px;\">\n" +
+                        "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
+                        "        <p style=\"color: #555;\">Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của TheHands. Chúng tôi dành tặng bạn một mã giảm giá đặc biệt!</p>\n" +
+                        "        <p><strong>Mã voucher:</strong> " + generatedVoucherCode + "</p>\n" +
+                        "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+                        "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "Đ</p>\n" +
+                        "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " Đ</p>\n" +
+                        "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
+                        "        <p style=\"color: #555;\">Hãy mua hàng để sử dụng phiếu giảm giá!</p>\n" +
+                        "    </div>\n" +
+                        "</body>\n" +
+                        "</html>\n");
+                emailSender.sendEmail(email);
             }
         }
 
+
+        // Gửi email thông báo thay đổi cho khách hàng cũ (không bao gồm khách hàng mới)
+        for (CustomerVoucher customerVoucher : oldCustomerVouchers) {
+            Customer customer = customerVoucher.getCustomer();
+            if (customer != null && !addedCustomers.contains(customer.getEmail()) && !removedCustomers.contains(customer.getEmail())) {
+                Email email = new Email();
+                email.setToEmail(new String[]{customer.getEmail()});
+                email.setSubject("Phiếu giảm giá của bạn có thay đổi từ TheHands!");
+                email.setTitleEmail("Mã giảm đã sửa biệt dành cho bạn!");
+                email.setBody(
+                        "<!DOCTYPE html>\n" +
+                                "<html lang=\"vi\">\n" +
+                                "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 20px;\">\n" +
+                                "    <div style=\"background-color: white; padding: 20px; border-radius: 10px;\">\n" +
+                                "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
+                                "        <p style=\"color: #555;\"> Chúng tôi có thay đổi về mã giảm giá của bạn!</p>\n" +
+                                "        <p><strong>Mã voucher:</strong> " + existingVoucherCode + "</p>\n" +
+                                "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+                                "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "</p>\n" +
+                                "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " VNĐ</p>\n" +
+                                "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
+
+                                "    </div>\n" +
+                                "</body>\n" +
+                                "</html>\n");
+                emailSender.sendEmail(email);
+            }
+        }
+
+        // Gửi email hủy voucher cho khách hàng bị xóa khỏi danh sách
+        for (String emailKH : removedCustomers) {
+            Customer customer = customerService.getEntityCustomerByEmail(emailKH);
+            if (customer != null) {
+                customerVoucherRepository.deleteByCustomerAndVoucher(customer, voucher);
+
+                Email email = new Email();
+                email.setToEmail(new String[]{customer.getEmail()});
+                email.setSubject("Phiếu giảm giá của bạn đã bị hủy từ TheHands!");
+                email.setTitleEmail("Mã giảm giá đã bị hủy");
+                email.setBody(
+                        "<!DOCTYPE html>\n" +
+                                "<html lang=\"vi\">\n" +
+                                "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 20px;\">\n" +
+                                "    <div style=\"background-color: white; padding: 20px; border-radius: 10px;\">\n" +
+                                "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
+                                "        <p style=\"color: #555;\"> Chúng tôi rất tiếc phải hủy phiếu giảm giá của bạn!</p>\n" +
+                                "        <p><strong>Mã voucher:</strong> " + existingVoucherCode + "</p>\n" +
+                                "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+                                "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "</p>\n" +
+                                "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " VNĐ</p>\n" +
+                                "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
+                                "        <p style=\"color: #555;\">Hãy mua hàng để sử dụng phiếu giảm giá!</p>\n" +
+                                "    </div>\n" +
+                                "</body>\n" +
+                                "</html>\n");
+                emailSender.sendEmail(email);
+            }
+        }
+
+        // Lưu voucher đã cập nhật
         voucherRepository.save(voucher);
 
         return VoucherReponse.builder()
@@ -194,6 +270,7 @@ public class VoucherServiceImpl implements VoucherService {
                 .voucherName(voucher.getVoucherName())
                 .quantity(voucher.getQuantity())
                 .voucherType(voucher.getVoucherType())
+                .discountType(voucher.getDiscountType())
                 .discountValue(voucher.getDiscountValue())
                 .discountMaxValue(voucher.getDiscountMaxValue())
                 .billMinValue(voucher.getBillMinValue())
@@ -204,35 +281,118 @@ public class VoucherServiceImpl implements VoucherService {
                 .build();
     }
 
+    //hết
 
+
+//    @Override
+////    public VoucherReponse updateVoucher(VoucherRequest request, int id) {
+//        Voucher voucher = voucherRepository.findById(id)
+//                .orElseThrow(() -> new IllegalArgumentException("ID không tồn tại"));
+//
+//        // Giữ nguyên mã voucher cũ
+//        String existingVoucherCode = voucher.getVoucherCode();
+//
+//        // Cập nhật thông tin voucher
+//        voucher.setVoucherName(request.getVoucherName());
+//        voucher.setQuantity(request.getQuantity());
+//        voucher.setVoucherType(request.getVoucherType());
+//        voucher.setDiscountValue(request.getDiscountValue());
+//        voucher.setDiscountMaxValue(request.getDiscountMaxValue());
+//        voucher.setBillMinValue(request.getBillMinValue());
+//        voucher.setStartDate(request.getStartDate());
+//        voucher.setEndDate(request.getEndDate());
+//        voucher.setStatusVoucher(checkVoucherStatus(request.getStartDate(), request.getEndDate()));
+//        voucher.setDiscountValueType(request.getDiscountValueType());
+//
+//        // Nếu là voucher riêng tư, tìm danh sách khách hàng hiện tại
+//        List<Customer> customers = new ArrayList<>();
+//        if (voucher.getVoucherType() == VoucherType.PRIVATE) {
+//            List<CustomerVoucher> customerVouchers = customerVoucherRepository.findCustomerVouchersByVoucher(voucher);
+//            customers = customerVouchers.stream().map(CustomerVoucher::getCustomer).toList();
+//        }
+//
+//        // Nếu loại voucher là riêng tư và có danh sách email khách hàng, gửi thông báo
+//        if (voucher.getVoucherType() == VoucherType.PRIVATE && customers != null && !customers.isEmpty()) {
+//            for (Customer customer : customers) {
+//                if (customer != null && customer.getEmail() != null) {
+//                    Email email = new Email();
+//                    email.setToEmail(new String[]{customer.getEmail()});
+//                    email.setSubject("Phiếu giảm giá của bạn có thay đổi từ TheHands!");
+//                    email.setTitleEmail("Mã giảm giá đặc biệt dành cho bạn!");
+//                    email.setBody(
+//                            "<!DOCTYPE html>\n" +
+//                                    "<html lang=\"vi\">\n" +
+//                                    "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 20px;\">\n" +
+//                                    "    <div style=\"background-color: white; padding: 20px; border-radius: 10px;\">\n" +
+//                                    "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
+//                                    "        <p style=\"color: #555;\"> Chúng tôi có thay đổi về mã giảm giá của bạn!</p>\n" +
+//                                    "        <p><strong>Mã voucher:</strong> " + existingVoucherCode + "</p>\n" +
+//                                    "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+//                                    "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "</p>\n" +
+//                                    "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " VNĐ</p>\n" +
+//                                    "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
+//                                    "        <p style=\"color: #555;\">Hãy mua hàng để sử dụng phiếu giảm giá!</p>\n" +
+//                                    "    </div>\n" +
+//                                    "</body>\n" +
+//                                    "</html>\n");
+//
+//                    emailSender.sendEmail(email);
+//                }
+//            }
+//        }
+
+    // Lưu voucher đã cập nhật
+//        voucherRepository.save(voucher);
+//
+//        return VoucherReponse.builder()
+//                .id(voucher.getId())
+//                .voucherCode(existingVoucherCode) // Giữ nguyên mã cũ
+//                .voucherName(voucher.getVoucherName())
+//                .quantity(voucher.getQuantity())
+//                .voucherType(voucher.getVoucherType())
+//                .discountValue(voucher.getDiscountValue())
+//                .discountMaxValue(voucher.getDiscountMaxValue())
+//                .billMinValue(voucher.getBillMinValue())
+//                .startDate(voucher.getStartDate())
+//                .endDate(voucher.getEndDate())
+//                .statusVoucher(voucher.getStatusVoucher())
+//                .discountValueType(request.getDiscountValueType())
+//                .build();
+//    }
 
     @Override
+    @Transactional
     public String deleteVoucher(int id) {
-        if (!voucherRepository.findById(id).isEmpty()) {
+        // Kiểm tra voucher có tồn tại không
+        Optional<Voucher> optionalVoucher = voucherRepository.findById(id);
+        if (optionalVoucher.isPresent()) {
+            // Xóa tất cả bản ghi trong bảng customer_voucher có voucher_id = id
+            customerVoucherRepository.deleteByVoucherId(id);
+
+            // Xóa voucher sau khi đã xóa quan hệ
             voucherRepository.deleteById(id);
-            return "Xoa voucher thanh cong";
+
+            return "Xóa voucher thành công";
         } else {
-            return "voucher khong ton tai";
+            return "Voucher không tồn tại";
         }
     }
+
 
     @Override
     public VoucherReponse getVoucherDetail(int id) {
         Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
-        return VoucherReponse.builder()
-                .id(voucher.getId())
-                .voucherCode(voucher.getVoucherCode())
-                .voucherName(voucher.getVoucherName())
-                .quantity(voucher.getQuantity())
-                .voucherType(voucher.getVoucherType())
-                .discountValue(voucher.getDiscountValue())
-                .discountMaxValue(voucher.getDiscountMaxValue())
-                .billMinValue(voucher.getBillMinValue())
-                .startDate(voucher.getStartDate())
-                .endDate(voucher.getEndDate())
-                .statusVoucher(voucher.getStatusVoucher())
-                .build();
+
+        List<CustomerVoucher> customers = customerVoucherRepository.findCustomerVouchersByVoucher(voucher);
+        List<Customer> customerList = customers.stream().map(CustomerVoucher::getCustomer).collect(Collectors.toList());
+        List<Integer> customerIds = customerList.stream().map(customer -> customer.getId()).collect(Collectors.toList());
+
+        VoucherReponse voucherReponse = VoucherReponse.formEntity(voucher);
+        voucherReponse.setCustomerIds(customerIds);
+
+        return voucherReponse;
     }
+
     public Page<VoucherReponse> getAllVoucher(Pageable pageable) {
 
         return voucherRepository.findAll(pageable).map(VoucherReponse::formEntity
@@ -241,9 +401,9 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Autowired
     EmailSender emailSender;
+
     @Override
     public Boolean register(RegisterRequest request) {
-
 
 
         // Tạo 1 account
@@ -299,9 +459,31 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
+    public String switchStatus(Integer id, StatusVoucher status) {
+        LocalDateTime currentDate = LocalDateTime.now(); // Lấy thời gian hiện tại
+        Voucher voucher = voucherRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("ID không tồn tại"));
+
+        if (status == StatusVoucher.ngung_kich_hoat) {
+            voucher.setStatusVoucher(StatusVoucher.ngung_kich_hoat);
+            voucher.setEndDate(currentDate);
+            voucherRepository.save(voucher);
+            return "ngung_kich_hoat";
+        } else {
+            voucher.setStatusVoucher(StatusVoucher.dang_kich_hoat);
+            voucher.setStartDate(currentDate);
+            voucherRepository.save(voucher);
+            return "dang_kich_hoat";
+        }
+
+
+    }
+
+    @Override
     public List<VoucherReponse> getAllVouchersWithCustomer(Integer customerId) {
         return List.of();
     }
+
 
 }
 

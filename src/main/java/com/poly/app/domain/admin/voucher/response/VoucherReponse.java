@@ -34,6 +34,7 @@ public class VoucherReponse {
     StatusVoucher statusVoucher;
     String discountValueType;
     DiscountType discountType;
+    List<Integer> customerIds;
 
 
     public static VoucherReponse formEntity(Voucher voucher) {

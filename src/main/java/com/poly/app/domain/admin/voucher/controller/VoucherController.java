@@ -6,9 +6,11 @@ import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.ApiResponse;
 import com.poly.app.domain.admin.voucher.response.VoucherResponse;
 import com.poly.app.domain.admin.voucher.service.VoucherService;
+import com.poly.app.domain.model.StatusVoucher;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.domain.repository.VoucherRepository;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
+import com.poly.app.infrastructure.constant.Status;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -74,7 +76,6 @@ public class VoucherController {
 //    }
 
 
-
     @DeleteMapping("/delete/{id}")
     public ApiResponse<String> delete(@PathVariable int id) {
         return ApiResponse.<String>builder()
@@ -92,11 +93,10 @@ public class VoucherController {
     }
 
 
-
     @GetMapping("/page")
     public ApiResponse<Page<VoucherReponse>> phanTrang(@RequestParam(value = "page") Integer page,
                                                        @RequestParam(value = "size") Integer size
-                                                       ) {
+    ) {
 
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
@@ -107,6 +107,18 @@ public class VoucherController {
                 .build();
     }
 
+    @GetMapping("/switchStatus")
+    public ApiResponse<String> switchStatus(@RequestParam(value = "id") Integer id,
+                                            @RequestParam(value = "status")
+                                                    StatusVoucher status
+    ) {
+        voucherService.switchStatus(id, status);
+
+        return ApiResponse.<String>builder()
+                .message("")
+                .data(voucherService.switchStatus(id, status))
+                .build();
+    }
 //    @GetMapping("/search")
 //    public ApiResponse<Page<VoucherReponse>> searchVouchers(@RequestParam String keyword,
 //                                                            @RequestParam(value = "page", defaultValue = "0") int page,
