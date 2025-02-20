@@ -336,31 +336,74 @@ public class CustomerServiceImpl implements CustomerService {
         return new CustomerResponse(customerFromDB);
     }
 
+//    @Override
+//    public CustomerResponse updateCustomer(Integer id, CustomerRequest customerRequest) {
+//        Optional<Customer> optionalCustomer = customerRepository.findById(id);
+//        if (optionalCustomer.isPresent()) {
+//            Customer customer = optionalCustomer.get();
+//            // Update fields
+//            customer.setFullName(customerRequest.getFullName());
+//            customer.setEmail(customerRequest.getEmail());
+//            customer.setPhoneNumber(customerRequest.getPhoneNumber());
+//            customer.setDateBirth(customerRequest.getDateBirth());
+//            customer.setPassword(customerRequest.getPassword());
+//            customer.setCitizenId(customerRequest.getCitizenId());
+//            customer.setGender(customerRequest.getGender());
+//            customer.setAvatar(customerRequest.getAvatar());
+//            customer.setStatus(customerRequest.getStatus());
+//
+//            // Clear existing addresses
+//            customer.getAddresses().clear();
+//
+//
+//            Customer updatedCustomer = customerRepository.save(customer);
+//            return new CustomerResponse(updatedCustomer);
+//        } else {
+//            throw new RuntimeException("Customer not found");
+//        }
+//    }
+
     @Override
     public CustomerResponse updateCustomer(Integer id, CustomerRequest customerRequest) {
-        Optional<Customer> optionalCustomer = customerRepository.findById(id);
-        if (optionalCustomer.isPresent()) {
-            Customer customer = optionalCustomer.get();
-            // Update fields
-            customer.setFullName(customerRequest.getFullName());
-            customer.setEmail(customerRequest.getEmail());
-            customer.setPhoneNumber(customerRequest.getPhoneNumber());
-            customer.setDateBirth(customerRequest.getDateBirth());
-            customer.setPassword(customerRequest.getPassword());
-            customer.setCitizenId(customerRequest.getCitizenId());
-            customer.setGender(customerRequest.getGender());
-            customer.setAvatar(customerRequest.getAvatar());
-            customer.setStatus(customerRequest.getStatus());
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
 
-            // Clear existing addresses
-            customer.getAddresses().clear();
+        // Cập nhật thông tin khách hàng
+        customer.setFullName(customerRequest.getFullName());
+        customer.setEmail(customerRequest.getEmail());
+        customer.setPhoneNumber(customerRequest.getPhoneNumber());
+        customer.setDateBirth(customerRequest.getDateBirth());
+        customer.setPassword(customerRequest.getPassword());
+        customer.setCitizenId(customerRequest.getCitizenId());
+        customer.setGender(customerRequest.getGender());
+        customer.setAvatar(customerRequest.getAvatar());
+        customer.setStatus(customerRequest.getStatus());
+        customerRepository.save(customer);
 
+        // Tìm địa chỉ mặc định
+        Address defaultAddress = (Address) addressRepository.findByCustomerIdAndIsAddressDefault(id, true)
+                .orElse(null);
 
-            Customer updatedCustomer = customerRepository.save(customer);
-            return new CustomerResponse(updatedCustomer);
+        // Cập nhật hoặc thêm địa chỉ mặc định
+        if (defaultAddress != null) {
+            defaultAddress.setProvinceId(customerRequest.getProvinceId());
+            defaultAddress.setDistrictId(customerRequest.getDistrictId());
+            defaultAddress.setWardId(customerRequest.getWardId());
+            defaultAddress.setSpecificAddress(customerRequest.getSpecificAddress());
+            addressRepository.save(defaultAddress);
         } else {
-            throw new RuntimeException("Customer not found");
+            Address newAddress = Address.builder()
+                    .provinceId(customerRequest.getProvinceId())
+                    .districtId(customerRequest.getDistrictId())
+                    .wardId(customerRequest.getWardId())
+                    .specificAddress(customerRequest.getSpecificAddress())
+                    .isAddressDefault(true)
+                    .customer(customer)
+                    .build();
+            addressRepository.save(newAddress);
         }
+
+        return new CustomerResponse(customerRepository.findById(id).get());
     }
 
     @Override

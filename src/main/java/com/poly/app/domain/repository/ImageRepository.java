@@ -3,6 +3,7 @@ package com.poly.app.domain.repository;
 import com.poly.app.domain.admin.product.response.img.ImgResponse;
 import com.poly.app.domain.model.Image;
 import com.poly.app.domain.model.ProductDetail;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +19,13 @@ public interface ImageRepository extends JpaRepository<Image,Integer> {
            "FROM Image i WHERE i.productDetail.id = :productDetailId")
     List<ImgResponse> findByProductDetailId(@Param("productDetailId") Integer productDetailId);
 
-    Image getImageByPublicId(String publicId);
+    List<Image> getImageByPublicId(String publicId);
+
+    // Xóa ảnh của ProductDetail theo productDetailId
+    @Transactional
+    void deleteByProductDetailId(int productDetailId);
+
+    // Tìm tất cả ảnh của ProductDetail theo productDetailId
+    List<ImgResponse> findByProductDetailId(int productDetailId);
 
 }

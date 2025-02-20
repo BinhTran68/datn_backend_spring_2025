@@ -7,6 +7,8 @@ import com.poly.app.domain.admin.customer.response.CustomerResponse;
 import com.poly.app.domain.admin.address.AddressRequest;
 import com.poly.app.domain.admin.customer.response.AddressResponse;
 
+import com.poly.app.domain.admin.address.AddressRequest;
+import com.poly.app.domain.admin.customer.response.AddressResponse;
 import com.poly.app.domain.model.Customer;
 
 import java.time.LocalDateTime;
@@ -24,7 +26,8 @@ public interface CustomerService {
     List<CustomerResponse> getAllCustomers();
 
     CustomerResponse getCustomerByEmail(String email);
-    Customer getEntityCustomerByEmail(String email); 
+    Customer getEntityCustomerByEmail(String email);
+
 
     AddressResponse updateAddress(Integer addressId, AddressRequest addressRequest);
 
@@ -37,6 +40,5 @@ public interface CustomerService {
     List<CustomerResponse> filterCustomers(String searchText, String status, LocalDateTime startDate, LocalDateTime endDate, Integer minAge, Integer maxAge);
 
     boolean checkEmailExists(String email);
-
 
 }

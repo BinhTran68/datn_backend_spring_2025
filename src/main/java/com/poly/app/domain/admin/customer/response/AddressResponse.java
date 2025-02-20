@@ -12,13 +12,6 @@ public class AddressResponse {
     private Boolean isAddressDefault;
     private String specificAddress;
 
-//    public AddressResponse(Address address) {
-//        this.provinceId = address.getProvinceId();
-//        this.districtId = address.getDistrictId();
-//        this.wardId = address.getWardId();
-//        this.isAddressDefault = address.getIsAddressDefault();
-//        this.specificAddress = address.getSpecificAddress();
-//    }
 
     public AddressResponse(Address address) {
         this.provinceId = address.getProvinceId();
