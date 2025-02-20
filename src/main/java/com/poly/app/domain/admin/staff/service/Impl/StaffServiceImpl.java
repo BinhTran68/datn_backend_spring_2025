@@ -40,6 +40,9 @@ public class StaffServiceImpl implements StaffService {
         if (staffRepository.findByEmail(staffRequest.getEmail()) != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
+        if (staffRepository.findByPhoneNumber(staffRequest.getPhoneNumber()) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone already exists");
+        }
         Staff staff = new Staff();
         staff.setFullName(staffRequest.getFullName());
         staff.setEmail(staffRequest.getEmail());
@@ -229,4 +232,9 @@ public class StaffServiceImpl implements StaffService {
     public boolean checkEmailExists(String email) {
         return staffRepository.findByEmail(email) != null;
     }
+    @Override
+    public boolean checkPhoneExists(String phoneNumber) {
+        return staffRepository.findByPhoneNumber(phoneNumber) != null;
+    }
+
 }

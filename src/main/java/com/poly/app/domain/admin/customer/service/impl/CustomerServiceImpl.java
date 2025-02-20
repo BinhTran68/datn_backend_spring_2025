@@ -287,6 +287,9 @@ public class CustomerServiceImpl implements CustomerService {
         if (customerRepository.findByEmail(customerRequest.getEmail()) != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
+        if (customerRepository.findByPhoneNumber(customerRequest.getPhoneNumber()) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone already exists");
+        }
 
         Customer customer = new Customer();
         customer.setFullName(customerRequest.getFullName());
@@ -538,5 +541,8 @@ public class CustomerServiceImpl implements CustomerService {
     public boolean checkEmailExists(String email) {
         return customerRepository.findByEmail(email) != null;
     }
-
+    @Override
+    public boolean checkPhoneExists(String phoneNumber) {
+        return customerRepository.findByPhoneNumber(phoneNumber) != null;
+    }
 }

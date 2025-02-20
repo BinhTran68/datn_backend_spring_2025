@@ -40,5 +40,6 @@ public interface CustomerService {
     List<CustomerResponse> filterCustomers(String searchText, String status, LocalDateTime startDate, LocalDateTime endDate, Integer minAge, Integer maxAge);
 
     boolean checkEmailExists(String email);
+    boolean checkPhoneExists(String phoneNumber);
 
 }

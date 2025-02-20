@@ -213,7 +213,14 @@ public class CustomerController {
         HttpStatus status = exists ? HttpStatus.CONFLICT : HttpStatus.OK; // Or another appropriate status
         return new ResponseEntity<>(response, status);
     }
-
+    @GetMapping("/check-phone")
+    public ResponseEntity<Map<String, Boolean>> checkPhone(@RequestParam String phoneNumber) {
+        boolean exists = customerServiceImpl.checkPhoneExists(phoneNumber);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        HttpStatus status = exists ? HttpStatus.CONFLICT : HttpStatus.OK;
+        return new ResponseEntity<>(response, status);
+    }
 
 
 }
