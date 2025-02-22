@@ -103,6 +103,16 @@ public class StaffController {
         return new ResponseEntity<>(response, status);
     }
 
+    @GetMapping("/check-phone")
+    public ResponseEntity<Map<String, Boolean>> checkPhone(@RequestParam String phoneNumber) {
+        boolean exists = staffServiceImpl.checkPhoneExists(phoneNumber);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        HttpStatus status = exists ? HttpStatus.CONFLICT : HttpStatus.OK;
+        return new ResponseEntity<>(response, status);
+    }
+
+
 }
 
 
