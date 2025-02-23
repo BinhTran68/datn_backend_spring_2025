@@ -192,18 +192,11 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             || productDetail.getColor().getId() != request.getColorId()
             || productDetail.getBrand().getId() != request.getBrandId()
             || productDetail.getGender().getId() != request.getGenderId()
-            || productDetail.getMaterial().getId() != request.getGenderId()
+            || productDetail.getMaterial().getId() != request.getMaterialId()
             || productDetail.getType().getId() != request.getTypeId()
             || productDetail.getSize().getId() != request.getSizeId()
             || productDetail.getSole().getId() != request.getSoleId()
         ) {
-//            List<ImgResponse> imgResponses = imageRepository.findByProductDetailId(productDetail.getId());
-//            for (ImgResponse i :
-//                    imgResponses) {
-////                cloundinaryService.deleteImage(i.getPublicId());
-//                log.warn(i.toString());
-//
-//            }
             ProductDetail existingProductDetail = productDetailRepository.findByProductIdAndSizeIdAndColorId(
                     request.getProductId(),
                     request.getSizeId(),

@@ -28,6 +28,8 @@ public class Product extends PrimaryEntity implements Serializable {
 
     String productName;
 
+    Integer views;
+
     Status status;
 
     @JsonManagedReference

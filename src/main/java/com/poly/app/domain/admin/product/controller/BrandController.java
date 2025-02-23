@@ -8,6 +8,8 @@ import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.brand.BrandResponse;
 import com.poly.app.domain.admin.product.service.BrandService;
 import com.poly.app.infrastructure.constant.Status;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-
+@Tag(name = "brand controller")
 public class BrandController {
     BrandService brandService;
 
@@ -35,6 +37,7 @@ public class BrandController {
                 .build();
     }
 
+    @Operation(summary = "sua brand", description = "sua brand voi id")
     @PutMapping("/update/{id}")
     public ApiResponse<BrandResponse> update(@RequestBody BrandRequest request, @PathVariable int id) {
         return ApiResponse.<BrandResponse>builder()
@@ -123,7 +126,7 @@ public class BrandController {
     ) {
         return ApiResponse.<String>builder()
                 .message("get all selected")
-                .data(brandService.switchStatus(id,status))
+                .data(brandService.switchStatus(id, status))
                 .build();
     }
 }

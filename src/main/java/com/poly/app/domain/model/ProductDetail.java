@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.poly.app.domain.model.base.PrimaryEntity;
 
 import com.poly.app.infrastructure.constant.EntityProperties;
+import com.poly.app.infrastructure.constant.Tag;
 import jakarta.persistence.*;
 
 import com.poly.app.infrastructure.constant.Status;
@@ -69,11 +70,12 @@ public class ProductDetail extends PrimaryEntity implements Serializable {
 
     Double weight;
 
-
     @Column(columnDefinition = EntityProperties.DEFINITION_DESCRIPTION)
     String descrition;
 
+    Integer sold;
 
+    Tag tag;
     Status status;
 
 
