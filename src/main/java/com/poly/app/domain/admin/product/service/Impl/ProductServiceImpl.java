@@ -3,6 +3,7 @@ package com.poly.app.domain.admin.product.service.Impl;
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
 import com.poly.app.domain.admin.product.response.product.IProductResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
+import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.repository.ProductRepository;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
@@ -31,7 +32,6 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     ProductRepository productRepository;
-
 
     @Override
     public Product createProduct(ProductRequest request) {

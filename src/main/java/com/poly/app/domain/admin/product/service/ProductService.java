@@ -3,6 +3,7 @@ package com.poly.app.domain.admin.product.service;
 import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.admin.product.response.product.IProductResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
+import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
 import com.poly.app.domain.admin.product.response.product.ProductResponse;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ProductService {
+
 
      Product createProduct(ProductRequest request);
 
