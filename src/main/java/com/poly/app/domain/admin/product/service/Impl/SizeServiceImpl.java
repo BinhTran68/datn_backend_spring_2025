@@ -34,7 +34,7 @@ public class SizeServiceImpl implements SizeService {
     @Override
     public Size createSize(SizeRequest request) {
         if (sizeRepository.existsBySizeName(request.getSizeName())) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS );
         }
         Size size = Size.builder()
                 .sizeName(request.getSizeName())
@@ -48,10 +48,9 @@ public class SizeServiceImpl implements SizeService {
         Size size = sizeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         if (sizeRepository.existsBySizeNameAndIdNot(request.getSizeName(),id)) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS );
         }
         size.setSizeName(request.getSizeName());
-        size.setStatus(request.getStatus());
 
         sizeRepository.save(size);
 
@@ -123,5 +122,20 @@ public class SizeServiceImpl implements SizeService {
     @Override
     public List<SizeResponseSelect> getAll() {
         return sizeRepository.dataSelect();
+    }
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        Size brand = sizeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            sizeRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            sizeRepository.save(brand);
+            return "ngung hoat dong";
+
+        }
+
     }
 }

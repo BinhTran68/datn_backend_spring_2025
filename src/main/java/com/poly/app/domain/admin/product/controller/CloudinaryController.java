@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.request.Cloundinary;
 import com.poly.app.domain.admin.product.service.CloundinaryService;
 import com.poly.app.infrastructure.util.CloudinaryUtil;
 import lombok.AccessLevel;
@@ -29,5 +30,12 @@ public class CloudinaryController {
         String publicId = request.get("public_id");
         return cloundinaryService.deleteImage(publicId);
     }
+
+    @PostMapping("/deleteandupdatedb")
+    public ResponseEntity<?> deleteImageAndUpdateDB(@RequestBody Cloundinary reqCloundinary) {
+        return cloundinaryService.deleteImageAndUpdateDB(reqCloundinary.getPublicId(), reqCloundinary.getProductId(), reqCloundinary.getColorId());
+    }
+
+
 }
 

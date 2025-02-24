@@ -2,12 +2,15 @@ package com.poly.app.domain.admin.product.service.Impl;
 
 import com.poly.app.domain.admin.product.response.gender.GenderResponse;
 import com.poly.app.domain.admin.product.response.gender.GenderResponseSelect;
+import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.model.Gender;
 import com.poly.app.domain.repository.GenderRepository;
 import com.poly.app.domain.admin.product.request.gender.GenderRequest;
 import com.poly.app.domain.admin.product.response.gender.GenderResponse;
 import com.poly.app.domain.admin.product.service.GenderService;
 import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -31,6 +34,9 @@ public class GenderServiceImpl implements GenderService {
 
     @Override
     public Gender createGender(GenderRequest request) {
+        if (genderRepository.existsByGenderName(request.getGenderName())) {
+            throw new ApiException(ErrorCode.NAME_EXISTS);
+        }
         Gender gender = Gender.builder()
                 .genderName(request.getGenderName())
                 .status(Status.HOAT_DONG)
@@ -42,9 +48,11 @@ public class GenderServiceImpl implements GenderService {
     public GenderResponse updateGender(GenderRequest request, int id) {
 
         Gender gender = genderRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
-
+        if (genderRepository.existsByGenderNameAndIdNot(request.getGenderName(), id)) {
+            throw new ApiException(ErrorCode.NAME_EXISTS);
+        }
         gender.setGenderName(request.getGenderName());
-        gender.setStatus(request.getStatus());
+
 
         genderRepository.save(gender);
 
@@ -113,5 +121,20 @@ public class GenderServiceImpl implements GenderService {
     @Override
     public List<GenderResponseSelect> getAll() {
         return genderRepository.dataSelect();
+    }
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        Gender brand = genderRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            genderRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            genderRepository.save(brand);
+            return "ngung hoat dong";
+
+        }
+
     }
 }

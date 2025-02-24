@@ -8,6 +8,7 @@ import com.poly.app.domain.admin.product.request.type.TypeRequest;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.type.TypeResponse;
 import com.poly.app.domain.admin.product.service.TypeService;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -113,6 +114,15 @@ public class TypeController {
         return ApiResponse.<List<TypeResponseSelect>>builder()
                 .message("get all selected")
                 .data(typeService.getAll())
+                .build();
+    }
+    @GetMapping("/switchstatus")
+    public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
+                                       @RequestParam("id") int id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("get all selected")
+                .data(typeService.switchStatus(id,status))
                 .build();
     }
 }

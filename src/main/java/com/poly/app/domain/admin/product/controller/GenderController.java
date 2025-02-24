@@ -8,6 +8,7 @@ import com.poly.app.domain.admin.product.request.gender.GenderRequest;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.gender.GenderResponse;
 import com.poly.app.domain.admin.product.service.GenderService;
+import com.poly.app.infrastructure.constant.Status;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -100,5 +101,13 @@ public class GenderController {
                 .data(genderService.getAll())
                 .build();
     }
-
+    @GetMapping("/switchstatus")
+    public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
+                                       @RequestParam("id") int id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("get all selected")
+                .data(genderService.switchStatus(id,status))
+                .build();
+    }
 }

@@ -12,9 +12,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ImageRepository extends JpaRepository<Image,Integer> {
+public interface ImageRepository extends JpaRepository<Image, Integer> {
 
     Image getImagesByProductDetailAndIsDefault(ProductDetail productDetail, Boolean isDefault);
+
     @Query("SELECT new com.poly.app.domain.admin.product.response.img.ImgResponse(i.id,i.url,i.publicId) " +
            "FROM Image i WHERE i.productDetail.id = :productDetailId")
     List<ImgResponse> findByProductDetailId(@Param("productDetailId") Integer productDetailId);
@@ -28,4 +29,20 @@ public interface ImageRepository extends JpaRepository<Image,Integer> {
     // Tìm tất cả ảnh của ProductDetail theo productDetailId
     List<ImgResponse> findByProductDetailId(int productDetailId);
 
+
+    // kiemr tra xem public id có mấy màu sử dụng để quyết định có xóa trên cloud hay không
+    @Query(value = "SELECT COUNT(DISTINCT pd.color_id) " +
+                   "FROM image i " +
+                   "JOIN product_detail pd ON i.product_detail_id = pd.id " +
+                   "WHERE i.public_id = :publicId", nativeQuery = true)
+    int countDistinctColorsByPublicId(@Param("publicId") String publicId);
+
+    // lây mảng publicid thỏa mãn của 1 sản phẩm và có cùng màu khi sửa
+    @Query(value = "SELECT i.* " +
+                   "FROM image i " +
+                   "JOIN product_detail pd ON i.product_detail_id = pd.id " +
+                   "WHERE pd.product_id = :productId AND pd.color_id = :colorId",
+            nativeQuery = true)
+    List<Image> findPublicIdsByProductIdAndColorId(@Param("productId") Integer productId,
+                                                    @Param("colorId") Integer colorId);
 }

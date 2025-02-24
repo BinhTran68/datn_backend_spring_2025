@@ -6,6 +6,7 @@ import com.poly.app.domain.admin.product.request.productdetail.FilterRequest;
 import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequest;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
+import com.poly.app.infrastructure.constant.Status;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -39,5 +40,12 @@ public interface ProductDetailService {
     boolean existsByColorNameAndIdNot(String brandName, Integer id);
 
     List<ProductDetailResponse> createProductDetailList(List<ProductDetailRequest> request);
+
+//    kiểm tra xem đã tồn tại hay chưa
+
+    boolean existsProductDetail(ProductDetailRequest request);
+
+    String switchStatus(Integer id, Status status);
+
 
 }
