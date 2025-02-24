@@ -33,4 +33,6 @@ public interface StaffService {
 
     List<StaffReponse> filterStaff(String searchText, String status, String dobFrom, String dobTo, Integer ageFrom, Integer ageTo);
     boolean checkEmailExists(String email);
+
+    boolean checkPhoneExists(String phoneNumber);
 }
