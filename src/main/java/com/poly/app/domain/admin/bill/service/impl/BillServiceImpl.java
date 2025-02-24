@@ -224,6 +224,22 @@ public class BillServiceImpl implements BillService {
         if (request.getVoucherId() != null) {
             voucher = voucherRepository.findById(request.getVoucherId()).orElse(null);
         }
+        Address address = null;
+        if(request.getShippingAddressId() != null) {
+            address = addressRepository.findById(request.getShippingAddressId()).orElseThrow(()
+                    -> new ApiException(ErrorCode.HOA_DON_NOT_FOUND));
+        }
+        if(request.getAddress() != null && address == null) {
+            Address newAddress =  Address
+                    .builder()
+                    .wardId(request.getAddress().getWardId())
+                    .specificAddress(request.getAddress().getSpecificAddress())
+                    .provinceId(request.getAddress().getProvinceId())
+                    .districtId(request.getAddress().getDistrictId())
+                    .customer(customer)
+                    .build();
+            address =  addressRepository.save(newAddress);
+        }
 
         Bill bill = Bill
                 .builder()
@@ -236,15 +252,23 @@ public class BillServiceImpl implements BillService {
                 .shipMoney(request.getShipMoney())
                 .totalMoney(request.getTotalMoney())
                 .completeDate(request.getCompleteDate())
+                .shippingAddress(address)
                 .shipDate(request.getShipDate())
+                .numberPhone(request.getNumberPhone())
+                .shipMoney(request.getShipMoney())
                 .voucher(voucher)
                 .status(request.getStatus())
                 .build();
         Bill billSave = billRepository.save(bill);
 
+
+
         for (BillDetailRequest billDetailRequest : request.getBillDetailRequests()) {
             ProductDetail productDetail = productDetailRepository.findById(billDetailRequest.getProductDetailId()).orElse(null);
+
             if (productDetail != null) {
+                productDetail.setQuantity(productDetail.getQuantity() - billDetailRequest.getQuantity());
+                productDetailRepository.save(productDetail);
                 BillDetail billDetail = BillDetail
                         .builder()
                         .productDetail(productDetail)
@@ -270,13 +294,32 @@ public class BillServiceImpl implements BillService {
         } else if (request.getBankCustomerMoney() != null) {
             createAndSavePaymentMethod(request.getBankCustomerMoney(), PaymentMethodEnum.CHUYEN_KHOAN);
         }
-        BillHistory billHistory = BillHistory
+        BillHistory billHistory_1 = BillHistory
                 .builder()
                 .customer(customer)
                 .bill(billSave)
                 .status(BillStatus.DA_THANH_TOAN)
                 .build();
-        billHistoryRepository.save(billHistory);
+        BillHistory billHistory_2;
+        if(request.getIsShipping()) {
+            billHistory_2  = BillHistory
+                    .builder()
+                    .customer(customer)
+                    .bill(billSave)
+                    .status(BillStatus.CHO_VAN_CHUYEN)
+                    .build();
+        }else {
+          billHistory_2 = BillHistory
+                    .builder()
+                    .customer(customer)
+                    .bill(billSave)
+                    .status(BillStatus.DA_HOAN_THANH)
+                    .build();
+        }
+
+
+
+        billHistoryRepository.saveAll(List.of(billHistory_1, billHistory_2));
 
         return convertBillToBillResponse(billSave);
     }

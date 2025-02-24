@@ -28,6 +28,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
                    ",pd.price,pd.weight,pd.descrition,pd.status,pd.updatedAt,pd.updatedBy) from ProductDetail pd order by pd.updatedAt desc ")
     List<ProductDetailResponse> getAllProductDetail();
 
+    List<ProductDetail> findProductDetailByProduct_Id(Integer productId);
 
     //    @Query(value = "CALL sp_FilterProductDetails(" +
 //            ":productName, :brandName, :typeName, :colorName, :materialName," +
