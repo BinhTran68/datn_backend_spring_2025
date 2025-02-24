@@ -3,6 +3,7 @@ package com.poly.app.domain.admin.voucher.service;
 import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.auth.request.RegisterRequest;
+import com.poly.app.domain.model.StatusVoucher;
 import com.poly.app.domain.model.Voucher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,12 +15,15 @@ public interface  VoucherService {
     Voucher createVoucher(VoucherRequest request);
     VoucherReponse updateVoucher(VoucherRequest request, int id);
 //    VoucherReponse updateTt(VoucherRequest request, int id);
+//VoucherReponse updateVoucherStatus(int id, StatusVoucher status);
+
 
     String deleteVoucher(int id);
     VoucherReponse getVoucherDetail(int id);
     Page<VoucherReponse> getAllVoucher (Pageable pageable);
 //    Page<VoucherReponse> searchVouchers(String keyword, Pageable pageable);
 Boolean register(RegisterRequest request);
+String switchStatus(Integer id, StatusVoucher status);
 
 
     List<VoucherReponse> getAllVouchersWithCustomer(Integer customerId);
