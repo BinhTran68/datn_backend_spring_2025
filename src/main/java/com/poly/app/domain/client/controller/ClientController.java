@@ -1,10 +1,13 @@
 package com.poly.app.domain.client.controller;
 
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
+import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
+import com.poly.app.domain.admin.product.response.size.SizeResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
 import com.poly.app.domain.client.service.ClientService;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.Meta;
+import com.poly.app.domain.model.ProductDetail;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -86,6 +89,46 @@ public class ClientController {
                         .totalElement(page1.getTotalElements())
                         .currentPage(page1.getNumber() + 1)
                         .totalPages(page1.getTotalPages()).build())
+                .build();
+    }
+
+    @GetMapping("/getproductdetail")
+    ApiResponse<ProductDetailResponse> getProductDetail(@RequestParam(value = "productId", defaultValue = "") Integer productId
+            , @RequestParam(value = "colorId", defaultValue = "") Integer colorId,
+                                                        @RequestParam(value = "sizeId", defaultValue = "") Integer sizeId
+    ) {
+
+        return ApiResponse.<ProductDetailResponse>builder()
+                .message("danh sách các sản phẩm view cao nhất")
+                .data(clientService.findProductDetailbyProductIdAndColorIdAndSizeId(productId, colorId, sizeId))
+                .build();
+    }
+
+    @GetMapping("/findsizebyproductid")
+    ApiResponse<List<SizeResponse>> findSizesByProductId(@RequestParam(value = "productId", defaultValue = "") Integer productId
+    ) {
+        return ApiResponse.<List<SizeResponse>>builder()
+                .message("danh sách các size thuộc sản phẩm")
+                .data(clientService.findSizesByProductId(productId))
+                .build();
+    }
+
+    @GetMapping("/findsizebyproductidandcolorid")
+    ApiResponse<List<SizeResponse>> findSizesByProductIdAndColorId(@RequestParam(value = "productId", defaultValue = "") Integer productId,
+                                                                  @RequestParam(value = "colorId", defaultValue = "") Integer colorId
+    ) {
+        return ApiResponse.<List<SizeResponse>>builder()
+                .message("danh sách các size thuộc sản phẩm và color")
+                .data(clientService.findSizesByProductIdAndColorId(productId,colorId))
+                .build();
+    }
+
+    @GetMapping("/findcolorbyproductid")
+    ApiResponse<List<ColorResponse>> findColorsByProductId(@RequestParam(value = "productId", defaultValue = "") Integer productId
+    ) {
+        return ApiResponse.<List<ColorResponse>>builder()
+                .message("danh sách các size thuộc sản phẩm")
+                .data(clientService.findColorsByProductId(productId))
                 .build();
     }
 }

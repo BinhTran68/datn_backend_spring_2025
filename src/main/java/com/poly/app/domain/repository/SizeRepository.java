@@ -9,12 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface SizeRepository extends JpaRepository<Size,Integer> {
+public interface SizeRepository extends JpaRepository<Size, Integer> {
     @Query(value = "select new com.poly.app.domain.admin.product.response.size.SizeResponse(c.id,c.code,c.sizeName,c.updatedAt,c.status) from Size c where c.sizeName like :name order by c.createdAt desc")
     Page<SizeResponse> fillbyname(String name, Pageable pageable);
 
@@ -24,6 +25,18 @@ public interface SizeRepository extends JpaRepository<Size,Integer> {
     boolean existsBySizeName(String name);
 
     boolean existsBySizeNameAndIdNot(String name, Integer id);
+
     @Query(value = "select new com.poly.app.domain.admin.product.response.size.SizeResponseSelect(b.id,b.sizeName,b.status) from Size b order by b.createdAt desc ")
     List<SizeResponseSelect> dataSelect();
+
+    @Query("SELECT DISTINCT new com.poly.app.domain.admin.product.response.size.SizeResponse(s.id,s.code, s.sizeName,s.updatedAt,s.status) " +
+           "FROM Size s JOIN ProductDetail pd ON pd.size.id = s.id " +
+           "WHERE pd.product.id = :productId")
+    List<SizeResponse> findSizesByProductId(@Param("productId") int productId);
+
+    @Query("SELECT DISTINCT new com.poly.app.domain.admin.product.response.size.SizeResponse(s.id,s.code, s.sizeName,s.updatedAt,s.status) " +
+           "FROM Size s JOIN ProductDetail pd ON pd.size.id = s.id " +
+           "WHERE pd.product.id = :productId and pd.color.id = :colorId ")
+    List<SizeResponse> findSizesByProductIdAndColorId(@Param("productId") int productId, @Param("colorId") int colorId);
+
 }

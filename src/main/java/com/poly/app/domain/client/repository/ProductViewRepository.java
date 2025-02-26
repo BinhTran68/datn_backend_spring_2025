@@ -1,6 +1,7 @@
 package com.poly.app.domain.client.repository;
 
 
+import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
 import com.poly.app.domain.model.ProductDetail;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "MAX(pd.id) AS product_detail_id, " +
                     "MIN(pd.price) AS price, " +
                     "MAX(pd.sold) AS sold, " +
+                    "MAX(pd.color_id) AS color_id," +
+                    "MAX(pd.size_id) AS size_id," +
                     "MAX(pd.tag) AS tag, " +
                     "COALESCE((" +
                     "SELECT i.url " +
@@ -75,6 +78,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "MAX(pd.id) AS product_detail_id, " +
                     "MIN(pd.price) AS price, " +
                     "MAX(pd.sold) AS sold, " +
+                    "MAX(pd.color_id) AS color_id," +
+                    "MAX(pd.size_id) AS size_id," +
                     "MAX(pd.tag) AS tag, " +
                     "COALESCE((" +
                     "SELECT i.url " +
@@ -110,7 +115,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
     )
     Page<ProductViewResponse> getAllProductHadSoleDesc(Pageable pageable);
 
-//lấy các sản phẩm mới theo ngày tạo
+    //lấy các sản phẩm mới theo ngày tạo
     @Query(
             value = "SELECT " +
                     "p.id AS product_id, " +
@@ -118,6 +123,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "MAX(pd.id) AS product_detail_id, " +
                     "MIN(pd.price) AS price, " +
                     "MAX(pd.sold) AS sold, " +
+                    "MAX(pd.color_id) AS color_id," +
+                    "MAX(pd.size_id) AS size_id," +
                     "MAX(pd.tag) AS tag, " +
                     "COALESCE((" +
                     "SELECT i.url " +
@@ -164,6 +171,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "    MAX(pd.id) AS product_detail_id,\n" +
                     "    MIN(pd.price) AS price,\n" +
                     "    MAX(pd.sold) AS sold,  \n" +
+                    "MAX(pd.color_id) AS color_id," +
+                    "MAX(pd.size_id) AS size_id," +
                     "    MAX(pd.tag) AS tag,    \n" +
                     "\n" +
                     "    -- Lấy ảnh theo màu\n" +
@@ -204,5 +213,13 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
             nativeQuery = true
     )
     Page<ProductViewResponse> getAllProductHadViewsDesc(Pageable pageable);
+
+    @Query(value = "select  new com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse" +
+                   "(pd.id,pd.code,pd.product.productName,pd.brand.brandName,pd.type.typeName,pd.color.colorName" +
+                   ",pd.material.materialName,pd.size.sizeName,pd.sole.soleName,pd.gender.genderName,pd.quantity" +
+                   ",pd.price,pd.weight,pd.descrition,pd.status,pd.updatedAt,pd.updatedBy) from ProductDetail pd  " +
+                   "where pd.product.id = :productId and pd.color.id= :colorId and pd.size.id = :sizeId")
+    ProductDetailResponse findByProductAndColorAndSize(int productId, int colorId, int sizeId);
+
 
 }
