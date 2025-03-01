@@ -7,21 +7,21 @@ import com.poly.app.domain.auth.request.LoginGoogleRequest;
 import com.poly.app.domain.auth.request.LoginRequest;
 import com.poly.app.domain.auth.request.RegisterRequest;
 import com.poly.app.domain.auth.response.UserLoginResponse;
+import com.poly.app.domain.model.Customer;
+import com.poly.app.domain.model.Staff;
+
+import java.util.Map;
 
 public interface AuthenticationService {
-    String loginAdmin(LoginRequest request);
+    Map<String, Object> loginAdmin(LoginRequest request);
 
-    String login(LoginRequest request);
+    Map<String, Object> login(LoginRequest request);
 
     UserLoginResponse userLogin();
 
     Boolean register(RegisterRequest request);
 
     Boolean registerStaff(RegisterRequest request);
-
-
-
-
 
     String sendOtp(String email);
 
@@ -30,4 +30,8 @@ public interface AuthenticationService {
     Boolean changePass(ChangeRequest request);
 
     String loginGoogle(LoginGoogleRequest request);
+
+
+    Customer getCustomerAuth();
+    Staff getStaffAuth();
 }

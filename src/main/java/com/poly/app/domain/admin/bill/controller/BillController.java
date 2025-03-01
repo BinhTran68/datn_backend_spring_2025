@@ -1,7 +1,9 @@
 package com.poly.app.domain.admin.bill.controller;
 
 
+import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
+import com.poly.app.domain.admin.bill.request.UpdateQuantityProductRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillService;
@@ -28,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/bill")
@@ -90,6 +93,13 @@ public class BillController {
     ResponseEntity<?> createBill(@RequestBody CreateBillRequest request) {
         return ResponseEntity.ok(billService.createBill(request));
     }
+
+    @PostMapping("/change-product-quantity")
+    ResponseEntity<?> updateProductQuantity(@RequestBody List<BillProductDetailRequest> request) {
+        System.out.println(request.toString());
+        return ResponseEntity.ok().build();
+    }
+
 
 
 }

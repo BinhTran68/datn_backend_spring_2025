@@ -1,13 +1,16 @@
 package com.poly.app.domain.admin.bill.service.impl;
 
 import com.poly.app.domain.admin.bill.request.BillDetailRequest;
+import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
+import com.poly.app.domain.admin.bill.request.UpdateQuantityProductRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequest;
+import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillDetail;
@@ -322,6 +325,20 @@ public class BillServiceImpl implements BillService {
         billHistoryRepository.saveAll(List.of(billHistory_1, billHistory_2));
 
         return convertBillToBillResponse(billSave);
+    }
+
+    @Override
+    public List<ProductDetailResponse> updateProductQuantity(List<BillProductDetailRequest> requests) {
+        List<ProductDetailResponse> responses = new ArrayList<>();
+        requests.forEach(request -> {
+           ProductDetail productDetail = productDetailRepository.findById(request.getId()).orElse(null);
+           if (productDetail != null) {
+               productDetailRepository.save(productDetail);
+               productDetail.setQuantity(request.getQuantity());
+               productDetailRepository.save(productDetail);
+           }
+        });
+        return List.of();
     }
 
     private PaymentMethods createAndSavePaymentMethod(Double amount, PaymentMethodEnum methodEnum) {

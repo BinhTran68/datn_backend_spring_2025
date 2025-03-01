@@ -37,7 +37,8 @@ public class JwtUtilities {
     }
 
     public String extractRoleName(String token) {
-        return extractClaim(token, claims -> claims.get("roleName")).toString();
+        return extractClaim(token, claims -> claims.get("role" +
+                "")).toString();
     }
 
 
