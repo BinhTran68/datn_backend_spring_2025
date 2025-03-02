@@ -6,6 +6,7 @@ import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
+import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.ProductViewResponse;
 import com.poly.app.domain.model.Brand;
 import com.poly.app.infrastructure.constant.Status;
@@ -27,10 +28,12 @@ public interface ClientService {
     ProductDetailResponse findProductDetailbyProductIdAndColorIdAndSizeId(int productId, int colorId, int sizeId);
 
     List<SizeResponse> findSizesByProductId(Integer productId);
+
     List<SizeResponse> findSizesByProductIdAndColorId(Integer productId, Integer colorId);
 
     List<ColorResponse> findColorsByProductId(Integer productId);
 
     Integer addViewProduct(int productId);
 
+    String createBillClient(CreateBillClientRequest request);
 }

@@ -3,6 +3,7 @@ package com.poly.app.domain.client.controller;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
+import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.ProductViewResponse;
 import com.poly.app.domain.client.service.ClientService;
 import com.poly.app.domain.common.ApiResponse;
@@ -13,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -137,6 +135,15 @@ public class ClientController {
         return ApiResponse.<Integer>builder()
                 .message("add view")
                 .data(clientService.addViewProduct(productId))
+                .build();
+    }
+
+    @PostMapping("/createbillclient")
+    ApiResponse<String> createBillClient(@RequestBody CreateBillClientRequest request
+    ) {
+        return ApiResponse.<String>builder()
+                .message("tạo hóa đơn client")
+                .data(clientService.createBillClient(request))
                 .build();
     }
 }
