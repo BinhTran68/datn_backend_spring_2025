@@ -31,12 +31,12 @@ public interface SizeRepository extends JpaRepository<Size, Integer> {
 
     @Query("SELECT DISTINCT new com.poly.app.domain.admin.product.response.size.SizeResponse(s.id,s.code, s.sizeName,s.updatedAt,s.status) " +
            "FROM Size s JOIN ProductDetail pd ON pd.size.id = s.id " +
-           "WHERE pd.product.id = :productId")
+           "WHERE pd.product.id = :productId and pd.status=0  order by s.sizeName ")
     List<SizeResponse> findSizesByProductId(@Param("productId") int productId);
 
     @Query("SELECT DISTINCT new com.poly.app.domain.admin.product.response.size.SizeResponse(s.id,s.code, s.sizeName,s.updatedAt,s.status) " +
            "FROM Size s JOIN ProductDetail pd ON pd.size.id = s.id " +
-           "WHERE pd.product.id = :productId and pd.color.id = :colorId ")
+           "WHERE pd.product.id = :productId and pd.color.id = :colorId and pd.status=0 order by s.sizeName ")
     List<SizeResponse> findSizesByProductIdAndColorId(@Param("productId") int productId, @Param("colorId") int colorId);
 
 }
