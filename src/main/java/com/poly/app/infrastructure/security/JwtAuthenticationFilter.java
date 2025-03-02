@@ -1,6 +1,7 @@
 package com.poly.app.infrastructure.security;
 
 
+import com.poly.app.domain.model.Customer;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,20 +38,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
         String token = jwtUtilities.getToken(request);
-
+        System.out.println(token);
         if (token != null && jwtUtilities.validateToken(token)) {
 
             String id = jwtUtilities.extractUserId(token);
+            String username = jwtUtilities.extractUsername(token);
             String userType = jwtUtilities.extractRoleName(token);
-
+            System.out.println(id + userType + username);
             UserDetails userDetails = null;
-
             if ("ROLE_STAFF".equals(userType)) {
-                userDetails = customerUserDetailsService.loadUserByUsername(id);
-            } else if ("ROLE_CUSTOMER".equals(userType)) {
-                userDetails = customerUserDetailsService.loadUserByUsername(id); // CustomerService logic
+                userDetails = customerUserDetailsService.loadUserByUsername(username);
+            } else if ("ROLE_USER".equals(userType)) {
+                userDetails = customerUserDetailsService.loadUserByUsername(username); // CustomerService logic
             }
-
+            System.out.println("userDetails" +userDetails);
+            System.out.println( "jwtUtilities.validateToken(token)" + jwtUtilities.validateToken(token));
             if (userDetails != null && jwtUtilities.validateToken(token)) {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(

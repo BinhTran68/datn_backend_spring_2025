@@ -32,7 +32,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             return customer;
         }
 
-
         Staff staff = staffRepository.findByEmail(username);
         if (staff != null) {
             return staff;

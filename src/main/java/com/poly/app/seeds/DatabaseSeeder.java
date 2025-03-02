@@ -126,6 +126,11 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+        if(customerRepository.count() > 0) {
+            return;
+        }
+
         Role role = Role.builder().roleName("ROLE_ADMIN").build();
         roleRepository.save(role);
 

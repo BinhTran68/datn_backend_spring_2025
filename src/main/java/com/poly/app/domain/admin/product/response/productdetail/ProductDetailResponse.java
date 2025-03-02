@@ -2,6 +2,7 @@ package com.poly.app.domain.admin.product.response.productdetail;
 
 import com.poly.app.domain.admin.product.response.img.ImgResponse;
 import com.poly.app.domain.model.Image;
+import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.infrastructure.constant.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -70,5 +71,28 @@ public class ProductDetailResponse {
         this.status = status;
         this.updateAt = updateAt;
         this.updateBy = updateBy;
+    }
+
+
+    public static  ProductDetailResponse fromEntity(ProductDetail  productDetail) {
+       return ProductDetailResponse.builder()
+                .id(productDetail.getId())
+                .code(productDetail.getCode())
+                .productName(productDetail.getProduct().getProductName())
+                .brandName(productDetail.getBrand().getBrandName())
+                .typeName(productDetail.getType().getTypeName())
+                .colorName(productDetail.getColor().getColorName())
+                .materialName(productDetail.getMaterial().getMaterialName())
+                .sizeName(productDetail.getSize().getSizeName())
+                .soleName(productDetail.getSole().getSoleName())
+                .genderName(productDetail.getGender().getGenderName())
+                .quantity(productDetail.getQuantity())
+                .price(productDetail.getPrice())
+                .weight(productDetail.getWeight())
+                .description(productDetail.getDescrition())
+                .status(productDetail.getStatus())
+                .updateAt(productDetail.getUpdatedAt())
+                .updateBy(productDetail.getUpdatedBy())
+                .build();
     }
 }
