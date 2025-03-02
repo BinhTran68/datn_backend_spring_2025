@@ -7,11 +7,14 @@ import com.poly.app.domain.admin.product.response.size.SizeResponse;
 import com.poly.app.domain.client.repository.ProductViewRepository;
 import com.poly.app.domain.client.response.ProductViewResponse;
 import com.poly.app.domain.client.service.ClientService;
+import com.poly.app.domain.model.Product;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.repository.ColorRepository;
 import com.poly.app.domain.repository.ImageRepository;
+import com.poly.app.domain.repository.ProductRepository;
 import com.poly.app.domain.repository.SizeRepository;
 import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,7 @@ public class ClientServiceImpl implements ClientService {
     ImageRepository imageRepository;
     SizeRepository sizeRepository;
     ColorRepository colorRepository;
+    ProductRepository productRepository;
 
     @Override
     public Page<ProductViewResponse> getAllProductHadPromotion(int page, int size) {
@@ -81,11 +85,20 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public List<SizeResponse> findSizesByProductIdAndColorId(Integer productId, Integer colorId) {
-        return sizeRepository.findSizesByProductIdAndColorId(productId,colorId);
+        return sizeRepository.findSizesByProductIdAndColorId(productId, colorId);
     }
 
     @Override
     public List<ColorResponse> findColorsByProductId(Integer productId) {
         return colorRepository.findColorsByProductId(productId);
+    }
+
+    @Override
+    public Integer addViewProduct(int productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ApiException(ErrorCode.SANPHAM_NOT_FOUND));
+        int viewCurrent = (product.getViews() != null) ? product.getViews() : 0;
+        product.setViews(viewCurrent + 1);
+        productRepository.save(product);
+        return product.getViews();
     }
 }

@@ -31,4 +31,6 @@ public interface ClientService {
 
     List<ColorResponse> findColorsByProductId(Integer productId);
 
+    Integer addViewProduct(int productId);
+
 }

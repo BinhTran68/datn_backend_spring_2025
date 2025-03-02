@@ -131,4 +131,12 @@ public class ClientController {
                 .data(clientService.findColorsByProductId(productId))
                 .build();
     }
+    @GetMapping("/addviewproduct")
+    ApiResponse<Integer> addViewProduct(@RequestParam(value = "productId", defaultValue = "") Integer productId
+    ) {
+        return ApiResponse.<Integer>builder()
+                .message("add view")
+                .data(clientService.addViewProduct(productId))
+                .build();
+    }
 }

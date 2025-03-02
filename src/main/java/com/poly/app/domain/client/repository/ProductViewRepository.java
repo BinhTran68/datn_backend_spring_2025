@@ -34,6 +34,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "ORDER BY i.is_default DESC " +
                     "LIMIT 1" +
                     "), '') AS image_url, " +
+                    "p.views,\n" +
+
                     "COALESCE(MAX(pr.promotion_name), 'Không có khuyến mãi') AS promotion_name, " +
                     "COALESCE(MAX(pr.discount_value), 0) AS discount_value, " +
                     "COALESCE(MAX(pr.promotion_type), 'none') AS promotion_type, " +
@@ -88,6 +90,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "ORDER BY i.is_default DESC " +
                     "LIMIT 1" +
                     "), '') AS image_url, " +
+                    "p.views,\n" +
+
                     "COALESCE(MAX(pr.promotion_name), 'Không có khuyến mãi') AS promotion_name, " +
                     "COALESCE(MAX(pr.discount_value), 0) AS discount_value, " +
                     "COALESCE(MAX(pr.promotion_type), 'none') AS promotion_type " +
@@ -133,6 +137,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "ORDER BY i.is_default DESC " +
                     "LIMIT 1" +
                     "), '') AS image_url, " +
+                    "p.views,\n" +
+
                     "COALESCE(MAX(pr.promotion_name), 'Không có khuyến mãi') AS promotion_name, " +
                     "COALESCE(MAX(pr.discount_value), 0) AS discount_value, " +
                     "COALESCE(MAX(pr.promotion_type), 'none') AS promotion_type, " +
