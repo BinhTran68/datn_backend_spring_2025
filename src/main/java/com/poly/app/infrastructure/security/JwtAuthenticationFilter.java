@@ -36,11 +36,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
+        System.out.println("Cos chajy qua ma");
 
         String token = jwtUtilities.getToken(request);
         System.out.println(token);
         if (token != null && jwtUtilities.validateToken(token)) {
-
             String id = jwtUtilities.extractUserId(token);
             String username = jwtUtilities.extractUsername(token);
             String userType = jwtUtilities.extractRoleName(token);

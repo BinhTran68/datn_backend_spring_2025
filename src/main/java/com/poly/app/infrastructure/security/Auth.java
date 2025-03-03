@@ -13,36 +13,32 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class Auth {
-
     private final HttpSession session;
-
     public  Customer getCustomerAuth() {
         UserDetails user = (UserDetails) session.getAttribute("user");
-
         if (user == null) {
-            throw new RestApiException("User not found in session", HttpStatus.UNAUTHORIZED);
+            return null;
         }
 
         if (user instanceof Customer) {
             return (Customer) user;
         }
-
-        throw new RestApiException("User is not a Customer", HttpStatus.FORBIDDEN);
+        return null;
     }
 
     public Staff getStaffAuth() {
         UserDetails user = (UserDetails) session.getAttribute("user");
-
         if (user == null) {
-            throw new RestApiException("User not found in session", HttpStatus.UNAUTHORIZED);
+          return null;
         }
-
         if (user instanceof Staff) {
             return (Staff) user;
         }
-
-        throw new RestApiException("User is not a Staff", HttpStatus.FORBIDDEN);
+        return null;
     }
 
+    public UserDetails getUserAuth() {
+        return (UserDetails) session.getAttribute("user");
+    }
 
 }

@@ -39,6 +39,7 @@ import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.TypeBill;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
+import com.poly.app.infrastructure.security.Auth;
 import com.poly.app.infrastructure.util.DateUtil;
 import com.poly.app.infrastructure.util.GenHoaDon;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -96,6 +97,9 @@ public class BillServiceImpl implements BillService {
     @Autowired
     private VoucherRepository voucherRepository;
 
+    @Autowired
+    private Auth auth;
+
     @Override
     public Page<BillResponse> getPageBill(Integer size, Integer page,
                                           BillStatus statusBill,
@@ -104,7 +108,14 @@ public class BillServiceImpl implements BillService {
                                           String startDate,
                                           String endDate
     ) {
-        Pageable pageable = PageRequest.of(page, size);
+        Sort sort = null;
+        if(statusBill == BillStatus.CHO_XAC_NHAN) {
+            sort  = Sort.by(Sort.Direction.ASC, "createdAt");
+        }else {
+            sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
         // Sử dụng Specification hoặc Predicate để xây dựng các điều kiện động
         Specification<Bill> spec = Specification.where(null);
 
@@ -124,7 +135,6 @@ public class BillServiceImpl implements BillService {
             spec = spec.and((root, query, criteriaBuilder) -> {
                 // Thực hiện join tới thực thể Customer
                 Join<Object, Object> customerJoin = root.join("customer", JoinType.LEFT);
-
                 // Thêm điều kiện tìm kiếm
                 return criteriaBuilder.or(
                         criteriaBuilder.like(customerJoin.get("fullName"), "%" + search + "%"),
@@ -220,6 +230,10 @@ public class BillServiceImpl implements BillService {
     @Transactional
     public BillResponse createBill(CreateBillRequest request) {
         Customer customer = null;
+
+        Staff staffAuth = auth.getStaffAuth();
+        Customer customerAuth = auth.getCustomerAuth();
+
         if (request.getCustomerId() != null) {
             customer = customerRepository.findById(request.getCustomerId()).orElse(null);
         }
@@ -228,26 +242,27 @@ public class BillServiceImpl implements BillService {
             voucher = voucherRepository.findById(request.getVoucherId()).orElse(null);
         }
         Address address = null;
-        if(request.getShippingAddressId() != null) {
+        if (request.getShippingAddressId() != null) {
             address = addressRepository.findById(request.getShippingAddressId()).orElseThrow(()
                     -> new ApiException(ErrorCode.HOA_DON_NOT_FOUND));
         }
-        if(request.getAddress() != null && address == null) {
-            Address newAddress =  Address
+        System.out.println(request.getAddress().toString());
+        if (request.getAddress() != null) {
+            Address newAddress = Address
                     .builder()
                     .wardId(request.getAddress().getWardId())
                     .specificAddress(request.getAddress().getSpecificAddress())
                     .provinceId(request.getAddress().getProvinceId())
                     .districtId(request.getAddress().getDistrictId())
-                    .customer(customer)
+                    .customer(customer) // Khách hàng -> có thể k phải là khách hàng đăng nhập
                     .build();
-            address =  addressRepository.save(newAddress);
+            address = addressRepository.save(newAddress);
         }
 
         Bill bill = Bill
                 .builder()
                 .typeBill(request.getTypeBill())
-                .customer(customer)
+                .customer(customer) // Cũng có thể là khách hàng đang đăng nhập hoặc chưa đăng nhập
                 .customerMoney(request.getCustomerMoney())
                 .discountMoney(request.getDiscountMoney())
                 .moneyAfter(request.getMoneyAfter())
@@ -260,15 +275,21 @@ public class BillServiceImpl implements BillService {
                 .numberPhone(request.getNumberPhone())
                 .shipMoney(request.getShipMoney())
                 .voucher(voucher)
-                .status(request.getStatus())
                 .build();
+        // Nếu đặt hàng online thì ===
+
+
+        // Trường hợp người dùng ship
+        if (request.getIsShipping()) {
+            bill.setStatus(BillStatus.CHO_VAN_CHUYEN);
+        } else {
+            bill.setStatus(BillStatus.DA_HOAN_THANH);
+        }
+
         Bill billSave = billRepository.save(bill);
-
-
 
         for (BillDetailRequest billDetailRequest : request.getBillDetailRequests()) {
             ProductDetail productDetail = productDetailRepository.findById(billDetailRequest.getProductDetailId()).orElse(null);
-
             if (productDetail != null) {
                 productDetail.setQuantity(productDetail.getQuantity() - billDetailRequest.getQuantity());
                 productDetailRepository.save(productDetail);
@@ -286,66 +307,82 @@ public class BillServiceImpl implements BillService {
 
         if (request.getIsCashAndBank()) {
             PaymentMethods cashPaymentMethods = createAndSavePaymentMethod(
-                    request.getCashCustomerMoney(), PaymentMethodEnum.TIEN_MAT);
+                    request.getCashCustomerMoney(),
+                    PaymentMethodEnum.TIEN_MAT,
+                    null
+            );
             PaymentMethods bankPaymentMethods = createAndSavePaymentMethod(
-                    request.getBankCustomerMoney(), PaymentMethodEnum.CHUYEN_KHOAN);
-
+                    request.getBankCustomerMoney(), PaymentMethodEnum.CHUYEN_KHOAN, request.getTransactionCode());
             savePaymentBill(billSave, cashPaymentMethods);
             savePaymentBill(billSave, bankPaymentMethods);
         } else if (request.getCashCustomerMoney() != null) {
-            createAndSavePaymentMethod(request.getCashCustomerMoney(), PaymentMethodEnum.TIEN_MAT);
+            PaymentMethods cashPaymentMethods =  createAndSavePaymentMethod(request.getCashCustomerMoney(), PaymentMethodEnum.TIEN_MAT, null);
+            savePaymentBill(billSave, cashPaymentMethods);
         } else if (request.getBankCustomerMoney() != null) {
-            createAndSavePaymentMethod(request.getBankCustomerMoney(), PaymentMethodEnum.CHUYEN_KHOAN);
-        }
+            PaymentMethods bankPayment = createAndSavePaymentMethod(request.getBankCustomerMoney(), PaymentMethodEnum.CHUYEN_KHOAN, request.getTransactionCode());
+            savePaymentBill(billSave, bankPayment);
+       }
+        handleSaveBillHistory(billSave, customer, staffAuth, request, customerAuth);
+        return convertBillToBillResponse(billSave);
+    }
+
+    private void handleSaveBillHistory(Bill billSave,
+                                       Customer customer,
+                                       Staff staff,
+                                       CreateBillRequest request,
+                                       Customer customerAuth
+    ) {
+        // TH 1 Đặt hàng online
+        // TH 2 MUA HÀNG TAẠI QUẦY
         BillHistory billHistory_1 = BillHistory
                 .builder()
                 .customer(customer)
+                .staff(staff)
                 .bill(billSave)
                 .status(BillStatus.DA_THANH_TOAN)
                 .build();
         BillHistory billHistory_2;
-        if(request.getIsShipping()) {
-            billHistory_2  = BillHistory
+        if (request.getIsShipping()) {
+            billHistory_2 = BillHistory
                     .builder()
                     .customer(customer)
+                    .staff(staff)
                     .bill(billSave)
                     .status(BillStatus.CHO_VAN_CHUYEN)
                     .build();
-        }else {
-          billHistory_2 = BillHistory
+        } else {
+            billHistory_2 = BillHistory
                     .builder()
                     .customer(customer)
+                    .staff(staff)
                     .bill(billSave)
                     .status(BillStatus.DA_HOAN_THANH)
                     .build();
         }
-
-
-
         billHistoryRepository.saveAll(List.of(billHistory_1, billHistory_2));
 
-        return convertBillToBillResponse(billSave);
     }
 
     @Override
     public List<ProductDetailResponse> updateProductQuantity(List<BillProductDetailRequest> requests) {
         List<ProductDetailResponse> responses = new ArrayList<>();
         requests.forEach(request -> {
-           ProductDetail productDetail = productDetailRepository.findById(request.getId()).orElse(null);
-           if (productDetail != null) {
-               productDetailRepository.save(productDetail);
-               productDetail.setQuantity(request.getQuantity());
-               productDetailRepository.save(productDetail);
-           }
+            ProductDetail productDetail = productDetailRepository.findById(request.getId()).orElse(null);
+            if (productDetail != null) {
+                productDetailRepository.save(productDetail);
+                productDetail.setQuantity(request.getQuantity());
+                productDetailRepository.save(productDetail);
+            }
         });
         return List.of();
     }
 
-    private PaymentMethods createAndSavePaymentMethod(Double amount, PaymentMethodEnum methodEnum) {
+    private PaymentMethods createAndSavePaymentMethod(Double amount, PaymentMethodEnum methodEnum, String transactionCode) {
         if (amount == null) return null;
 
         PaymentMethods paymentMethods = PaymentMethods.builder()
                 .totalMoney(amount)
+                .transactionCode(transactionCode)
                 .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
                 .paymentMethod(methodEnum)
                 .build();
