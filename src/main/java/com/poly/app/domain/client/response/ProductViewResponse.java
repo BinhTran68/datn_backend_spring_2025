@@ -10,6 +10,8 @@ public interface ProductViewResponse {
     BigDecimal getPrice();
     Integer getSold();
     Integer getTag();
+    Integer getColorId();
+    Integer getSizeId();
     String getImageUrl();
     String getPromotionName();
     BigDecimal getDiscountValue();

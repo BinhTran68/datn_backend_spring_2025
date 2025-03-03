@@ -1,8 +1,23 @@
 package com.poly.app.domain.client.service.impl;
 
+import com.poly.app.domain.admin.bill.request.BillDetailRequest;
+import com.poly.app.domain.admin.product.response.color.ColorResponse;
+import com.poly.app.domain.admin.product.response.img.ImgResponse;
+import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
+import com.poly.app.domain.admin.product.response.size.SizeResponse;
 import com.poly.app.domain.client.repository.ProductViewRepository;
+import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.ProductViewResponse;
 import com.poly.app.domain.client.service.ClientService;
+import com.poly.app.domain.model.*;
+import com.poly.app.domain.repository.*;
+import com.poly.app.infrastructure.constant.BillStatus;
+import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.constant.TypeBill;
+import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
+import jakarta.persistence.Id;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +36,17 @@ import java.util.List;
 @Slf4j
 public class ClientServiceImpl implements ClientService {
     ProductViewRepository productViewRepository;
+    ImageRepository imageRepository;
+    SizeRepository sizeRepository;
+    ColorRepository colorRepository;
+    ProductRepository productRepository;
+    CustomerRepository customerRepository;
+    VoucherRepository voucherRepository;
+    AddressRepository addressRepository;
+    BillRepository billRepository;
+    ProductDetailRepository productDetailRepository;
+    BillDetailRepository billDetailRepository;
+    BillHistoryRepository billHistoryRepository;
 
     @Override
     public Page<ProductViewResponse> getAllProductHadPromotion(int page, int size) {
@@ -45,4 +71,124 @@ public class ClientServiceImpl implements ClientService {
         Pageable pageable = PageRequest.of(page, size);
         return productViewRepository.getAllProductHadViewsDesc(pageable);
     }
+
+    @Override
+    public ProductDetailResponse findProductDetailbyProductIdAndColorIdAndSizeId(int productId, int colorId, int sizeId) {
+        try {
+            ProductDetailResponse productDetail = productViewRepository.findByProductAndColorAndSize(productId, colorId, sizeId);
+            List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
+            productDetail.setImage(images);
+            return productDetail;
+
+        } catch (Exception e) {
+            throw new IllegalArgumentException("ko tìm thấy chi tiết sản phẩm này");
+        }
+
+
+    }
+
+    @Override
+    public List<SizeResponse> findSizesByProductId(Integer productId) {
+        return sizeRepository.findSizesByProductId(productId);
+    }
+
+    @Override
+    public List<SizeResponse> findSizesByProductIdAndColorId(Integer productId, Integer colorId) {
+        return sizeRepository.findSizesByProductIdAndColorId(productId, colorId);
+    }
+
+    @Override
+    public List<ColorResponse> findColorsByProductId(Integer productId) {
+        return colorRepository.findColorsByProductId(productId);
+    }
+
+    @Override
+    public Integer addViewProduct(int productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ApiException(ErrorCode.SANPHAM_NOT_FOUND));
+        int viewCurrent = (product.getViews() != null) ? product.getViews() : 0;
+        product.setViews(viewCurrent + 1);
+        productRepository.save(product);
+        return product.getViews();
+    }
+
+    @Override
+    @Transactional
+    public String createBillClient(CreateBillClientRequest request) {
+        Customer customer = null;
+
+        if (request.getCustomerId() != null) {
+            customer = customerRepository.findById(request.getCustomerId()).orElse(null);
+        }
+        Voucher voucher = null;
+        if (request.getVoucherId() != null) {
+            voucher = voucherRepository.findById(request.getVoucherId()).orElse(null);
+        }
+        Address address = null;
+        if (request.getShippingAddressId() != null) {
+            address = addressRepository.findById(request.getShippingAddressId()).orElseThrow(()
+                    -> new ApiException(ErrorCode.HOA_DON_NOT_FOUND));
+        }
+        if (request.getAddress() != null && address == null) {
+            Address newAddress = Address
+                    .builder()
+                    .wardId(request.getAddress().getWardId())
+                    .specificAddress(request.getAddress().getSpecificAddress())
+                    .provinceId(request.getAddress().getProvinceId())
+                    .districtId(request.getAddress().getDistrictId())
+                    .customer(customer)
+                    .build();
+            address = addressRepository.save(newAddress);
+        }
+
+        Bill bill = Bill
+                .builder()
+                .typeBill(TypeBill.ONLINE)
+                .customer(customer)
+                .customerMoney(request.getCustomerMoney())
+                .discountMoney(request.getDiscountMoney())
+                .moneyAfter(request.getMoneyAfter())
+                .shipDate(request.getShipDate())
+                .shipMoney(request.getShipMoney())
+                .totalMoney(request.getTotalMoney())
+                .shippingAddress(address)
+                .shipDate(request.getShipDate())
+                .shipMoney(request.getShipMoney())
+                .voucher(voucher)
+                .status(BillStatus.CHO_XAC_NHAN)
+                .email(request.getEmail())
+                .notes(request.getNotes())
+                .numberPhone(request.getRecipientPhoneNumber())
+                .build();
+        Bill billSave = billRepository.save(bill);
+
+//tao cthd
+        for (BillDetailRequest billDetailRequest : request.getBillDetailRequests()) {
+            ProductDetail productDetail = productDetailRepository.findById(billDetailRequest.getProductDetailId())
+                    .orElseThrow(() -> new ApiException(ErrorCode.SANPHAM_NOT_FOUND));
+
+            if (productDetail != null) {
+                BillDetail billDetail = BillDetail
+                        .builder()
+                        .productDetail(productDetail)
+                        .bill(billSave)
+                        .price(billDetailRequest.getPrice())
+                        .totalMoney(billDetailRequest.getPrice() * billDetailRequest.getQuantity())
+                        .quantity(billDetailRequest.getQuantity())
+                        .status(Status.HOAT_DONG)
+                        .build();
+                billDetailRepository.save(billDetail);
+            }
+        }
+
+//Lưu lại lịch sử
+        billHistoryRepository.save(BillHistory
+                .builder()
+                .customer(customer)
+                .bill(billSave)
+                .status(BillStatus.CHO_XAC_NHAN)
+                .build());
+        return "tạo hóa đơn thành công";
+    }
+
+
 }
