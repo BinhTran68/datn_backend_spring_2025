@@ -26,6 +26,9 @@ public class CartDetail extends PrimaryEntity implements Serializable {
     @JoinColumn
     ProductDetail productDetailId;
 
-    Integer quantity;
+    String imageUrl;
 
+    Integer quantity;
+    Double price;
+    String productName;
 }
