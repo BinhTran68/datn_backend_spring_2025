@@ -66,6 +66,8 @@ public class ProductDetail extends PrimaryEntity implements Serializable {
 
     Integer quantity;
 
+    Integer holdQuantity;    // Số lượng đang tạm giữ
+
     Double price;
 
     Double weight;
@@ -78,5 +80,17 @@ public class ProductDetail extends PrimaryEntity implements Serializable {
     Tag tag;
     Status status;
 
+
+    @Version  // Optimistic locking
+    private Long version;
+
+    // Thêm phương thức kiểm tra số lượng có sẵn
+    public boolean hasAvailableQuantity(int requestedQuantity) {
+        return (quantity - holdQuantity) >= requestedQuantity;
+    }
+
+    public int getAvailableQuantity() {
+        return quantity - holdQuantity;
+    }
 
 }

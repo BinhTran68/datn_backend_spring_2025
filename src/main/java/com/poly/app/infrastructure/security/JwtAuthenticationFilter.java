@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +22,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtilities jwtUtilities;
@@ -31,15 +33,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private HttpSession session;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        log.info("Request Path: " + path);
+        return path.startsWith("/ws") || path.startsWith("/websocket"); // Bỏ qua WebSocket endpoint
+    }
+
+
+    @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        System.out.println("Cos chajy qua ma");
-
         String token = jwtUtilities.getToken(request);
-        System.out.println(token);
+        log.info(token);
         if (token != null && jwtUtilities.validateToken(token)) {
             String id = jwtUtilities.extractUserId(token);
             String username = jwtUtilities.extractUsername(token);

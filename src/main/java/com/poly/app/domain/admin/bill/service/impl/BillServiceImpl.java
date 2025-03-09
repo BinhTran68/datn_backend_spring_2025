@@ -3,13 +3,11 @@ package com.poly.app.domain.admin.bill.service.impl;
 import com.poly.app.domain.admin.bill.request.BillDetailRequest;
 import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
-import com.poly.app.domain.admin.bill.request.UpdateQuantityProductRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
-import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequest;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
@@ -18,7 +16,6 @@ import com.poly.app.domain.model.BillHistory;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.PaymentBill;
 import com.poly.app.domain.model.PaymentMethods;
-import com.poly.app.domain.model.Product;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.model.Staff;
 import com.poly.app.domain.model.Voucher;
@@ -33,7 +30,6 @@ import com.poly.app.domain.repository.ProductDetailRepository;
 import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.domain.repository.VoucherRepository;
 import com.poly.app.infrastructure.constant.BillStatus;
-import com.poly.app.infrastructure.constant.PaymentMethod;
 import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.TypeBill;
@@ -42,10 +38,10 @@ import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.security.Auth;
 import com.poly.app.infrastructure.util.DateUtil;
 import com.poly.app.infrastructure.util.GenHoaDon;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -61,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class BillServiceImpl implements BillService {
 
@@ -364,17 +361,18 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public List<ProductDetailResponse> updateProductQuantity(List<BillProductDetailRequest> requests) {
-        List<ProductDetailResponse> responses = new ArrayList<>();
+    @Transactional
+    public void updateProductQuantity(List<BillProductDetailRequest> requests) {
+        log.info("updateProductQuantity {}", requests.toString());
         requests.forEach(request -> {
-            ProductDetail productDetail = productDetailRepository.findById(request.getId()).orElse(null);
+            ProductDetail productDetail = productDetailRepository.
+                    findById(request.getId()).orElse(null);
             if (productDetail != null) {
-                productDetailRepository.save(productDetail);
                 productDetail.setQuantity(request.getQuantity());
                 productDetailRepository.save(productDetail);
             }
         });
-        return List.of();
+
     }
 
     private PaymentMethods createAndSavePaymentMethod(Double amount, PaymentMethodEnum methodEnum, String transactionCode) {

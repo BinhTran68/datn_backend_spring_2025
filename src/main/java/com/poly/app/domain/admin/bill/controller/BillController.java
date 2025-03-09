@@ -3,6 +3,7 @@ package com.poly.app.domain.admin.bill.controller;
 
 import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
+import com.poly.app.domain.admin.bill.request.RestoreQuantityRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityProductRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
@@ -10,6 +11,8 @@ import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Bill;
+import com.poly.app.domain.model.ProductDetail;
+import com.poly.app.domain.repository.ProductDetailRepository;
 import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.TypeBill;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,8 @@ public class BillController {
 
     @Autowired
     BillService billService;
+    @Autowired
+    private ProductDetailRepository productDetailRepository;
 
     @GetMapping("/index")
     public PageReponse index(@RequestParam(defaultValue = "10") Integer size,
@@ -96,8 +101,25 @@ public class BillController {
 
     @PostMapping("/change-product-quantity")
     ResponseEntity<?> updateProductQuantity(@RequestBody List<BillProductDetailRequest> request) {
-        System.out.println(request.toString());
+        billService.updateProductQuantity(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/api/admin/product/restore-quantity")
+    public ResponseEntity<?> restoreQuantity(@RequestBody List<RestoreQuantityRequest> requests) {
+        try {
+            for (RestoreQuantityRequest request : requests) {
+                ProductDetail product = productDetailRepository.findById(request.getId())
+                        .orElseThrow(() -> new RuntimeException("Product not found"));
+
+                // Cộng lại số lượng
+                product.setQuantity(product.getQuantity() + request.getQuantity());
+                productDetailRepository.save(product);
+            }
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error restoring quantity: " + e.getMessage());
+        }
     }
 
 
