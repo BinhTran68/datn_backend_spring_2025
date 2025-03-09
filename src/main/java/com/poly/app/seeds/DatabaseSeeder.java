@@ -39,7 +39,7 @@ import com.poly.app.domain.repository.*;
 
 import java.time.LocalDateTime;
 
-//@Component
+@Component
 public class DatabaseSeeder implements CommandLineRunner {
 
     @Autowired
@@ -219,10 +219,10 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         //
 
-        Size size1 = Size.builder().sizeName("Small").status(Status.HOAT_DONG).build();
-        Size size2 = Size.builder().sizeName("Medium").status(Status.HOAT_DONG).build();
-        Size size3 = Size.builder().sizeName("Large").status(Status.HOAT_DONG).build();
-        Size size4 = Size.builder().sizeName("Extra Large").status(Status.HOAT_DONG).build();
+        Size size1 = Size.builder().sizeName("37").status(Status.HOAT_DONG).build();
+        Size size2 = Size.builder().sizeName("38").status(Status.HOAT_DONG).build();
+        Size size3 = Size.builder().sizeName("39").status(Status.HOAT_DONG).build();
+        Size size4 = Size.builder().sizeName("40").status(Status.HOAT_DONG).build();
 
         // Save data to the database
         sizeRepository.save(size1);

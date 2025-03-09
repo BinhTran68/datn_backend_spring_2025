@@ -1,15 +1,12 @@
 package com.poly.app.domain.client.service;
 
-import com.poly.app.domain.admin.product.request.brand.BrandRequest;
-import com.poly.app.domain.admin.product.response.brand.BrandResponse;
-import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
+import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
+import com.poly.app.domain.client.response.CartResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
-import com.poly.app.domain.model.Brand;
-import com.poly.app.infrastructure.constant.Status;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -36,4 +33,12 @@ public interface ClientService {
     Integer addViewProduct(int productId);
 
     String createBillClient(CreateBillClientRequest request);
+
+    Page<CartResponse> getAllCartCustomerId(Integer customerId, Integer page, Integer size);
+
+    CartResponse addProductToCart(AddCart addCart);
+
+    String deleteCartById(Integer cartDetailId);
+
+    List<CartResponse> getAllByCustomserIdNopage(Integer customerId);
 }

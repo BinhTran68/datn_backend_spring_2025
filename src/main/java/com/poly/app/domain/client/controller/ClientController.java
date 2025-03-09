@@ -3,12 +3,13 @@ package com.poly.app.domain.client.controller;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
+import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
+import com.poly.app.domain.client.response.CartResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
 import com.poly.app.domain.client.service.ClientService;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.Meta;
-import com.poly.app.domain.model.ProductDetail;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -113,11 +114,11 @@ public class ClientController {
 
     @GetMapping("/findsizebyproductidandcolorid")
     ApiResponse<List<SizeResponse>> findSizesByProductIdAndColorId(@RequestParam(value = "productId", defaultValue = "") Integer productId,
-                                                                  @RequestParam(value = "colorId", defaultValue = "") Integer colorId
+                                                                   @RequestParam(value = "colorId", defaultValue = "") Integer colorId
     ) {
         return ApiResponse.<List<SizeResponse>>builder()
                 .message("danh sách các size thuộc sản phẩm và color")
-                .data(clientService.findSizesByProductIdAndColorId(productId,colorId))
+                .data(clientService.findSizesByProductIdAndColorId(productId, colorId))
                 .build();
     }
 
@@ -129,6 +130,7 @@ public class ClientController {
                 .data(clientService.findColorsByProductId(productId))
                 .build();
     }
+
     @GetMapping("/addviewproduct")
     ApiResponse<Integer> addViewProduct(@RequestParam(value = "productId", defaultValue = "") Integer productId
     ) {
@@ -146,4 +148,56 @@ public class ClientController {
                 .data(clientService.createBillClient(request))
                 .build();
     }
+
+    @GetMapping("/getallcartforcustomerid")
+    ApiResponse<List<CartResponse>> getAllCartDetailForCustomerid(
+            @RequestParam Integer customerId,
+            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "size", defaultValue = "5") Integer size
+    ) {
+        Page<CartResponse> page1 = clientService.getAllCartCustomerId(customerId, page - 1, size);
+        return ApiResponse.<List<CartResponse>>builder()
+                .message("lấy giỏ hàng của khách hàng")
+                .meta(Meta.builder()
+                        .totalPages(page1.getTotalPages())
+                        .currentPage(page1.getNumber() + 1)
+                        .totalElement(page1.getTotalElements())
+                        .build())
+                .data(page1.getContent())
+                .build();
+    }
+
+    @GetMapping("/getallcartforcustomeridnopage")
+    ApiResponse<List<CartResponse>> getAllCartDetailForCustomeridNopage(
+            @RequestParam Integer customerId
+
+    ) {
+
+        return ApiResponse.<List<CartResponse>>builder()
+                .message("lấy giỏ hàng của khách hàng no page")
+
+                .data(clientService.getAllByCustomserIdNopage(customerId))
+                .build();
+    }
+
+    @PostMapping("/addcart")
+    ApiResponse<CartResponse> addCart(
+            @RequestBody AddCart addCart
+    ) {
+        return ApiResponse.<CartResponse>builder()
+                .message("lấy giỏ hàng của khách hàng")
+                .data(clientService.addProductToCart(addCart))
+                .build();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    ApiResponse<String> addCart(
+            @PathVariable Integer id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("lấy giỏ hàng của khách hàng")
+                .data(clientService.deleteCartById(id))
+                .build();
+    }
+
 }

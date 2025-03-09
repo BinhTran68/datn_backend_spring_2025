@@ -6,17 +6,17 @@ import com.poly.app.domain.admin.product.response.img.ImgResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
 import com.poly.app.domain.client.repository.ProductViewRepository;
+import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
+import com.poly.app.domain.client.response.CartResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
 import com.poly.app.domain.client.service.ClientService;
+import com.poly.app.domain.client.service.ZaloPayService;
 import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.*;
-import com.poly.app.infrastructure.constant.BillStatus;
-import com.poly.app.infrastructure.constant.Status;
-import com.poly.app.infrastructure.constant.TypeBill;
+import com.poly.app.infrastructure.constant.*;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
-import jakarta.persistence.Id;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +47,12 @@ public class ClientServiceImpl implements ClientService {
     ProductDetailRepository productDetailRepository;
     BillDetailRepository billDetailRepository;
     BillHistoryRepository billHistoryRepository;
+    PaymentMethodsRepository paymentMethodsRepository;
+    PaymentBillRepository paymentBillRepository;
+    ZaloPayService zaloPayService;
+    CartDetailRepository cartDetailRepository;
+    CartRepository cartRepository;
+
 
     @Override
     public Page<ProductViewResponse> getAllProductHadPromotion(int page, int size) {
@@ -187,7 +193,101 @@ public class ClientServiceImpl implements ClientService {
                 .bill(billSave)
                 .status(BillStatus.CHO_XAC_NHAN)
                 .build());
+//        lưu ptthanh toán
+        switch (request.getPaymentMethodsType()) {
+            case ZALO_PAY -> {
+                try {
+//                    List<ItemRequest> itemsList = request.getBillDetailRequests()
+//                            .stream()
+//                            .map(billDetail -> new ItemRequest(
+//                                    billDetail.getProductDetailId().toString(),
+//                                    "Sản phẩm " + billDetail.getProductDetailId(),
+//                                    billDetail.getPrice().longValue(),
+//                                    billDetail.getQuantity()
+//                            ))
+//                            .toList();
+                    Map<String, Object> zaloPayResponse = zaloPayService.createPayment(
+                            customer != null ? customer.getId().toString() : "guest",
+                            request.getTotalMoney().longValue(),
+                            billSave.getId().longValue()
+                    );
+
+                    if (zaloPayResponse == null || !zaloPayResponse.containsKey("orderurl")) {
+                        throw new ApiException(ErrorCode.INVALID_KEY);
+                    }
+
+                    return (String) zaloPayResponse.get("orderurl"); // Trả về URL thanh toán ngay lập tức
+                } catch (Exception e) {
+                    log.error("Lỗi khi tạo đơn hàng ZaloPay", e);
+                    throw new ApiException(ErrorCode.INVALID_KEY);
+                }
+
+            }
+            case COD -> {
+                PaymentMethods paymentMethods = paymentMethodsRepository
+                        .findByPaymentMethodsType(PaymentMethodsType.COD)
+                        .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
+                                .paymentMethod(PaymentMethodEnum.TIEN_MAT)
+                                .paymentMethodsType(PaymentMethodsType.COD)
+                                .status(Status.HOAT_DONG)
+                                .build()));
+
+                paymentBillRepository.save(PaymentBill.builder()
+                        .bill(billSave)
+                        .paymentMethods(paymentMethods)
+                        .status(Status.HOAT_DONG)
+                        .build());
+
+                return "tạo hóa đơn thành công";
+            }
+        }
+
         return "tạo hóa đơn thành công";
+    }
+
+    @Override
+    public Page<CartResponse> getAllCartCustomerId(Integer customerId, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return cartDetailRepository.getAllByCustomerId(customerId, pageable);
+    }
+
+    @Override
+    public CartResponse addProductToCart(AddCart addCart) {
+        CartDetail cartDetail;
+        cartDetail = cartDetailRepository.findByProductDetailId(addCart.getProductDetailId(),addCart.getCustomerId());
+        if (cartDetail != null) {
+            cartDetail.setQuantity(cartDetail.getQuantity() + addCart.getQuantityAddCart());
+            cartDetailRepository.save(cartDetail);
+        } else {
+            cartDetail = cartDetailRepository.save(CartDetail.builder()
+                    .cart(cartRepository.getCart(addCart.getCustomerId()))
+                    .price(addCart.getPrice())
+                    .productDetailId(productDetailRepository.findById(addCart.getProductDetailId()).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY)))
+                    .imageUrl(addCart.getImage())
+                    .quantity(addCart.getQuantityAddCart())
+                    .productName(addCart.getProductName())
+                    .build());
+
+        }
+
+
+        return CartResponse.builder()
+                .cartDetailId(cartDetail.getId())
+                .quantityAddCart(cartDetail.getQuantity())
+                .image(cartDetail.getImageUrl())
+                .build();
+    }
+
+    @Override
+    public String deleteCartById(Integer cartDetailId) {
+        cartDetailRepository.findById(cartDetailId).orElseThrow(()->new ApiException(ErrorCode.INVALID_KEY));
+        cartDetailRepository.deleteById(cartDetailId);
+        return "xóa thành công";
+    }
+
+    @Override
+    public List<CartResponse> getAllByCustomserIdNopage(Integer customerId) {
+        return cartDetailRepository.getAllByCustomerIdNoPage(customerId);
     }
 
 
