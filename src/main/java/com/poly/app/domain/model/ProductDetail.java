@@ -81,9 +81,6 @@ public class ProductDetail extends PrimaryEntity implements Serializable {
     Status status;
 
 
-    @Version  // Optimistic locking
-    private Long version;
-
     // Thêm phương thức kiểm tra số lượng có sẵn
     public boolean hasAvailableQuantity(int requestedQuantity) {
         return (quantity - holdQuantity) >= requestedQuantity;

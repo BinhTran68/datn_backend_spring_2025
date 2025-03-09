@@ -105,7 +105,7 @@ public class BillController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/api/admin/product/restore-quantity")
+    @PostMapping("/restore-quantity")
     public ResponseEntity<?> restoreQuantity(@RequestBody List<RestoreQuantityRequest> requests) {
         try {
             for (RestoreQuantityRequest request : requests) {
