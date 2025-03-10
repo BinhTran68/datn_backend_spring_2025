@@ -215,6 +215,22 @@ public class ClientServiceImpl implements ClientService {
                     if (zaloPayResponse == null || !zaloPayResponse.containsKey("orderurl")) {
                         throw new ApiException(ErrorCode.INVALID_KEY);
                     }
+//                    lưu phương thức thanh toán
+//                    tìm keiesm xem thấy phương thức thanh toán zalopay ko
+//
+                    PaymentMethods paymentMethods = paymentMethodsRepository
+                            .findByPaymentMethodsType(PaymentMethodsType.ZALO_PAY)
+                            .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
+                                    .paymentMethod(PaymentMethodEnum.CHUYEN_KHOAN)
+                                    .paymentMethodsType(PaymentMethodsType.ZALO_PAY)
+                                    .status(Status.HOAT_DONG)
+                                    .build()));
+//và lưu pttt
+                    paymentBillRepository.save(PaymentBill.builder()
+                            .bill(billSave)
+                                .paymentMethods(paymentMethods)
+                            .status(Status.HOAT_DONG)
+                            .build());
 
                     return (String) zaloPayResponse.get("orderurl"); // Trả về URL thanh toán ngay lập tức
                 } catch (Exception e) {
@@ -253,8 +269,16 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public CartResponse addProductToCart(AddCart addCart) {
+//        kiểm tra có giỏ hàng chưa
+        Cart cart = cartRepository.getCart(addCart.getCustomerId());
+        if (cart == null) {
+            cartRepository.save(Cart.builder()
+                    .customerid(customerRepository.findById(addCart.getCustomerId()).get())
+                    .build());
+        }
+
         CartDetail cartDetail;
-        cartDetail = cartDetailRepository.findByProductDetailId(addCart.getProductDetailId(),addCart.getCustomerId());
+        cartDetail = cartDetailRepository.findByProductDetailId(addCart.getProductDetailId(), addCart.getCustomerId());
         if (cartDetail != null) {
             cartDetail.setQuantity(cartDetail.getQuantity() + addCart.getQuantityAddCart());
             cartDetailRepository.save(cartDetail);
@@ -280,7 +304,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public String deleteCartById(Integer cartDetailId) {
-        cartDetailRepository.findById(cartDetailId).orElseThrow(()->new ApiException(ErrorCode.INVALID_KEY));
+        cartDetailRepository.findById(cartDetailId).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
         cartDetailRepository.deleteById(cartDetailId);
         return "xóa thành công";
     }
