@@ -1,5 +1,7 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.product.ProductResponse;
+import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.repository.ProductDetailRepository;
@@ -10,6 +12,7 @@ import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.service.ProductDetailService;
+import com.poly.app.infrastructure.constant.Status;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -48,17 +51,26 @@ public class ProductDetailController {
                 .build();
     }
 
-
-//    teest
-    @GetMapping("/test")
-    public List<ProductDetail> getAllType() {
-        return productDetailService.getAllProductDetail();
+    @PostMapping("/existsproductdetail")
+    public ApiResponse<Boolean> exists(@RequestBody ProductDetailRequest request) {
+        return ApiResponse.<Boolean>builder()
+                .message("exitst productdetail")
+                .data(productDetailService.existsProductDetail(request))
+                .build();
     }
+
+
+    //    teest
+//    @GetMapping("/test")
+//    public List<ProductDetail> getAllType() {
+//        return productDetailService.getAllProductDetail();
+//    }
+
     @GetMapping()
     public ApiResponse<List<ProductDetailResponse>> getAllProductPage(@RequestParam(value = "page", defaultValue = "0") int page,
                                                                       @RequestParam(value = "size", defaultValue = "1") int size) {
 
-        Page<ProductDetailResponse> page1 = productDetailService.getAllProductDetailPage(page-1, size);
+        Page<ProductDetailResponse> page1 = productDetailService.getAllProductDetailPage(page - 1, size);
         return ApiResponse.<List<ProductDetailResponse>>builder()
                 .message("list product detail page")
                 .data(page1.getContent())
@@ -116,7 +128,20 @@ public class ProductDetailController {
                 .data(productDetailService.getProductDetail(id))
                 .build();
     }
+//detail theo ten
 
+    @GetMapping("/name/{productName}")
+    public ApiResponse<List<ProductDetailResponse>> getAllProductDetailName(@PathVariable String productName) {
+        return ApiResponse.<List<ProductDetailResponse>>builder()
+                .message("Lấy thông tin chi tiết sản phẩm theo tên")
+                .data(productDetailService.getAllProductDetailName(productName))
+                .build();
+    }
+
+
+
+
+    //
 
     @DeleteMapping("{id}")
     public ApiResponse<String> delete(@PathVariable int id) {
@@ -125,8 +150,9 @@ public class ProductDetailController {
                 .data(productDetailService.deleteProductDetail(id))
                 .build();
     }
+
     @PostMapping("/create")
-    public ApiResponse<List<ProductDetailResponse> > createProductDetailList(@RequestBody List<ProductDetailRequest> requests) {
+    public ApiResponse<List<ProductDetailResponse>> createProductDetailList(@RequestBody List<ProductDetailRequest> requests) {
         return ApiResponse.<List<ProductDetailResponse>>builder()
                 .message("add")
                 .data(productDetailService.createProductDetailList(requests))
@@ -134,10 +160,27 @@ public class ProductDetailController {
     }
 
     @GetMapping("/exportdata")
-    public ApiResponse<List<ProductDetailResponse> > getAllProductDetailExportData() {
+    public ApiResponse<List<ProductDetailResponse>> getAllProductDetailExportData() {
         return ApiResponse.<List<ProductDetailResponse>>builder()
                 .message("export data to excel")
                 .data(productDetailService.getAllProductDetailExportData())
+                .build();
+    }
+    @GetMapping("/full")
+    public ApiResponse<List<ProductDetailResponse>> getAllSelectDetail() {
+        return ApiResponse.<List<ProductDetailResponse>>builder()
+                .message("get all selected")
+                .data(productDetailRepository.getAllProductDetail())
+                .build();
+    }
+
+    @GetMapping("/switchstatus")
+    public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
+                                       @RequestParam("id") int id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("get all selected")
+                .data(productDetailService.switchStatus(id,status))
                 .build();
     }
 

@@ -5,6 +5,7 @@ import com.poly.app.domain.admin.product.response.sole.SoleResponseSelect;
 import com.poly.app.domain.model.Sole;
 import com.poly.app.domain.admin.product.request.sole.SoleRequest;
 import com.poly.app.domain.admin.product.response.sole.SoleResponse;
+import com.poly.app.infrastructure.constant.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -29,4 +30,6 @@ public interface SoleService {
      boolean existsBySoleNameAndIdNot (String soleName, Integer id);
 
      List<SoleResponseSelect> getAll();
+     String switchStatus(Integer id, Status status);
+
 }

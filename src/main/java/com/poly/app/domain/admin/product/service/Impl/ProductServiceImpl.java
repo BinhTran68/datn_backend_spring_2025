@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product createProduct(ProductRequest request) {
         if (productRepository.existsByProductName(request.getProductName())) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS );
         }
         Product product = Product.builder()
                 .productName(request.getProductName())
@@ -50,10 +50,9 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         if (productRepository.existsByProductNameAndIdNot(request.getProductName(),id)) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS );
         }
         product.setProductName(request.getProductName());
-        product.setStatus(request.getStatus());
 
         productRepository.save(product);
 
@@ -125,5 +124,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponseSelect> getAll() {
         return productRepository.dataSelect();
+    }
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        Product brand = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            productRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            productRepository.save(brand);
+            return "ngung hoat dong";
+
+        }
+
     }
 }

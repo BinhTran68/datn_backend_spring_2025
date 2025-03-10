@@ -10,6 +10,8 @@ import com.poly.app.domain.admin.product.request.color.ColorRequest;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.service.ColorService;
 import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -33,6 +35,9 @@ public class ColorServiceImpl implements ColorService {
 
     @Override
     public Color createColor(ColorRequest request) {
+        if (colorRepository.existsByColorName(request.getColorName())) {
+            throw new ApiException(ErrorCode.NAME_EXISTS);
+        }
         Color color = Color.builder()
                 .colorName(request.getColorName())
                 .status(Status.HOAT_DONG)
@@ -46,9 +51,10 @@ public class ColorServiceImpl implements ColorService {
     @Override
     public ColorResponse updateColor(ColorRequest request, int id) {
         Color color = colorRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
-
+        if (colorRepository.existsByColorNameAndIdNot(request.getColorName(),id)) {
+            throw new ApiException(ErrorCode.NAME_EXISTS);
+        }
         color.setColorName(request.getColorName());
-        color.setStatus(request.getStatus());
         color.setCode(request.getCode());
 
         colorRepository.save(color);
@@ -126,5 +132,19 @@ public class ColorServiceImpl implements ColorService {
     public List<ColorResponseSelect> getAll() {
         return colorRepository.dataSelect();
     }
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        Color brand = colorRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            colorRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            colorRepository.save(brand);
+            return "ngung hoat dong";
 
+        }
+
+    }
 }

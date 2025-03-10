@@ -7,6 +7,7 @@ import com.poly.app.domain.admin.product.request.sole.SoleRequest;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.sole.SoleResponse;
 import com.poly.app.domain.admin.product.service.SoleService;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -112,6 +113,15 @@ public class SoleController {
         return ApiResponse.<List<SoleResponseSelect>>builder()
                 .message("get all selected")
                 .data(soleService.getAll())
+                .build();
+    }
+    @GetMapping("/switchstatus")
+    public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
+                                       @RequestParam("id") int id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("get all selected")
+                .data(soleService.switchStatus(id,status))
                 .build();
     }
 }

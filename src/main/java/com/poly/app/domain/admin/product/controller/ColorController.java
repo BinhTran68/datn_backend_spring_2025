@@ -9,6 +9,7 @@ import com.poly.app.domain.admin.product.request.color.ColorRequest;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.service.ColorService;
+import com.poly.app.infrastructure.constant.Status;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -100,5 +101,13 @@ public class ColorController {
                 .build();
     }
 
-
+    @GetMapping("/switchstatus")
+    public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
+                                       @RequestParam("id") int id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("get all selected")
+                .data(colorService.switchStatus(id,status))
+                .build();
+    }
 }

@@ -2,18 +2,24 @@ package com.poly.app.domain.admin.product.controller;
 
 import com.poly.app.domain.admin.product.response.product.IProductResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
+import com.poly.app.domain.admin.product.service.ProductListService;
+import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponse;
 import com.poly.app.domain.admin.product.service.ProductService;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +32,7 @@ import java.util.List;
 
 public class ProductController {
     ProductService productService;
+    ProductListService productListService;
 
     @PostMapping("/add")
     public ApiResponse<Product> create(@RequestBody @Valid ProductRequest request) {
@@ -114,4 +121,37 @@ public class ProductController {
                 .data(productService.getAll())
                 .build();
     }
+    @GetMapping("/switchstatus")
+    public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
+                                       @RequestParam("id") int id
+    ) {
+        return ApiResponse.<String>builder()
+                .message("get all selected")
+                .data(productService.switchStatus(id,status))
+                .build();
+    }
+
+
+    //
+
+    @GetMapping("/hien")
+    public ApiResponse<List<ProductResponse>> getAllVoucher() {
+        return ApiResponse.<List<ProductResponse>>builder()
+                .message("list voucher")
+                .data(productListService.getAllIn())
+                .build();
+    }
+    @GetMapping("/page")
+    public ApiResponse<Page<ProductResponse>> phanTrang(@RequestParam(value = "page") Integer page,
+                                                        @RequestParam(value = "size") Integer size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
+        Page<ProductResponse> list = productListService.getAllIn(pageable);
+        return ApiResponse.<Page<ProductResponse>>builder()
+                .message("list voucher")
+                .data(list)
+                .build();
+    }
+
+    //
 }

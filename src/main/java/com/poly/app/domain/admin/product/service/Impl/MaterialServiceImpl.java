@@ -9,6 +9,8 @@ import com.poly.app.domain.admin.product.request.material.MaterialRequest;
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
 import com.poly.app.domain.admin.product.service.MaterialService;
 import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +34,9 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public Material createMaterial(MaterialRequest request) {
+        if (materialRepository.existsByMaterialName(request.getMaterialName())) {
+            throw new ApiException(ErrorCode.NAME_EXISTS);
+        }
         Material material = Material.builder()
                 .materialName(request.getMaterialName())
                 .status(Status.HOAT_DONG)
@@ -42,9 +47,11 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public MaterialResponse updateMaterial(MaterialRequest request, int id) {
         Material material = materialRepository.findById(id).orElseThrow(()->new IllegalArgumentException("id ko tồn tại"));
-
+        if (materialRepository.existsByMaterialNameAndIdNot(request.getMaterialName(), id)) {
+            throw new ApiException(ErrorCode.NAME_EXISTS);
+        }
         material.setMaterialName(request.getMaterialName());
-        material.setStatus(request.getStatus());
+
 
         materialRepository.save(material);
 
@@ -112,5 +119,20 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public List<MaterialResponseSelect> getAll() {
         return materialRepository.dataSelect();
+    }
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        Material brand = materialRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            materialRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            materialRepository.save(brand);
+            return "ngung hoat dong";
+
+        }
+
     }
 }

@@ -4,8 +4,8 @@ import com.poly.app.domain.admin.product.response.brand.BrandResponseSelect;
 import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.admin.product.request.brand.BrandRequest;
 import com.poly.app.domain.admin.product.response.brand.BrandResponse;
+import com.poly.app.infrastructure.constant.Status;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -28,4 +28,6 @@ public interface BrandService {
     boolean existsByBrandNameAndIdNot (String brandName, Integer id);
 
     List<BrandResponseSelect> getAll();
+
+    String switchStatus(Integer id, Status  status);
 }

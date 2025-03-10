@@ -1,11 +1,14 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.poly.app.domain.admin.product.service.CloundinaryService;
 import com.poly.app.domain.model.Image;
 import com.poly.app.domain.repository.ImageRepository;
 import com.poly.app.infrastructure.util.CloudinaryUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -18,6 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class CloundinaryServiceImp implements CloundinaryService {
+
 
     private final RestTemplate restTemplate;  // Inject RestTemplate từ Spring
     private final ImageRepository imageRepository;
@@ -83,4 +87,65 @@ public class CloundinaryServiceImp implements CloundinaryService {
             return ResponseEntity.internalServerError().body("Lỗi khi xóa ảnh: " + e.getMessage());
         }
     }
+
+    @Override
+    public ResponseEntity<?> deleteImageAndUpdateDB(String publicId, int productId, int colorId) {
+        if (publicId == null || publicId.isEmpty()) {
+            return ResponseEntity.badRequest().body("{\"error\": \"public_id is required\"}");
+        }
+
+        try {
+            // Kiểm tra xem ảnh có thuộc nhiều màu không
+            boolean isSharedImage = imageRepository.countDistinctColorsByPublicId(publicId) > 1;
+
+            if (!isSharedImage) {
+                // Xóa trên Cloudinary nếu ảnh chỉ thuộc một màu
+                String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+
+                Map<String, String> params = new HashMap<>();
+                params.put("public_id", publicId);
+                params.put("timestamp", timestamp);
+                String signature = CloudinaryUtil.generateSignature(params);
+
+                Map<String, String> requestBody = new HashMap<>();
+                requestBody.put("public_id", publicId);
+                requestBody.put("api_key", API_KEY);
+                requestBody.put("timestamp", timestamp);
+                requestBody.put("signature", signature);
+
+                ResponseEntity<Map> response = restTemplate.postForEntity(CLOUDINARY_URL, requestBody, Map.class);
+
+                if (!response.getStatusCode().is2xxSuccessful()) {
+                    log.error("❌ Lỗi khi xóa ảnh trên Cloudinary: {}", response.getBody());
+                    return ResponseEntity.internalServerError().body("{\"error\": \"Lỗi khi xóa ảnh trên Cloudinary\"}");
+                }
+
+                log.info("✅ Xóa ảnh thành công trên Cloudinary: {}", publicId);
+            }
+
+            // Xóa ảnh đúng trong DB
+            List<Image> imagesToDelete = imageRepository.findPublicIdsByProductIdAndColorId(productId, colorId)
+                    .stream()
+                    .filter(image -> image.getPublicId().equals(publicId)) // Chỉ xóa ảnh có `publicId` cần xóa
+                    .toList();
+
+            if (imagesToDelete.isEmpty()) {
+                log.warn("⚠️ Không tìm thấy ảnh trong DB để xóa với publicId: {}, productId: {}, colorId: {}", publicId, productId, colorId);
+            } else {
+                imagesToDelete.forEach(image -> {
+                    log.info("🗑 Xóa ảnh trong DB: {}", image.getId());
+                    imageRepository.deleteById(image.getId());
+                });
+            }
+
+            return ResponseEntity.ok("{\"message\": \"thanh cong\"}");
+
+        } catch (Exception e) {
+            log.error("🚨 Lỗi khi xử lý xóa ảnh {}: {}", publicId, e.getMessage());
+            return ResponseEntity.internalServerError().body("{\"error\": \"Lỗi khi xử lý xóa ảnh\"}");
+        }
+    }
+
+
+
 }

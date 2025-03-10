@@ -6,6 +6,7 @@ import com.poly.app.domain.admin.product.response.material.MaterialResponseSelec
 import com.poly.app.domain.model.Material;
 import com.poly.app.domain.admin.product.request.material.MaterialRequest;
 import com.poly.app.domain.admin.product.response.material.MaterialResponse;
+import com.poly.app.infrastructure.constant.Status;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -23,4 +24,6 @@ public interface MaterialService {
 
      boolean existsByMaterialNameAndIdNot (String brandName, Integer id);
      List<MaterialResponseSelect> getAll();
+     String switchStatus(Integer id, Status status);
+
 }

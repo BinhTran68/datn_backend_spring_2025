@@ -28,6 +28,24 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
                    ",pd.price,pd.weight,pd.descrition,pd.status,pd.updatedAt,pd.updatedBy) from ProductDetail pd order by pd.updatedAt desc ")
     List<ProductDetailResponse> getAllProductDetail();
 
+    //ten
+
+        @Query("SELECT new com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse" +
+                "(pd.id, pd.code, pd.product.productName, pd.brand.brandName, pd.type.typeName, pd.color.colorName, " +
+                " pd.material.materialName, pd.size.sizeName, pd.sole.soleName, pd.gender.genderName, pd.quantity, " +
+                " pd.price, pd.weight, pd.descrition, pd.status, pd.updatedAt, pd.updatedBy) " +
+                "FROM ProductDetail pd WHERE pd.product.productName = :productName ORDER BY pd.updatedAt DESC")
+        List<ProductDetailResponse> getAllProductDetailByProductName(@Param("productName") String productName);
+
+//        @Query("SELECT new com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse" +
+//                "(pd.id, pd.code, pd.product.productName, pd.brand.brandName, pd.type.typeName, pd.color.colorName, " +
+//                " pd.material.materialName, pd.size.sizeName, pd.sole.soleName, pd.gender.genderName, pd.quantity, " +
+//                " pd.price, pd.weight, pd.descrition, pd.status, pd.updatedAt, pd.updatedBy) " +
+//                "FROM ProductDetail pd ORDER BY pd.updatedAt DESC")
+//        List<ProductDetailResponse> getAllProductDetails();
+
+
+    List<ProductDetail> findProductDetailByProduct_Id(Integer productId);
 
     //    @Query(value = "CALL sp_FilterProductDetails(" +
 //            ":productName, :brandName, :typeName, :colorName, :materialName," +

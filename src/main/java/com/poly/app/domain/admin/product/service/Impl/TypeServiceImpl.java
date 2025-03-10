@@ -34,7 +34,7 @@ public class TypeServiceImpl implements TypeService {
     @Override
     public Type createType(TypeRequest request) {
         if (typeRepository.existsByTypeName(request.getTypeName())) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS );
         }
         Type type = Type.builder()
                 .typeName(request.getTypeName())
@@ -48,10 +48,10 @@ public class TypeServiceImpl implements TypeService {
         Type type = typeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
         if (typeRepository.existsByTypeNameAndIdNot(request.getTypeName(),id)) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS );
         }
         type.setTypeName(request.getTypeName());
-        type.setStatus(request.getStatus());
+
 
         typeRepository.save(type);
 
@@ -123,5 +123,20 @@ public class TypeServiceImpl implements TypeService {
     @Override
     public List<TypeResponseSelect> getAll() {
         return typeRepository.dataSelect();
+    }
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        Type brand = typeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            typeRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            typeRepository.save(brand);
+            return "ngung hoat dong";
+
+        }
+
     }
 }

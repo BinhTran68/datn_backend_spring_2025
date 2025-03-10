@@ -12,6 +12,9 @@ import com.poly.app.domain.admin.product.response.productdetail.FilterProductDet
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.service.ProductDetailService;
 import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.exception.ApiError;
+import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -182,40 +186,30 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         Gender gender = genderRepository.findById(request.getGenderId())
                 .orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
 
-        //  Tìm danh sách tất cả ProductDetail có cùng productId và colorId
-        List<ProductDetail> relatedProductDetails = productDetailRepository
-                .findByProductIdAndColorId(request.getProductId(), request.getColorId());
-
-        log.warn("đay la ds theo product id va color");
-        relatedProductDetails.toString();
-
-
-
-        if (productDetail.getProduct().getId() != request.getProductId() || productDetail.getColor().getId() != request.getColorId()) {
-            List<ImgResponse> imgResponses = imageRepository.findByProductDetailId(productDetail.getId());
-            for (ImgResponse i :
-                    imgResponses) {
-//                cloundinaryService.deleteImage(i.getPublicId());
-                log.warn(i.toString());
-
-            }
-        }
-
-
-        //  Xóa toàn bộ ảnh cũ của các ProductDetail liên quan
-        for (ProductDetail pd : relatedProductDetails) {
-            imageRepository.deleteByProductDetailId(pd.getId());
-        }
-
-        //  Thêm ảnh mới vào tất cả ProductDetail cùng productId & colorId
-        for (ProductDetail pd : relatedProductDetails) {
-            for (ImgRequest req : request.getImage()) {
-                imageRepository.save(Image.builder()
-                        .publicId(req.getPublicId())
-                        .url(req.getUrl())
-                        .status(Status.HOAT_DONG)
-                        .productDetail(pd)
-                        .build());
+//        nếu có một trường nào thay đổi cần kiểm tra để tránh trùng ctbanr ghi
+        log.warn(request.getColorId().toString());
+        log.warn(productDetail.getColor().getId().toString());
+        if (productDetail.getProduct().getId() != request.getProductId()
+            || productDetail.getColor().getId() != request.getColorId()
+            || productDetail.getBrand().getId() != request.getBrandId()
+            || productDetail.getGender().getId() != request.getGenderId()
+            || productDetail.getMaterial().getId() != request.getMaterialId()
+            || productDetail.getType().getId() != request.getTypeId()
+            || productDetail.getSize().getId() != request.getSizeId()
+            || productDetail.getSole().getId() != request.getSoleId()
+        ) {
+            ProductDetail existingProductDetail = productDetailRepository.findByProductIdAndSizeIdAndColorId(
+                    request.getProductId(),
+                    request.getSizeId(),
+                    request.getColorId(),
+                    request.getBrandId(),
+                    request.getGenderId(),
+                    request.getMaterialId(),
+                    request.getTypeId(),
+                    request.getSoleId()
+            );
+            if (existingProductDetail != null) {
+                throw new ApiException(ErrorCode.PRODUCT_DETAIL_EXISTS);
             }
         }
 
@@ -235,6 +229,31 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetail.setStatus(request.getStatus());
 
         productDetailRepository.save(productDetail);
+
+        //  Tìm danh sách tất cả ProductDetail có cùng productId và colorId
+        List<ProductDetail> relatedProductDetails = productDetailRepository
+                .findByProductIdAndColorId(request.getProductId(), request.getColorId());
+
+        log.warn("đay la ds theo product id va color");
+        relatedProductDetails.toString();
+
+
+//          Xóa toàn bộ ảnh cũ của các ProductDetail liên quan
+        for (ProductDetail pd : relatedProductDetails) {
+            imageRepository.deleteByProductDetailId(pd.getId());
+        }
+
+        //  Thêm ảnh mới vào tất cả ProductDetail cùng productId & colorId
+        for (ProductDetail pd : relatedProductDetails) {
+            for (ImgRequest req : request.getImage()) {
+                imageRepository.save(Image.builder()
+                        .publicId(req.getPublicId())
+                        .url(req.getUrl())
+                        .status(Status.HOAT_DONG)
+                        .productDetail(pd)
+                        .build());
+            }
+        }
 
         // 🏷 Trả về response
         return ProductDetailResponse.builder()
@@ -278,8 +297,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 //    }
 
     @Override
-    public List<ProductDetail> getAllProductDetail() {
-        return productDetailRepository.findAll();
+    public List<ProductDetailResponse> getAllProductDetail() {
+        return productDetailRepository.getAllProductDetail();
     }
 
 
@@ -320,6 +339,24 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .image(images)
                 .build();
     }
+    //detail theo tên
+    @Override
+    public List<ProductDetailResponse> getAllProductDetailName(String productName) {
+        List<ProductDetailResponse> productDetails = productDetailRepository.getAllProductDetailByProductName(productName);
+        if (productDetails.isEmpty()) {
+            throw new IllegalArgumentException("Không tìm thấy sản phẩm nào với tên: " + productName);
+        }
+
+        productDetails.forEach(detail -> {
+            List<ImgResponse> images = imageRepository.findByProductDetailId(detail.getId());
+            detail.setImage(images);
+        });
+
+        return productDetails;
+    }
+
+
+    //
 //
 //    @Override
 //    public ProductDetailResponse getProductDetail(int id) {
@@ -592,4 +629,35 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         return productDetailResponses;
     }
 
+    @Override
+    public boolean existsProductDetail(ProductDetailRequest request) {
+
+        ProductDetail existingProductDetail = productDetailRepository.findByProductIdAndSizeIdAndColorId(
+                request.getProductId(),
+                request.getSizeId(),
+                request.getColorId(),
+                request.getBrandId(),
+                request.getGenderId(),
+                request.getMaterialId(),
+                request.getTypeId(),
+                request.getSoleId()
+        );
+//        log.warn(existingProductDetail.toString());
+        return existingProductDetail != null ? true : false;
+    }
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        ProductDetail brand = productDetailRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            productDetailRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            productDetailRepository.save(brand);
+            return "ngung hoat dong";
+
+        }
+
+    }
 }

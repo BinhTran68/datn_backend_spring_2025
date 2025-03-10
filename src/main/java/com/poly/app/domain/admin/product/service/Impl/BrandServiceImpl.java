@@ -34,7 +34,7 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public Brand createBrand(BrandRequest request) {
         if (brandRepository.existsByBrandName(request.getBrandName())) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+            throw new ApiException(ErrorCode.BRAND_EXISTS);
         }
         Brand brand = Brand.builder()
                 .brandName(request.getBrandName())
@@ -47,11 +47,11 @@ public class BrandServiceImpl implements BrandService {
     public BrandResponse updateBrand(BrandRequest request, int id) {
         Brand brand = brandRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
-        if (brandRepository.existsByBrandNameAndIdNot(request.getBrandName(),id)) {
-            throw new ApiException(ErrorCode.BRAND_EXISTS );
+        if (brandRepository.existsByBrandNameAndIdNot(request.getBrandName(), id)) {
+            throw new ApiException(ErrorCode.BRAND_EXISTS);
         }
         brand.setBrandName(request.getBrandName());
-        brand.setStatus(request.getStatus());
+        brand.setStatus(Status.HOAT_DONG);
 
         brandRepository.save(brand);
 
@@ -134,4 +134,22 @@ public class BrandServiceImpl implements BrandService {
     public List<BrandResponseSelect> getAll() {
         return brandRepository.dataSelect();
     }
+
+    @Override
+    public String switchStatus(Integer id, Status status) {
+        Brand brand = brandRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
+        if (status.equals(Status.HOAT_DONG)) {
+            brand.setStatus(Status.HOAT_DONG);
+            brandRepository.save(brand);
+            return "hoat dong";
+        } else {
+            brand.setStatus(Status.NGUNG_HOAT_DONG);
+            brandRepository.save(brand);
+            return "ngung hoat dong";
+
+        }
+
+    }
+
+
 }
