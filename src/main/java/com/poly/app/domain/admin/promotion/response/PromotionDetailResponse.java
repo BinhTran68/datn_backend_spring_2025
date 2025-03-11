@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PromotionDetailResponse {
     Integer id;
+//    Integer productId;
     String productDetailName;
     String promotionName;
     LocalDateTime startDate;
