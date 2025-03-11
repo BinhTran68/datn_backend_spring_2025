@@ -54,13 +54,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String userType = jwtUtilities.extractRoleName(token);
             System.out.println(id + userType + username);
             UserDetails userDetails = null;
-            if ("ROLE_STAFF".equals(userType)) {
-                userDetails = customerUserDetailsService.loadUserByUsername(username);
-            } else if ("ROLE_USER".equals(userType)) {
-                userDetails = customerUserDetailsService.loadUserByUsername(username); // CustomerService logic
-            }
-            System.out.println("userDetails" +userDetails);
-            System.out.println( "jwtUtilities.validateToken(token)" + jwtUtilities.validateToken(token));
+            userDetails = customerUserDetailsService.loadUserByUsername(username); // CustomerService logic
+            System.out.println("userDetails" + userDetails);
+            System.out.println("jwtUtilities.validateToken(token)" + jwtUtilities.validateToken(token));
             if (userDetails != null && jwtUtilities.validateToken(token)) {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(

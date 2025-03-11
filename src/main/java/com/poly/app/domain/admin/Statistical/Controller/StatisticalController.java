@@ -13,7 +13,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/statistical")
+@RequestMapping("/api/admin/statistical")
 // 1. Thống kê số lượng hóa đơn đã đặt, đã thanh toán, đã hủy, đã giao hàng
 public class StatisticalController {
 
