@@ -1,8 +1,10 @@
 package com.poly.app.domain.admin.bill.service.impl;
 
+import com.poly.app.domain.admin.bill.request.AddProductToBillRequest;
 import com.poly.app.domain.admin.bill.response.BillProductDetailResponse;
 import com.poly.app.domain.admin.bill.response.BillProductResponse;
 import com.poly.app.domain.admin.bill.service.BillProductDetailService;
+import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillDetail;
 import com.poly.app.domain.model.Brand;
@@ -20,19 +22,24 @@ import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.ImageRepository;
 import com.poly.app.domain.repository.ProductDetailRepository;
 import com.poly.app.domain.repository.ProductRepository;
+import com.poly.app.infrastructure.exception.RestApiException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class BillProductDetailServiceImpl implements BillProductDetailService {
 
@@ -50,6 +57,8 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
 
     @Autowired
     ProductRepository productRepository;
+    @Autowired
+    private BillService billService;
 
 
     @Override
@@ -60,29 +69,28 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
         List<BillDetail> billDetails = billDetailRepository.findByBill(bill);
 
 
-        List<BillProductDetailResponse> billProductDetailResponseList  =
+        List<BillProductDetailResponse> billProductDetailResponseList =
                 billDetails.stream().map(billDetail ->
-                        BillProductDetailResponse
-                                .builder()
-                                .productName(billDetail.getProductDetail().getProduct().getProductName())
-                                .color(billDetail.getProductDetail().getColor().getColorName())
-                                .size(billDetail.getProductDetail().getSize().getSizeName())
-                                .price(billDetail.getProductDetail().getPrice())
-                                .quantity(billDetail.getQuantity())
-                                .totalPrice(billDetail.getPrice())
-                                .urlImage(
-                                        Optional.ofNullable(
-                                                        imageRepository.getImagesByProductDetailAndIsDefault(billDetail.getProductDetail(), true)
-                                                )
-                                                .map(Image::getUrl) // Lấy URL nếu không null
-                                                .orElse(null)
+                                BillProductDetailResponse
+                                        .builder()
+                                        .productName(billDetail.getProductDetail().getProduct().getProductName())
+                                        .color(billDetail.getProductDetail().getColor().getColorName())
+                                        .size(billDetail.getProductDetail().getSize().getSizeName())
+                                        .price(billDetail.getProductDetail().getPrice())
+                                        .quantity(billDetail.getQuantity())
+                                        .totalPrice(billDetail.getPrice())
+                                        .urlImage(
+                                                Optional.ofNullable(
+                                                                imageRepository.getImagesByProductDetailAndIsDefault(billDetail.getProductDetail(), true)
+                                                        )
+                                                        .map(Image::getUrl) // Lấy URL nếu không null
+                                                        .orElse(null)
                                         )
-                                .build())
-                .collect(Collectors.toList());
+                                        .build())
+                        .collect(Collectors.toList());
 
         return billProductDetailResponseList;
     }
-
 
 
     @Override
@@ -95,6 +103,60 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
 
         // 4. Tạo Page<BillProductResponse> từ kết quả đã ánh xạ
         return new PageImpl<>(billProductResponses, pageable, productPage.getTotalElements());
+    }
+
+    @Override
+    public void addProductToBill(AddProductToBillRequest request) {
+        log.info("fin by bill code {}", request.getBillCode());
+        Bill bill = billRepository.findByBillCode(request.getBillCode());
+        if (bill == null) {
+            throw new RestApiException("Hóa đơn không tồn tại", HttpStatus.NOT_FOUND);
+        }
+        ProductDetail productDetail = productDetailRepository.findById(request.getProductDetailId())
+                .orElseThrow(() -> new RestApiException("Sản phẩm không tồn tại", HttpStatus.BAD_REQUEST));
+
+        // Kiểm tra số lượng tồn
+        if (productDetail.getQuantity() < request.getQuantity()) {
+            throw new RestApiException("Số lượng sản phẩm không đủ", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<BillDetail> existingBillDetail = billDetailRepository.findByBillAndProductDetail(bill, productDetail);
+        BillDetail billProductDetail;
+
+        if (existingBillDetail.isPresent() && 
+            existingBillDetail.get().getPrice().equals(productDetail.getPrice())) {
+            // Nếu sản phẩm đã tồn tại và có cùng giá -> cập nhật số lượng
+            billProductDetail = existingBillDetail.get();
+            billProductDetail.setQuantity(billProductDetail.getQuantity() + request.getQuantity());
+        } else {
+            // Nếu sản phẩm chưa tồn tại hoặc khác giá -> tạo mới
+            billProductDetail = new BillDetail();
+            billProductDetail.setBill(bill);
+            billProductDetail.setProductDetail(productDetail);
+            billProductDetail.setQuantity(request.getQuantity());
+        }
+
+        billProductDetail.setPrice(productDetail.getPrice());
+        
+        // Tính tổng tiền cho sản phẩm này
+        Double totalAmount = productDetail.getPrice() * request.getQuantity();
+        billProductDetail.setTotalMoney(totalAmount);
+
+        // Lưu chi tiết hóa đơn
+        billDetailRepository.save(billProductDetail);
+
+        // Cập nhật tổng tiền của hóa đơn
+        updateBillTotalAmount(bill);
+    }
+
+    private void updateBillTotalAmount(Bill bill) {
+        Double totalAmount = billDetailRepository.findByBill(bill)
+                .stream()
+                .mapToDouble(BillDetail::getTotalMoney)
+                .sum();
+
+        bill.setTotalMoney(totalAmount);
+        billRepository.save(bill);
     }
 
     private BillProductResponse convertProductToBillProductResponse(Product product) {
@@ -129,8 +191,6 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
                 .brand(!brands.isEmpty() ? brands.get(0) : null)
                 .build();
     }
-
-
 
 
 }

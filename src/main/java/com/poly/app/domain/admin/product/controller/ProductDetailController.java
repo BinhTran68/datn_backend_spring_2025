@@ -1,5 +1,7 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.product.ProductResponse;
+import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.repository.ProductDetailRepository;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/productdetail")
+@RequestMapping("api/admin/productdetail")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
@@ -59,10 +61,10 @@ public class ProductDetailController {
 
 
     //    teest
-    @GetMapping("/test")
-    public List<ProductDetail> getAllType() {
-        return productDetailService.getAllProductDetail();
-    }
+//    @GetMapping("/test")
+//    public List<ProductDetail> getAllType() {
+//        return productDetailService.getAllProductDetail();
+//    }
 
     @GetMapping()
     public ApiResponse<List<ProductDetailResponse>> getAllProductPage(@RequestParam(value = "page", defaultValue = "0") int page,
@@ -126,7 +128,20 @@ public class ProductDetailController {
                 .data(productDetailService.getProductDetail(id))
                 .build();
     }
+//detail theo ten
 
+    @GetMapping("/name/{productName}")
+    public ApiResponse<List<ProductDetailResponse>> getAllProductDetailName(@PathVariable String productName) {
+        return ApiResponse.<List<ProductDetailResponse>>builder()
+                .message("Lấy thông tin chi tiết sản phẩm theo tên")
+                .data(productDetailService.getAllProductDetailName(productName))
+                .build();
+    }
+
+
+
+
+    //
 
     @DeleteMapping("{id}")
     public ApiResponse<String> delete(@PathVariable int id) {
@@ -151,6 +166,14 @@ public class ProductDetailController {
                 .data(productDetailService.getAllProductDetailExportData())
                 .build();
     }
+    @GetMapping("/full")
+    public ApiResponse<List<ProductDetailResponse>> getAllSelectDetail() {
+        return ApiResponse.<List<ProductDetailResponse>>builder()
+                .message("get all selected")
+                .data(productDetailRepository.getAllProductDetail())
+                .build();
+    }
+
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
                                        @RequestParam("id") int id

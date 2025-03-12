@@ -32,6 +32,8 @@ public class SpringSecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> {
+                    req.requestMatchers("/api/admin/*")
+                            .hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MANAGER");
                     req.anyRequest().permitAll();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))

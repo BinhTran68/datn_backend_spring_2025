@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -311,8 +312,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 //    }
 
     @Override
-    public List<ProductDetail> getAllProductDetail() {
-        return productDetailRepository.findAll();
+    public List<ProductDetailResponse> getAllProductDetail() {
+        return productDetailRepository.getAllProductDetail();
     }
 
 
@@ -353,6 +354,24 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .image(images)
                 .build();
     }
+    //detail theo tên
+    @Override
+    public List<ProductDetailResponse> getAllProductDetailName(String productName) {
+        List<ProductDetailResponse> productDetails = productDetailRepository.getAllProductDetailByProductName(productName);
+        if (productDetails.isEmpty()) {
+            throw new IllegalArgumentException("Không tìm thấy sản phẩm nào với tên: " + productName);
+        }
+
+        productDetails.forEach(detail -> {
+            List<ImgResponse> images = imageRepository.findByProductDetailId(detail.getId());
+            detail.setImage(images);
+        });
+
+        return productDetails;
+    }
+
+
+    //
 //
 //    @Override
 //    public ProductDetailResponse getProductDetail(int id) {
