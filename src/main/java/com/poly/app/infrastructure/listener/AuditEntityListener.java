@@ -19,7 +19,6 @@ public class AuditEntityListener {
         entity.setUpdatedAt(getLongDate());
         entity.setCode(Helpers.genCodeUUID());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("authentication.getPrincipal()" + authentication.getPrincipal());
         if (authentication != null) {
             entity.setUpdatedBy(authentication.getPrincipal().toString());
             entity.setCreatedBy(authentication.getPrincipal().toString());

@@ -21,12 +21,12 @@
     public class Address extends PrimaryEntity implements Serializable {
 
         @ManyToOne
-        @JoinColumn
+        @JoinColumn(name = "customer_id", referencedColumnName = "id") // Chỉ định tên cột
         @JsonBackReference
         Customer customer;
 
         @ManyToOne
-        @JoinColumn
+        @JoinColumn(name = "staff_id", referencedColumnName = "id")
         @JsonBackReference
         Staff staff;
 

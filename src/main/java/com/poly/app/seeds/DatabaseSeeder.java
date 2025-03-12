@@ -219,16 +219,57 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         //
 
-        Size size1 = Size.builder().sizeName("37").status(Status.HOAT_DONG).build();
-        Size size2 = Size.builder().sizeName("38").status(Status.HOAT_DONG).build();
-        Size size3 = Size.builder().sizeName("39").status(Status.HOAT_DONG).build();
-        Size size4 = Size.builder().sizeName("40").status(Status.HOAT_DONG).build();
+        Color color1 = Color.builder().colorName("Đỏ").status(Status.HOAT_DONG).build();
+        Color color2 = Color.builder().colorName("Xanh dương").status(Status.HOAT_DONG).build();
+        Color color3 = Color.builder().colorName("Đen").status(Status.HOAT_DONG).build();
+        Color color4 = Color.builder().colorName("Trắng").status(Status.HOAT_DONG).build();
+        Color color5 = Color.builder().colorName("Xanh lá").status(Status.HOAT_DONG).build();
+        Color color6 = Color.builder().colorName("Vàng").status(Status.HOAT_DONG).build();
+        Color color7 = Color.builder().colorName("Xám").status(Status.HOAT_DONG).build();
+        Color color8 = Color.builder().colorName("Hồng").status(Status.HOAT_DONG).build();
+        Color color9 = Color.builder().colorName("Cam").status(Status.HOAT_DONG).build();
+        Color color10 = Color.builder().colorName("Tím").status(Status.HOAT_DONG).build();
+        Color color11 = Color.builder().colorName("Be").status(Status.HOAT_DONG).build();
+        Color color12 = Color.builder().colorName("Nâu").status(Status.HOAT_DONG).build();
+
+        // Save data to the database
+        colorRepository.save(color1);
+        colorRepository.save(color2);
+        colorRepository.save(color3);
+        colorRepository.save(color4);
+        colorRepository.save(color5);
+        colorRepository.save(color6);
+        colorRepository.save(color7);
+        colorRepository.save(color8);
+        colorRepository.save(color9);
+        colorRepository.save(color10);
+        colorRepository.save(color11);
+        colorRepository.save(color12);
+
+        Size size1 = Size.builder().sizeName("36").status(Status.HOAT_DONG).build();
+        Size size2 = Size.builder().sizeName("37").status(Status.HOAT_DONG).build();
+        Size size3 = Size.builder().sizeName("38").status(Status.HOAT_DONG).build();
+        Size size4 = Size.builder().sizeName("39").status(Status.HOAT_DONG).build();
+        Size size5 = Size.builder().sizeName("40").status(Status.HOAT_DONG).build();
+        Size size6 = Size.builder().sizeName("41").status(Status.HOAT_DONG).build();
+        Size size7 = Size.builder().sizeName("42").status(Status.HOAT_DONG).build();
+        Size size8 = Size.builder().sizeName("43").status(Status.HOAT_DONG).build();
+        Size size9 = Size.builder().sizeName("44").status(Status.HOAT_DONG).build();
+        Size size10 = Size.builder().sizeName("45").status(Status.HOAT_DONG).build();
+        Size size11 = Size.builder().sizeName("46").status(Status.HOAT_DONG).build();
 
         // Save data to the database
         sizeRepository.save(size1);
         sizeRepository.save(size2);
         sizeRepository.save(size3);
         sizeRepository.save(size4);
+        sizeRepository.save(size5);
+        sizeRepository.save(size6);
+        sizeRepository.save(size7);
+        sizeRepository.save(size8);
+        sizeRepository.save(size9);
+        sizeRepository.save(size10);
+        sizeRepository.save(size11);
 
 
         Sole sole1 = Sole.builder().soleName("Rubber Sole").status(Status.HOAT_DONG).build();
@@ -289,29 +330,21 @@ public class DatabaseSeeder implements CommandLineRunner {
         materialRepository.save(material5);
 
 
-        Color color1 = Color.builder().colorName("Red").status(Status.HOAT_DONG).build();
-        Color color2 = Color.builder().colorName("Blue").status(Status.HOAT_DONG).build();
-        Color color3 = Color.builder().colorName("Black").status(Status.HOAT_DONG).build();
-        Color color4 = Color.builder().colorName("White").status(Status.HOAT_DONG).build();
-        Color color5 = Color.builder().colorName("Green").status(Status.HOAT_DONG).build();
-        Color color6 = Color.builder().colorName("Yellow").status(Status.HOAT_DONG).build();
-        Color color7 = Color.builder().colorName("Gray").status(Status.HOAT_DONG).build();
-
-        // Save data to the database
-        colorRepository.save(color1);
-        colorRepository.save(color2);
-        colorRepository.save(color3);
-        colorRepository.save(color4);
-        colorRepository.save(color5);
-        colorRepository.save(color6);
-        colorRepository.save(color7);
-
-
         Product product1 = Product.builder().productName("Nike Air Max").status(Status.HOAT_DONG).build();
         Product product2 = Product.builder().productName("Adidas UltraBoost").status(Status.HOAT_DONG).build();
         Product product3 = Product.builder().productName("Puma RS-X3").status(Status.HOAT_DONG).build();
         Product product4 = Product.builder().productName("Reebok Classic Leather").status(Status.HOAT_DONG).build();
         Product product5 = Product.builder().productName("New Balance 574").status(Status.HOAT_DONG).build();
+        Product product6 = Product.builder().productName("Nike Air Jordan 1").status(Status.HOAT_DONG).build();
+        Product product7 = Product.builder().productName("Adidas Superstar").status(Status.HOAT_DONG).build();
+        Product product8 = Product.builder().productName("Puma Suede Classic").status(Status.HOAT_DONG).build();
+        Product product9 = Product.builder().productName("Nike Air Force 1").status(Status.HOAT_DONG).build();
+        Product product10 = Product.builder().productName("Adidas Stan Smith").status(Status.HOAT_DONG).build();
+        Product product11 = Product.builder().productName("New Balance 990").status(Status.HOAT_DONG).build();
+        Product product12 = Product.builder().productName("Reebok Zig Kinetica").status(Status.HOAT_DONG).build();
+        Product product13 = Product.builder().productName("Nike Zoom Pegasus").status(Status.HOAT_DONG).build();
+        Product product14 = Product.builder().productName("Adidas NMD").status(Status.HOAT_DONG).build();
+        Product product15 = Product.builder().productName("Puma Future Rider").status(Status.HOAT_DONG).build();
 
         // Save data to the database
         productRepository.save(product1);
@@ -319,55 +352,163 @@ public class DatabaseSeeder implements CommandLineRunner {
         productRepository.save(product3);
         productRepository.save(product4);
         productRepository.save(product5);
+        productRepository.save(product6);
+        productRepository.save(product7);
+        productRepository.save(product8);
+        productRepository.save(product9);
+        productRepository.save(product10);
+        productRepository.save(product11);
+        productRepository.save(product12);
+        productRepository.save(product13);
+        productRepository.save(product14);
+        productRepository.save(product15);
 
-
-        Product product = productRepository.findById(1).orElse(null); // Assuming there is a product with id 1
-        Brand brand = brandRepository.findById(1).orElse(null); // Assuming there is a brand with id 1
-        Type type = typeRepository.findById(1).orElse(null); // Assuming there is a type with id 1
-        Color color = colorRepository.findById(2).orElse(null); // Assuming there is a color with id 1
-        Material material = materialRepository.findById(1).orElse(null); // Assuming there is a material with id 1
-        Size size = sizeRepository.findById(1).orElse(null); // Assuming there is a size with id 1
-        Sole sole = soleRepository.findById(1).orElse(null); // Assuming there is a sole with id 1
-        Gender gender = genderRepository.findById(1).orElse(null); // Assuming there is a gender with id 1
-
-        // Add seed data for ProductDetail
+        // Add seed data for ProductDetail with more variations
         ProductDetail productDetail1 = ProductDetail.builder()
-                .product(product)
-                .brand(brand)
-                .type(type)
-                .color(color)
-                .material(material)
-                .size(size)
-                .sole(sole)
-                .gender(gender)
+                .product(product1)
+                .brand(brand1) // Nike
+                .type(type1) // Sports
+                .color(color3) // Black
+                .material(material1) // Leather
+                .size(size7) // 42
+                .sole(sole1) // Rubber
+                .gender(genderMale) // Male
                 .productDetailCode("PD001")
                 .quantity(100)
-                .price(9990000.0)
+                .price(2990000.0)
                 .weight(0.5)
-                .descrition("Nike Air Max 2023, High comfort and design.")
+                .descrition("Nike Air Max 2023, Premium comfort with Air cushioning technology.")
                 .status(Status.HOAT_DONG)
                 .build();
 
         ProductDetail productDetail2 = ProductDetail.builder()
-                .product(product)
-                .brand(brand)
-                .type(type)
-                .color(color)
-                .material(material)
-                .size(size)
-                .sole(sole)
-                .gender(gender)
+                .product(product2)
+                .brand(brand2) // Adidas
+                .type(type1) // Sports
+                .color(color4) // White
+                .material(material5) // Mesh
+                .size(size6) // 41
+                .sole(sole2) // PU
+                .gender(genderMale) // Male
                 .productDetailCode("PD002")
+                .quantity(150)
+                .price(3500000.0)
+                .weight(0.45)
+                .descrition("Adidas UltraBoost with Primeknit upper and Boost cushioning.")
+                .status(Status.HOAT_DONG)
+                .build();
+
+        ProductDetail productDetail3 = ProductDetail.builder()
+                .product(product6)
+                .brand(brand1) // Nike
+                .type(type2) // Casual
+                .color(color1) // Red
+                .material(material1) // Leather
+                .size(size8) // 43
+                .sole(sole1) // Rubber
+                .gender(genderMale) // Male
+                .productDetailCode("PD003")
+                .quantity(80)
+                .price(4200000.0)
+                .weight(0.55)
+                .descrition("Nike Air Jordan 1 High, iconic basketball sneaker.")
+                .status(Status.HOAT_DONG)
+                .build();
+
+        ProductDetail productDetail4 = ProductDetail.builder()
+                .product(product7)
+                .brand(brand2) // Adidas
+                .type(type2) // Casual
+                .color(color4) // White
+                .material(material1) // Leather
+                .size(size5) // 40
+                .sole(sole3) // PVC
+                .gender(genderFemale) // Female
+                .productDetailCode("PD004")
+                .quantity(120)
+                .price(2200000.0)
+                .weight(0.48)
+                .descrition("Adidas Superstar, classic shell-toe design.")
+                .status(Status.HOAT_DONG)
+                .build();
+
+        ProductDetail productDetail5 = ProductDetail.builder()
+                .product(product9)
+                .brand(brand1) // Nike
+                .type(type2) // Casual
+                .color(color4) // White
+                .material(material1) // Leather
+                .size(size7) // 42
+                .sole(sole1) // Rubber
+                .gender(genderMale) // Male
+                .productDetailCode("PD005")
                 .quantity(200)
-                .price(1000000.0)
-                .weight(0.6)
-                .descrition("Adidas UltraBoost 2023, Advanced cushioning.")
+                .price(2800000.0)
+                .weight(0.52)
+                .descrition("Nike Air Force 1 Low, timeless street style.")
+                .status(Status.HOAT_DONG)
+                .build();
+
+        ProductDetail productDetail6 = ProductDetail.builder()
+                .product(product13)
+                .brand(brand1) // Nike
+                .type(type1) // Sports
+                .color(color2) // Blue
+                .material(material5) // Mesh
+                .size(size6) // 41
+                .sole(sole2) // PU
+                .gender(genderFemale) // Female
+                .productDetailCode("PD006")
+                .quantity(90)
+                .price(3100000.0)
+                .weight(0.45)
+                .descrition("Nike Zoom Pegasus, perfect for daily running.")
+                .status(Status.HOAT_DONG)
+                .build();
+
+        ProductDetail productDetail7 = ProductDetail.builder()
+                .product(product14)
+                .brand(brand2) // Adidas
+                .type(type2) // Casual
+                .color(color7) // Grey
+                .material(material4) // Nylon
+                .size(size8) // 43
+                .sole(sole5) // Foam
+                .gender(genderMale) // Male
+                .productDetailCode("PD007")
+                .quantity(75)
+                .price(3800000.0)
+                .weight(0.47)
+                .descrition("Adidas NMD R1, modern lifestyle sneaker with Boost.")
+                .status(Status.HOAT_DONG)
+                .build();
+
+        ProductDetail productDetail8 = ProductDetail.builder()
+                .product(product15)
+                .brand(brand3) // Puma
+                .type(type2) // Casual
+                .color(color6) // Yellow
+                .material(material2) // Canvas
+                .size(size5) // 40
+                .sole(sole1) // Rubber
+                .gender(genderFemale) // Female
+                .productDetailCode("PD008")
+                .quantity(110)
+                .price(1800000.0)
+                .weight(0.44)
+                .descrition("Puma Future Rider, retro-inspired casual sneaker.")
                 .status(Status.HOAT_DONG)
                 .build();
 
         // Save product details to the database
         productDetailRepository.save(productDetail1);
         productDetailRepository.save(productDetail2);
+        productDetailRepository.save(productDetail3);
+        productDetailRepository.save(productDetail4);
+        productDetailRepository.save(productDetail5);
+        productDetailRepository.save(productDetail6);
+        productDetailRepository.save(productDetail7);
+        productDetailRepository.save(productDetail8);
 
 
         Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN");
@@ -384,13 +525,13 @@ public class DatabaseSeeder implements CommandLineRunner {
         // Tạo và lưu Staff
         Staff staff1 = Staff.builder()
                 .code("STF001")
-                .fullName("Nguyễn Văn A")
+                .fullName("admin@fpt.com")
                 .dateBirth(LocalDateTime.now()) // Ngày sinh (dạng timestamp)
                 .CitizenId("1234567890")
                 .phoneNumber("0901234567")
-                .email("nguyenvana@example.com")
+                .email("admin@fpt.com")
                 .gender(true) // Nam
-                .password(passwordEncoder.encode("123456")) // Mã hóa mật khẩu
+                .password(passwordEncoder.encode("123")) // Mã hóa mật khẩu
                 .avatar("avatar1.jpg")
                 .status(AccountStatus.HOAT_DONG) // Đã kích hoạt tài khoản
                 .role(adminRole) // Vai trò ADMIN
