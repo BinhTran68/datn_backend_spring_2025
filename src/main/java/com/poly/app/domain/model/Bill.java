@@ -40,14 +40,10 @@ public class Bill extends PrimaryEntity implements Serializable {
         }
     }
 
-    //    tiền kahcsh đưa
     Double customerMoney;
-
-//    tiền đưuọc giảm
 
     Double discountMoney;
 
-    //    tiền ship
     Double shipMoney;
 
     //    tổng tiền
@@ -65,9 +61,13 @@ public class Bill extends PrimaryEntity implements Serializable {
     //    ngày ship
     LocalDateTime shipDate;
 
+
+
     @ManyToOne
     @JoinColumn(name = "shipping_address_id")
     Address shippingAddress;
+
+    String customerName;
 
     String numberPhone;
 

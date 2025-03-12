@@ -46,6 +46,7 @@ public class BillHistoryServiceImpl implements BillHistoryService {
                         .status(billHistory.getStatus())
                         .createdAt(billHistory.getCreatedAt())
                         .customerName(billHistory.getCustomer() != null ? billHistory.getCustomer().getFullName() : "")
+                        .createdBy(billHistory.getCreatedBy())
                         .description(billHistory.getDescription())
                         .build() )
                 .collect(Collectors.toList());

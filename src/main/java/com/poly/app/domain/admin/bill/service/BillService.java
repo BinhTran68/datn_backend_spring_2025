@@ -2,18 +2,14 @@ package com.poly.app.domain.admin.bill.service;
 
 import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
-import com.poly.app.domain.admin.bill.request.UpdateQuantityProductRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
-import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequest;
-import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.TypeBill;
 import org.springframework.data.domain.Page;
 
 import java.io.File;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -32,5 +28,5 @@ public interface BillService {
 
     BillResponse createBill(CreateBillRequest request);
 
-    List<ProductDetailResponse> updateProductQuantity(List<BillProductDetailRequest> requests);
+    void updateProductQuantity(List<BillProductDetailRequest> requests);
 }

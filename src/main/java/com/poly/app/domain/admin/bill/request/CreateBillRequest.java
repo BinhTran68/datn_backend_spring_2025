@@ -41,6 +41,7 @@ public class CreateBillRequest {
     private Double shippingFee;
     private AddressRequest address;
     private List<BillDetailRequest> billDetailRequests;
+    private String transactionCode;
 
 }
 

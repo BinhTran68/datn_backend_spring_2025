@@ -3,9 +3,11 @@ package com.poly.app.domain.repository;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -164,4 +166,19 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
 
 
     List<ProductDetail> findByProductIdAndColorId(int productId, int colorId);
+
+
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Product p WHERE p.id = :id")
+    Optional<ProductDetail> findByIdWithLock(@Param("id") String id);
+
+    // Query để lấy sản phẩm có số lượng available
+    @Query("SELECT p FROM ProductDetail p WHERE p.id = :id AND (p.quantity - p.holdQuantity) >= :requiredQuantity")
+    Optional<ProductDetail> findByIdAndAvailableQuantity(
+            @Param("id") String id,
+            @Param("requiredQuantity") Integer requiredQuantity
+    );
+
+
 }
