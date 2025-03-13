@@ -14,12 +14,5 @@ public class GrowthRateDTOM {
     private double difference = 0.0;
     private String percentageChange = "";
 
-    public GrowthRateDTOM(int year, int month, Double revenue, Double lastMonthRevenue, Double difference, String percentageChange) {
-        this.year = year;
-        this.month = month;
-        this.revenue = (revenue != null) ? revenue : 0.0;
-        this.lastMonthRevenue = (lastMonthRevenue != null) ? lastMonthRevenue : 0.0;
-        this.difference = (difference != null) ? difference : 0.0;
-        this.percentageChange = (percentageChange != null) ? percentageChange : "";
-    }
+
 }
