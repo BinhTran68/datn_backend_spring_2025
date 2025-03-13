@@ -39,10 +39,20 @@ public class RestExceptionHandler {
 //        return errors;
 //    }
 
+
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(RestApiException.class)
-    public ResponseEntity<?> handlerException(RestApiException restApiException) {
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<?> handlerExceptionApiException(ApiException restApiException) {
         ApiError apiError = new ApiError(restApiException.getMessage());
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(RestApiException.class)
+    public ResponseEntity<Object> handleCustomException(RestApiException ex) {
+        return ResponseEntity
+                .status(ex.getStatus()) // Đặt mã HTTP
+                .body(Map.of("message", ex.getMessage())); // Đặt nội dung body
+    }
+
 }

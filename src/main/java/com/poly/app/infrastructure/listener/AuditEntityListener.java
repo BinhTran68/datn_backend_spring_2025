@@ -20,8 +20,8 @@ public class AuditEntityListener {
         entity.setCode(Helpers.genCodeUUID());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
-            entity.setUpdatedBy(authentication.getName());
-            entity.setCreatedBy(authentication.getName());
+            entity.setUpdatedBy(authentication.getPrincipal().toString());
+            entity.setCreatedBy(authentication.getPrincipal().toString());
         }
     }
 
@@ -30,8 +30,9 @@ public class AuditEntityListener {
     private void onUpdate(AuditEntity entity) {
         entity.setUpdatedAt(getLongDate());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication != null) {
-            String updatedBy = authentication.getName();
+            String updatedBy = authentication.getPrincipal().toString();
             entity.setUpdatedBy(updatedBy);
         }
     }

@@ -145,7 +145,10 @@ public class GenHoaDon {
             cell5.setBorder(Rectangle.NO_BORDER);
             invoiceTable.addCell(cell5);
 
-            PdfPCell cell6 = new PdfPCell(new Paragraph("Trạng thái: Hoàn thành", normalFont));
+            PdfPCell cell6 = new PdfPCell(new Paragraph("Trạng thái: " + 
+                (bill.getStatus() == BillStatus.DA_HOAN_THANH ? "Hoàn thành" :
+                 bill.getStatus() == BillStatus.CHO_XAC_NHAN ? "Chờ xử lý" :
+                 bill.getStatus() == BillStatus.DA_HUY ? "Đã hủy" : "Đang xử lý"), normalFont));
             cell6.setHorizontalAlignment(Element.ALIGN_RIGHT);
             cell6.setBorder(Rectangle.NO_BORDER);
             invoiceTable.addCell(cell6);
@@ -192,7 +195,10 @@ public class GenHoaDon {
                 table.addCell(billDetail.getProductDetail().getProduct().getProductName());
                 table.addCell(String.valueOf(billDetail.getQuantity()));
                 table.addCell(decimalFormat.format(billDetail.getPrice()));
-                table.addCell(decimalFormat.format(billDetail.getPrice()));
+                table.addCell(decimalFormat.format(billDetail.getPrice() * billDetail.getQuantity()));
+                table.addCell(bill.getStatus() == BillStatus.DA_HOAN_THANH ? "Hoàn thành" :
+                            bill.getStatus() == BillStatus.CHO_XAC_NHAN ? "Chờ xử lý" :
+                            bill.getStatus() == BillStatus.DA_HUY ? "Đã hủy" : "Đang xử lý");
 
                 sttCounter++;
             }
@@ -209,7 +215,7 @@ public class GenHoaDon {
             totalcell.setHorizontalAlignment(Element.ALIGN_LEFT);
             totalcell.setBorder(Rectangle.NO_BORDER);
             invoiceTable3.addCell(totalcell);
-            PdfPCell totalcell2 = new PdfPCell(new Paragraph(decimalFormat.format(bill.getTotalMoney()), headerFont));
+            PdfPCell totalcell2 = new PdfPCell(new Paragraph(decimalFormat.format(bill.getTotalMoney() != null ? bill.getTotalMoney().longValue() : 0), headerFont));
             totalcell2.setHorizontalAlignment(Element.ALIGN_RIGHT);
             totalcell2.setBorder(Rectangle.NO_BORDER);
             invoiceTable3.addCell(totalcell2);
@@ -251,7 +257,8 @@ public class GenHoaDon {
             totalcell7.setBorder(Rectangle.NO_BORDER);
             invoiceTable3.addCell(totalcell7);
             PdfPCell totalcell8 = new PdfPCell(
-                    new Paragraph(decimalFormat.format(bill.getMoneyAfter() != null ? (bill.getMoneyAfter().longValue()) : 0), headerFont));
+                    new Paragraph(decimalFormat.format(bill.getMoneyAfter() != null ? bill.getMoneyAfter().longValue() : 
+                        (bill.getTotalMoney() != null ? bill.getTotalMoney().longValue() : 0)), headerFont));
             totalcell8.setHorizontalAlignment(Element.ALIGN_RIGHT);
             totalcell8.setBorder(Rectangle.NO_BORDER);
             invoiceTable3.addCell(totalcell8);

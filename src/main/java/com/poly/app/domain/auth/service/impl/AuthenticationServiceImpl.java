@@ -1,6 +1,8 @@
 package com.poly.app.domain.auth.service.impl;
 
 
+import com.poly.app.domain.admin.customer.response.CustomerResponse;
+import com.poly.app.domain.admin.customer.service.CustomerService;
 import com.poly.app.domain.repository.CustomerRepository;
 import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.domain.auth.request.ChangeRequest;
@@ -15,16 +17,29 @@ import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Staff;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
+import com.poly.app.infrastructure.email.EmailService;
+import com.poly.app.infrastructure.exception.ApiException;
+import com.poly.app.infrastructure.exception.ErrorCode;
+import com.poly.app.infrastructure.exception.RestApiException;
 import com.poly.app.infrastructure.security.JwtUtilities;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.Objects;
 
 
 @Service
+@EnableAsync
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired
@@ -47,28 +62,47 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired
     private EmailSender emailSender;
+    @Autowired
+    private CustomerService customerService;
+
+    @Autowired
+    EmailService emailService;
+    @Autowired
+    private HttpSession session;
 
     @Override
-    public String loginAdmin(LoginRequest request) {
-        return null;
+    public Map<String, Object> loginAdmin(LoginRequest request) {
+        Staff staff = staffRepository.findByEmail(request.getEmail());
+        if (staff == null) {
+            throw new ApiException(ErrorCode.TAIKHOAN_NOT_FOUND);
+        }
+        if (passwordEncoder.matches(request.getPassword(), staff.getPassword())) {
+            TokenPayload tokenPayload = new TokenPayload();
+            tokenPayload.setEmail(staff.getEmail());
+            tokenPayload.setId(staff.getId());
+            tokenPayload.setRoleName(staff.getRole().getRoleName());
+            UserLoginResponse userLoginResponse = UserLoginResponse.fromStaffEntity(staff);
+            return Map.of("token", jwtUtilities.generateToken(tokenPayload), "user", userLoginResponse);
+        }
+        throw new ApiException(ErrorCode.TAIKHOAN_NOT_FOUND);
     }
 
 
     @Override
-    public String login(LoginRequest request) {
-        // Sử dụng BCryptPasswordEncoder để mã hóa và kiểm tra mật khẩu
-        // Lấy customer từ database, với mật khẩu đã mã hóa
+    public Map<String, Object> login(LoginRequest request) {
         Customer customer = customerRepository.findByEmail(request.getEmail());
-        if (customer != null && passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
-            // Nếu mật khẩu người dùng nhập đúng, tạo token và trả về
+        if (customer == null) {
+            throw new ApiException(ErrorCode.TAIKHOAN_NOT_FOUND);
+        }
+        if (passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
             TokenPayload tokenPayload = new TokenPayload();
             tokenPayload.setEmail(customer.getEmail());
             tokenPayload.setId(customer.getId());
             tokenPayload.setRoleName("ROLE_USER");
-            return jwtUtilities.generateToken(tokenPayload);
+            UserLoginResponse userLoginResponse = UserLoginResponse.fromCustomerEntity(customer);
+            return Map.of("token", jwtUtilities.generateToken(tokenPayload), "customer", userLoginResponse);
         }
-
-        return null; // Trả về null nếu không tìm thấy customer hoặc mật khẩu sai
+        throw new ApiException(ErrorCode.TAIKHOAN_NOT_FOUND);
     }
 
     @Override
@@ -76,40 +110,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return null;
     }
 
-    @Override
+    @Transactional
     public Boolean register(RegisterRequest request) {
-
+        boolean existsCustomerByEmail = customerRepository.existsCustomerByEmail(request.getEmail());
+        if (existsCustomerByEmail) {
+            throw new ApiException(ErrorCode.ACCOUNT_EMAIL_EXISTED);
+        }
         Customer customer = new Customer();
         customer.setStatus(2);  // 2 là chưa kích hoạt
-
         customer.setEmail(request.getEmail());
         customer.setFullName(request.getFullName());
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
         customerRepository.save(customer);
-        // Tạo 1 account
-        // gửi mail ở đây
-        Email email = new Email();
-        String[] emailSend = {request.getEmail()};
-        email.setToEmail(emailSend);
-        email.setSubject("Tạo tài khoản thành công");
-        email.setTitleEmail("");
-        email.setBody("<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; margin: 50px;\">\n" +
-                "\n" +
-                "    <div class=\"success-message\" style=\"background-color: #FFFFF; color: black; padding: 20px; border-radius: 10px; margin-top: 50px;\">\n" +
-                "        <h2 style=\"color: #333;\">Tài khoản đã được tạo thành công!</h2>\n" +
-                "        <p style=\"color: #555;\">Cảm ơn bạn đã đăng ký tại TheHands. Dưới đây là thông tin đăng nhập của bạn:</p>\n" +
-                "        <p><strong>Email:</strong> " + request.getEmail() + "</p>\n" +
-                "        <p><strong>Mật khẩu:</strong> " + request.getPassword() + "</p>\n" +
-                "        <p style=\"color: #555;\">Đăng nhập ngay để trải nghiệm!</p>\n" +
-                "    </div>\n" +
-                "\n" +
-                "</body>\n" +
-                "</html>\n");
+        // Gửi email ở luồng riêng biệt
+        emailService.sendRegistrationEmail(request.getEmail(), request.getPassword());
 
-
-        emailSender.sendEmail(email);
         return true;
     }
 
@@ -124,7 +139,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         staffRepository.save(staff);
         return true;
     }
-
 
     @Override
     public String sendOtp(String email) {
@@ -145,6 +159,37 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public String loginGoogle(LoginGoogleRequest request) {
         return null;
     }
+
+    @Override
+    public Customer getCustomerAuth() {
+        UserDetails user = (UserDetails) session.getAttribute("user");
+
+        if (user == null) {
+            throw new RestApiException("User not found in session", HttpStatus.UNAUTHORIZED);
+        }
+
+        if (user instanceof Customer) {
+            return (Customer) user;
+        }
+
+        throw new RestApiException("User is not a Customer", HttpStatus.FORBIDDEN);
+    }
+
+    @Override
+    public Staff getStaffAuth() {
+        UserDetails user = (UserDetails) session.getAttribute("user");
+
+        if (user == null) {
+            throw new RestApiException("User not found in session", HttpStatus.UNAUTHORIZED);
+        }
+
+        if (user instanceof Staff) {
+            return (Staff) user;
+        }
+
+        throw new RestApiException("User is not a Staff", HttpStatus.FORBIDDEN);
+    }
+
 
     private Authentication authenticateUser(LoginRequest loginRequest) {
         return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));

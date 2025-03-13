@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Getter
 @Setter
 @NoArgsConstructor
@@ -72,6 +74,7 @@ public class Customer extends PrimaryEntity implements Serializable, UserDetails
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        log.info("getAuthorities");
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
         return authorities;
