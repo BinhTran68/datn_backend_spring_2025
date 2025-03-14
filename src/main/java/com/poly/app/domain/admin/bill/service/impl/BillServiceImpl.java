@@ -3,17 +3,20 @@ package com.poly.app.domain.admin.bill.service.impl;
 import com.poly.app.domain.admin.bill.request.BillDetailRequest;
 import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
+import com.poly.app.domain.admin.bill.request.UpdateQuantityVoucherRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
+import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillDetail;
 import com.poly.app.domain.model.BillHistory;
 import com.poly.app.domain.model.Customer;
+import com.poly.app.domain.model.CustomerVoucher;
 import com.poly.app.domain.model.PaymentBill;
 import com.poly.app.domain.model.PaymentMethods;
 import com.poly.app.domain.model.ProductDetail;
@@ -24,6 +27,7 @@ import com.poly.app.domain.repository.BillDetailRepository;
 import com.poly.app.domain.repository.BillHistoryRepository;
 import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.CustomerRepository;
+import com.poly.app.domain.repository.CustomerVoucherRepository;
 import com.poly.app.domain.repository.PaymentBillRepository;
 import com.poly.app.domain.repository.PaymentMethodsRepository;
 import com.poly.app.domain.repository.ProductDetailRepository;
@@ -33,6 +37,7 @@ import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.TypeBill;
+import com.poly.app.infrastructure.constant.VoucherType;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.security.Auth;
@@ -52,6 +57,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -96,6 +102,8 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     private Auth auth;
+    @Autowired
+    private CustomerVoucherRepository customerVoucherRepository;
 
     @Override
     public Page<BillResponse> getPageBill(Integer size, Integer page,
@@ -106,9 +114,9 @@ public class BillServiceImpl implements BillService {
                                           String endDate
     ) {
         Sort sort = null;
-        if(statusBill == BillStatus.CHO_XAC_NHAN) {
-            sort  = Sort.by(Sort.Direction.ASC, "createdAt");
-        }else {
+        if (statusBill == BillStatus.CHO_XAC_NHAN) {
+            sort = Sort.by(Sort.Direction.ASC, "createdAt");
+        } else {
             sort = Sort.by(Sort.Direction.DESC, "createdAt");
         }
 
@@ -218,9 +226,8 @@ public class BillServiceImpl implements BillService {
     public File printBillById(String billCode) {
         Bill bill = billRepository.findByBillCode(billCode);
         BillHistory billHistory = billHistoryRepository.findDistinctFirstByBillOrderByCreatedAtDesc(bill);
-        Customer account = bill.getCustomer();
         List<BillDetail> lstBillDetail = billDetailRepository.findByBill(bill);
-        return genHoaDon.genHoaDon(bill, lstBillDetail, billHistory, account);
+        return genHoaDon.genHoaDon(bill, lstBillDetail, billHistory);
     }
 
     @Override
@@ -313,12 +320,12 @@ public class BillServiceImpl implements BillService {
             savePaymentBill(billSave, cashPaymentMethods);
             savePaymentBill(billSave, bankPaymentMethods);
         } else if (request.getCashCustomerMoney() != null) {
-            PaymentMethods cashPaymentMethods =  createAndSavePaymentMethod(request.getCashCustomerMoney(), PaymentMethodEnum.TIEN_MAT, null);
+            PaymentMethods cashPaymentMethods = createAndSavePaymentMethod(request.getCashCustomerMoney(), PaymentMethodEnum.TIEN_MAT, null);
             savePaymentBill(billSave, cashPaymentMethods);
         } else if (request.getBankCustomerMoney() != null) {
             PaymentMethods bankPayment = createAndSavePaymentMethod(request.getBankCustomerMoney(), PaymentMethodEnum.CHUYEN_KHOAN, request.getTransactionCode());
             savePaymentBill(billSave, bankPayment);
-       }
+        }
         handleSaveBillHistory(billSave, customer, staffAuth, request, customerAuth);
         return convertBillToBillResponse(billSave);
     }
@@ -373,6 +380,33 @@ public class BillServiceImpl implements BillService {
             }
         });
 
+    }
+
+    @Override
+    public List<VoucherReponse> getAllVoucherResponse() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Voucher> vouchers = voucherRepository
+                .findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThan(now, now, 0);
+        List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
+        return voucherReponses;
+    }
+
+    @Override
+    public List<VoucherReponse> getAllVoucherResponseByCustomerId(Integer customerId) {
+        List<CustomerVoucher> customerVouchers = customerVoucherRepository.findCustomerVouchersByCustomerId(customerId);
+        List<Voucher> vouchers = customerVouchers.stream().map(customerVoucher -> customerVoucher.getVoucher()).toList();
+        List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
+        return voucherReponses;
+    }
+
+    @Override
+    public VoucherReponse updateQuantityVoucher(UpdateQuantityVoucherRequest request) {
+        Voucher voucher = voucherRepository.findById(request.getId()).orElseThrow(
+                () -> new RuntimeException("voucher not found"));
+        voucher.setQuantity(request.getQuantity());
+        Voucher voucherSave = voucherRepository.save(voucher);
+        VoucherReponse voucherReponse = VoucherReponse.formEntity(voucher);
+        return voucherReponse;
     }
 
     private PaymentMethods createAndSavePaymentMethod(Double amount, PaymentMethodEnum methodEnum, String transactionCode) {

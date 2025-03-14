@@ -197,5 +197,4 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
             @Param("requiredQuantity") Integer requiredQuantity
     );
 
-
 }

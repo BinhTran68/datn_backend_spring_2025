@@ -44,7 +44,9 @@ public class GenHoaDon {
     @Autowired
     private ProductRepository productDetailRepository;
 
-    public File genHoaDon(Bill bill, List<BillDetail> billDetails, BillHistory billHistory, Customer account) {
+    public File genHoaDon(Bill bill,
+                          List<BillDetail> billDetails, BillHistory billHistory
+    ) {
         Document document = new Document();
         File pdfFile = null;
 
@@ -139,8 +141,7 @@ public class GenHoaDon {
             invoiceTable.addCell(cell2);
 
             PdfPCell cell5 = new PdfPCell(new Paragraph("Nhân viên: " +
-//                    account.getCode() + " - " +
-                  account != null ?  account.getFullName() : "Nhân viên", normalFont));
+                    (bill.getStaff() != null ? bill.getStaff().getFullName() : "Nhân viên"), normalFont));
             cell5.setHorizontalAlignment(Element.ALIGN_LEFT);
             cell5.setBorder(Rectangle.NO_BORDER);
             invoiceTable.addCell(cell5);
