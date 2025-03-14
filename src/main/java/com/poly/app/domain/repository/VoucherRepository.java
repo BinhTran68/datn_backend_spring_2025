@@ -3,10 +3,12 @@ package com.poly.app.domain.repository;
 import com.poly.app.domain.admin.voucher.response.VoucherResponse;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
+import com.poly.app.infrastructure.constant.VoucherType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,8 +24,6 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 //    List<VoucherReponse> getAllVou();  /// viết vậy khó sửa lắm
 
 
-
-
 //    @Query("""
 //                SELECT new com.poly.app.domain.admin.voucher.response.VoucherReponse
 //                 (vc.id, vc.voucherCode, vc.quantity, vc.voucherType, vc.discountValue,
@@ -35,4 +35,27 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 //            AND (:status IS NULL OR vc.status = :status)
 //            """)
 //    Page<VoucherReponse> searchVouchers(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query(value = """
+            (SELECT v.* 
+            FROM voucher v
+            WHERE v.start_date <= NOW() 
+              AND v.end_date >= NOW() 
+              AND v.quantity > 0
+              AND v.status_voucher = 'dang_kich_hoat'
+              AND v.voucher_type = 'PUBLIC')
+
+            UNION
+
+            (SELECT v.* 
+            FROM voucher v
+            LEFT JOIN customer_voucher cv ON v.id = cv.voucher_id
+            WHERE v.start_date <= NOW() 
+              AND v.end_date >= NOW() 
+              AND v.quantity > 0
+              AND v.status_voucher = 'dang_kich_hoat'
+              AND (:customerId IS NOT NULL AND cv.customer_id = :customerId))
+            """, nativeQuery = true)
+    List<Voucher> findValidVouchers(@Param("customerId") String customerId);
+
 }
