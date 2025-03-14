@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.Statistical.Controller;
 
+import com.poly.app.domain.admin.Statistical.Repository.GrowthRateProductRepository;
 import com.poly.app.domain.admin.Statistical.Repository.StatisticalRepository;
 import com.poly.app.domain.admin.Statistical.Service.*;
 import com.poly.app.domain.common.ApiResponse;
@@ -13,9 +14,11 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/admin /statistical")
+@RequestMapping("/api/admin/statistical")
 // 1. Thống kê số lượng hóa đơn đã đặt, đã thanh toán, đã hủy, đã giao hàng
 public class StatisticalController {
+    @Autowired
+    GrowthRateProductRepository repo;
 
     @Autowired
     StatisticalRepository statisticalRepository;
@@ -208,6 +211,52 @@ public class StatisticalController {
         }
     }
 
+    // sản phẩm
+    @GetMapping("/growthRateProductM")
+    public ApiResponse<List<GrowthRateDTOSSM>> getSSProductMonth() {
+        try {
+            List<GrowthRateDTOSSM> data = growthRateService.getSSProductMonth();
+            return ApiResponse.<List<GrowthRateDTOSSM>>builder()
+                    .data(data)
+                    .message(data.isEmpty() ? "Không có dữ liệu" : "Lấy dữ liệu thành công")
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.<List<GrowthRateDTOSSM>>builder()
+                    .data(null)
+                    .message("Lỗi khi lấy dữ liệu: " + e.getMessage())
+                    .build();
+        }
+    }
+    @GetMapping("/growthRateProductY")
+    public ApiResponse<List<GrowthRateDTOSSY>> getSSProductYear() {
+        try {
+            List<GrowthRateDTOSSY> data = growthRateService.getSSProductYear();
+            return ApiResponse.<List<GrowthRateDTOSSY>>builder()
+                    .data(data)
+                    .message(data.isEmpty() ? "Không có dữ liệu" : "Lấy dữ liệu thành công")
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.<List<GrowthRateDTOSSY>>builder()
+                    .data(null)
+                    .message("Lỗi khi lấy dữ liệu: " + e.getMessage())
+                    .build();
+        }
+    }
+//    @GetMapping("/Y")
+//    public ApiResponseList<Map<String, Object>> getSS() {
+//        try {
+//            List<Object[]> data = repo.getSSProductYear();
+//            return ApiResponse.List<Map<String, Object>>builder()
+//                    .data(data)
+//                    .message(data.isEmpty() ? "Không có dữ liệu" : "Lấy dữ liệu thành công")
+//                    .build();
+//        } catch (Exception e) {
+//            return ApiResponse.List<Map<String, Object>>builder()
+//                    .data(null)
+//                    .message("Lỗi khi lấy dữ liệu: " + e.getMessage())
+//                    .build();
+//        }
+//    }
 }
 
 

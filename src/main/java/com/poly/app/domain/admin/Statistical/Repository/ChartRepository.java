@@ -12,85 +12,85 @@ import java.util.Optional;
 
 @Repository
 public interface ChartRepository extends JpaRepository<Bill, Integer> {
-    //Ngày
+    // Ngày
     @Query(value = """
                 SELECT 
-                    SUM(CASE WHEN status = 'CHO_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS choXacNhanPercent,
-                    SUM(CASE WHEN status = 'DA_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daXacNhanPercent,
-                    SUM(CASE WHEN status = 'CHO_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS choVanChuyenPercent,
-                    SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS dangVanChuyenPercent,
-                    SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daThanhToanPercent,
-                    SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daHoanThanhPercent,
-                    SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daHuyPercent,
-                    SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS traHangPercent
+                    ROUND(SUM(CASE WHEN status = 'CHO_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS choXacNhanPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daXacNhanPercent,
+                    ROUND(SUM(CASE WHEN status = 'CHO_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS choVanChuyenPercent,
+                    ROUND(SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS dangVanChuyenPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daThanhToanPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHoanThanhPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent,
+                    ROUND(SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS traHangPercent
                 FROM bill
                 WHERE DATE(FROM_UNIXTIME(created_at / 1000)) = CURDATE()
             """, nativeQuery = true)
     List<Object[]> getChartToday();
 
-    //Tuần
+    // Tuần
     @Query(value = """
                 SELECT 
-                    SUM(CASE WHEN status = 'CHO_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS choXacNhanPercent,
-                    SUM(CASE WHEN status = 'DA_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daXacNhanPercent,
-                    SUM(CASE WHEN status = 'CHO_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS choVanChuyenPercent,
-                    SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS dangVanChuyenPercent,
-                    SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daThanhToanPercent,
-                    SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daHoanThanhPercent,
-                    SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daHuyPercent,
-                    SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS traHangPercent
+                    ROUND(SUM(CASE WHEN status = 'CHO_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS choXacNhanPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daXacNhanPercent,
+                    ROUND(SUM(CASE WHEN status = 'CHO_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS choVanChuyenPercent,
+                    ROUND(SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS dangVanChuyenPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daThanhToanPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHoanThanhPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent,
+                    ROUND(SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS traHangPercent
                 FROM bill
                 WHERE YEARWEEK(FROM_UNIXTIME(created_at / 1000), 1) = YEARWEEK(CURDATE(), 1)
             """, nativeQuery = true)
     List<Object[]> getChartThisWeek();
 
-    //Tháng
+    // Tháng
     @Query(value = """
                 SELECT 
-                    SUM(CASE WHEN status = 'CHO_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS choXacNhanPercent,
-                    SUM(CASE WHEN status = 'DA_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daXacNhanPercent,
-                    SUM(CASE WHEN status = 'CHO_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS choVanChuyenPercent,
-                    SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS dangVanChuyenPercent,
-                    SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daThanhToanPercent,
-                    SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daHoanThanhPercent,
-                    SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daHuyPercent,
-                    SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS traHangPercent
+                    ROUND(SUM(CASE WHEN status = 'CHO_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS choXacNhanPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daXacNhanPercent,
+                    ROUND(SUM(CASE WHEN status = 'CHO_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS choVanChuyenPercent,
+                    ROUND(SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS dangVanChuyenPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daThanhToanPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHoanThanhPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent,
+                    ROUND(SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS traHangPercent
                 FROM bill
                 WHERE MONTH(FROM_UNIXTIME(created_at / 1000)) = MONTH(CURDATE()) 
                 AND YEAR(FROM_UNIXTIME(created_at / 1000)) = YEAR(CURDATE())
             """, nativeQuery = true)
     List<Object[]> getChartThisMonth();
 
-    //Năm
+    // Năm
     @Query(value = """
                 SELECT 
-                    SUM(CASE WHEN status = 'CHO_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS choXacNhanPercent,
-                    SUM(CASE WHEN status = 'DA_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daXacNhanPercent,
-                    SUM(CASE WHEN status = 'CHO_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS choVanChuyenPercent,
-                    SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS dangVanChuyenPercent,
-                    SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daThanhToanPercent,
-                    SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daHoanThanhPercent,
-                    SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daHuyPercent,
-                    SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS traHangPercent
+                    ROUND(SUM(CASE WHEN status = 'CHO_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS choXacNhanPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daXacNhanPercent,
+                    ROUND(SUM(CASE WHEN status = 'CHO_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS choVanChuyenPercent,
+                    ROUND(SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS dangVanChuyenPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daThanhToanPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHoanThanhPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent,
+                    ROUND(SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS traHangPercent
                 FROM bill
                 WHERE YEAR(FROM_UNIXTIME(created_at / 1000)) = YEAR(CURDATE())
             """, nativeQuery = true)
     List<Object[]> getChartThisYear();
-//Tùy chỉnh
+
+    // Tùy chỉnh
     @Query(value = """
                 SELECT 
-                    SUM(CASE WHEN status = 'CHO_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS choXacNhanPercent,
-                    SUM(CASE WHEN status = 'DA_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daXacNhanPercent,
-                    SUM(CASE WHEN status = 'CHO_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS choVanChuyenPercent,
-                    SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS dangVanChuyenPercent,
-                    SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daThanhToanPercent,
-                    SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daHoanThanhPercent,
-                    SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS daHuyPercent,
-                    SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS traHangPercent
+                    ROUND(SUM(CASE WHEN status = 'CHO_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS choXacNhanPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_XAC_NHAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daXacNhanPercent,
+                    ROUND(SUM(CASE WHEN status = 'CHO_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS choVanChuyenPercent,
+                    ROUND(SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS dangVanChuyenPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daThanhToanPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHoanThanhPercent,
+                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent,
+                    ROUND(SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS traHangPercent
                 FROM bill
                 WHERE DATE(FROM_UNIXTIME(created_at / 1000)) BETWEEN :startDate AND :endDate
             """, nativeQuery = true)
     List<Object[]> getChartCustom(@Param("startDate") String startDate, @Param("endDate") String endDate);
-
 
 }

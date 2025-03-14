@@ -64,57 +64,6 @@ public interface GrowthRateRepository extends JpaRepository<Bill, Integer> {
 
 
     //sản phẩm tháng
-    @Query(value = """
-    WITH monthly_sales AS (
-        SELECT 
-            YEAR(ship_date) AS year,
-            MONTH(ship_date) AS month,
-            SUM(quantity) AS total_sold
-        FROM bill
-        GROUP BY YEAR(ship_date), MONTH(ship_date)
-    )
-    SELECT 
-        ms.year,
-        ms.month,
-        ms.total_sold AS monthly_sold,
-        COALESCE(prev.total_sold, 0) AS last_month_sold,
-        ms.total_sold - COALESCE(prev.total_sold, 0) AS month_difference,
-        CASE 
-            WHEN COALESCE(prev.total_sold, 0) = 0 THEN '100%'
-            ELSE CONCAT(ROUND(((ms.total_sold - prev.total_sold) / NULLIF(prev.total_sold, 0)) * 100, 2), '%')
-        END AS month_percentage_change
-    FROM monthly_sales ms
-    LEFT JOIN monthly_sales prev 
-        ON ms.year = prev.year AND ms.month = prev.month + 1
-        OR (ms.month = 1 AND prev.month = 12 AND ms.year = prev.year + 1)
-    ORDER BY ms.year DESC, ms.month DESC
-    LIMIT 12;
-    """, nativeQuery = true)
-    List<Object[]> getSSProductMonth();
 
-    //sản phẩm nămnăm
-    @Query(value = """
-    WITH yearly_sales AS (
-        SELECT 
-            YEAR(ship_date) AS year,
-            SUM(quantity) AS total_sold
-        FROM bill
-        GROUP BY YEAR(ship_date)
-    )
-    SELECT 
-        ys.year,
-        ys.total_sold AS yearly_sold,
-        COALESCE(prev.total_sold, 0) AS last_year_sold,
-        ys.total_sold - COALESCE(prev.total_sold, 0) AS year_difference,
-        CASE 
-            WHEN COALESCE(prev.total_sold, 0) = 0 THEN '100%'
-            ELSE CONCAT(ROUND(((ys.total_sold - prev.total_sold) / NULLIF(prev.total_sold, 0)) * 100, 2), '%')
-        END AS year_percentage_change
-    FROM yearly_sales ys
-    LEFT JOIN yearly_sales prev ON ys.year = prev.year + 1
-    ORDER BY ys.year DESC
-    LIMIT 5;
-    """, nativeQuery = true)
-    List<Object[]> getSSProductYear();
 
 }
