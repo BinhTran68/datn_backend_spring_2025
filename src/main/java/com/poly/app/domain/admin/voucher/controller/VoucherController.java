@@ -119,17 +119,6 @@ public class VoucherController {
                 .data(voucherService.switchStatus(id, status))
                 .build();
     }
-//    @GetMapping("/search")
-//    public ApiResponse<Page<VoucherReponse>> searchVouchers(@RequestParam String keyword,
-//                                                            @RequestParam(value = "page", defaultValue = "0") int page,
-//                                                            @RequestParam(value = "size", defaultValue = "10") int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        Page<VoucherReponse> searchResults = voucherService.searchVouchers(keyword, pageable);
-//        return ApiResponse.<Page<VoucherReponse>>builder()
-//                .message("Search results")
-//                .data(searchResults)
-//                .build();
-//    }
-//}
+
 
 }

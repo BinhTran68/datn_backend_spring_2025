@@ -183,5 +183,14 @@ public class ProductDetailController {
                 .data(productDetailService.switchStatus(id,status))
                 .build();
     }
+    //em tú làm
+    @GetMapping("/product/{productId}")
+    public ApiResponse<List<ProductDetailResponse>> getProductDetailsByProductId(@PathVariable Integer productId) {
+        return ApiResponse.<List<ProductDetailResponse>>builder()
+                .message("Lấy danh sách ProductDetail theo productId")
+                .data(productDetailService.getProductDetailsByProductId(productId)) // Trả về List<ProductDetailResponse>
+                .build();
+    }
+    //em tú hết làm
 
 }
