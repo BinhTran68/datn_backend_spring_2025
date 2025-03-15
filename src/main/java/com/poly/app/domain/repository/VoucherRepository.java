@@ -1,14 +1,11 @@
 package com.poly.app.domain.repository;
 
-import com.poly.app.domain.admin.voucher.response.VoucherResponse;
 import com.poly.app.domain.model.Voucher;
-import com.poly.app.domain.admin.voucher.response.VoucherReponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.poly.app.infrastructure.constant.VoucherType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -22,8 +19,6 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 //    List<VoucherReponse> getAllVou();  /// viết vậy khó sửa lắm
 
 
-
-
 //    @Query("""
 //                SELECT new com.poly.app.domain.admin.voucher.response.VoucherReponse
 //                 (vc.id, vc.voucherCode, vc.quantity, vc.voucherType, vc.discountValue,
@@ -35,4 +30,15 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 //            AND (:status IS NULL OR vc.status = :status)
 //            """)
 //    Page<VoucherReponse> searchVouchers(@Param("keyword") String keyword, Pageable pageable);
+
+
+    List<Voucher> findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThan(
+            LocalDateTime today, LocalDateTime todayAgain, Integer quantity
+    );
+
+//    List<Voucher> findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThan(
+//            LocalDateTime today, LocalDateTime todayAgain, Integer quantity, Integer customerId
+//    );
+
+
 }

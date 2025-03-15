@@ -5,9 +5,12 @@ import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
 import com.poly.app.domain.admin.bill.request.RestoreQuantityRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityProductRequest;
+import com.poly.app.domain.admin.bill.request.UpdateQuantityVoucherRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillService;
+import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
+import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Bill;
@@ -75,6 +78,7 @@ public class BillController {
         return ApiResponse.builder().data(billService.updateBillInfo(code, request)).build();
     }
 
+    private static final String PUBLIC_DIR = "src/main/resources/static/public/";
 
     @GetMapping("/print-bill/{billCode}")
     public ResponseEntity<byte[]> printBillById(@PathVariable("billCode") String billCode) throws IOException {
@@ -83,7 +87,7 @@ public class BillController {
             byte[] pdfBytes = Files.readAllBytes(pdfFile.toPath());
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDisposition(ContentDisposition.inline().filename(pdfFile.getName()).build());
+            headers.setContentDisposition(ContentDisposition.inline().filename("HoaDon"+billCode+".pdf").build()); // Đặt tên file
             pdfFile.delete();
             return ResponseEntity.ok()
                     .headers(headers)
@@ -122,6 +126,22 @@ public class BillController {
         }
     }
 
+
+    @GetMapping("/vouchers")
+    public ResponseEntity<?> getAllVoucher() {
+        return ResponseEntity.ok(billService.getAllVoucherResponse());
+    }
+
+
+    @GetMapping("/vouchers/{customerId}")
+    public ResponseEntity<?> getAllVoucherByCustomerId(@PathVariable String customerId) {
+        return ResponseEntity.ok(billService.getAllVoucherResponse());
+    }
+
+    @GetMapping("/quantity-vouchers")
+    public ResponseEntity<?> updateQuantityVoucher(@RequestBody UpdateQuantityVoucherRequest request) {
+        return ResponseEntity.ok(billService.updateQuantityVoucher(request));
+    }
 
 
 }

@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -64,7 +65,15 @@ public class ProductDetail extends PrimaryEntity implements Serializable {
 
     String productDetailCode;
 
-    Integer quantity;
+    private Integer quantity;
+
+    @PrePersist
+    @PreUpdate
+    private void validateQuantity() {
+        if (this.quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+    }
 
     Integer holdQuantity;    // Số lượng đang tạm giữ
 

@@ -40,6 +40,7 @@ public class Voucher extends PrimaryEntity implements Serializable {
     DiscountType discountType;
     //giá trị giảm
     Double discountValue;
+
     String discountValueType;
     //giá trị giảm tối đa
     Double discountMaxValue;
@@ -50,8 +51,5 @@ public class Voucher extends PrimaryEntity implements Serializable {
 //    Status status;
    @Enumerated(EnumType.STRING)
     StatusVoucher statusVoucher;
-
-
-
 
 }
