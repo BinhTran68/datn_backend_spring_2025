@@ -139,10 +139,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Role role2 = Role.builder().roleName("ROLE_MANAGER").build();
         roleRepository.save(role2);
-
-
         //
-
 
         //
 
