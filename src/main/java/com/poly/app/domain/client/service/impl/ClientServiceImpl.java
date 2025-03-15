@@ -10,6 +10,7 @@ import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.CartResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
+import com.poly.app.domain.client.response.VoucherBestResponse;
 import com.poly.app.domain.client.service.ClientService;
 import com.poly.app.domain.client.service.ZaloPayService;
 import com.poly.app.domain.model.*;
@@ -17,6 +18,7 @@ import com.poly.app.domain.repository.*;
 import com.poly.app.infrastructure.constant.*;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
+import com.poly.app.infrastructure.util.VoucherBest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -150,6 +152,7 @@ public class ClientServiceImpl implements ClientService {
                 .builder()
                 .typeBill(TypeBill.ONLINE)
                 .customer(customer)
+                .customerName(customer != null ? customer.getFullName() : request.getRecipientName())
                 .customerMoney(request.getCustomerMoney())
                 .discountMoney(request.getDiscountMoney())
                 .moneyAfter(request.getMoneyAfter())
@@ -185,6 +188,29 @@ public class ClientServiceImpl implements ClientService {
                 billDetailRepository.save(billDetail);
             }
         }
+//nếu có customer thì xóa sản phẩm đó khỏi giỏ hàng
+        if (request.getCustomerId()!=null) {
+            List<CartResponse> cartResponses = cartDetailRepository.getAllByCustomerIdNoPage(request.getCustomerId());
+//            tìm kiếm xem có productDetailId của  mảng request.getBillDetailRequests() có trong cartResponses không nếu có thì delete cartResponse đó
+//            for (CartResponse i: cartResponses
+//                 ) {
+//                for (BillDetailRequest i2: request.getBillDetailRequests()
+//                     ) {
+//                    if (i2.getProductDetailId() == i.getProductDetailId() ) {
+//                        cartDetailRepository.deleteById(i.getCartDetailId());
+//                    }
+//                }
+//
+//            }
+            cartResponses.forEach(cartItem ->
+                    request.getBillDetailRequests().forEach(billItem -> {
+                        if (billItem.getProductDetailId().equals(cartItem.getProductDetailId())) {
+                            cartDetailRepository.deleteById(cartItem.getCartDetailId());
+                        }
+                    })
+            );
+
+        }
 
 //Lưu lại lịch sử
         billHistoryRepository.save(BillHistory
@@ -215,6 +241,22 @@ public class ClientServiceImpl implements ClientService {
                     if (zaloPayResponse == null || !zaloPayResponse.containsKey("orderurl")) {
                         throw new ApiException(ErrorCode.INVALID_KEY);
                     }
+//                    lưu phương thức thanh toán
+//                    tìm keiesm xem thấy phương thức thanh toán zalopay ko
+//
+                    PaymentMethods paymentMethods = paymentMethodsRepository
+                            .findByPaymentMethodsType(PaymentMethodsType.ZALO_PAY)
+                            .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
+                                    .paymentMethod(PaymentMethodEnum.CHUYEN_KHOAN)
+                                    .paymentMethodsType(PaymentMethodsType.ZALO_PAY)
+                                    .status(Status.HOAT_DONG)
+                                    .build()));
+//và lưu pttt
+                    paymentBillRepository.save(PaymentBill.builder()
+                            .bill(billSave)
+                            .paymentMethods(paymentMethods)
+                            .status(Status.HOAT_DONG)
+                            .build());
 
                     return (String) zaloPayResponse.get("orderurl"); // Trả về URL thanh toán ngay lập tức
                 } catch (Exception e) {
@@ -253,8 +295,16 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public CartResponse addProductToCart(AddCart addCart) {
+//        kiểm tra có giỏ hàng chưa
+        Cart cart = cartRepository.getCart(addCart.getCustomerId());
+        if (cart == null) {
+            cartRepository.save(Cart.builder()
+                    .customerid(customerRepository.findById(addCart.getCustomerId()).get())
+                    .build());
+        }
+
         CartDetail cartDetail;
-        cartDetail = cartDetailRepository.findByProductDetailId(addCart.getProductDetailId(),addCart.getCustomerId());
+        cartDetail = cartDetailRepository.findByProductDetailId(addCart.getProductDetailId(), addCart.getCustomerId());
         if (cartDetail != null) {
             cartDetail.setQuantity(cartDetail.getQuantity() + addCart.getQuantityAddCart());
             cartDetailRepository.save(cartDetail);
@@ -280,7 +330,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public String deleteCartById(Integer cartDetailId) {
-        cartDetailRepository.findById(cartDetailId).orElseThrow(()->new ApiException(ErrorCode.INVALID_KEY));
+        cartDetailRepository.findById(cartDetailId).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
         cartDetailRepository.deleteById(cartDetailId);
         return "xóa thành công";
     }
@@ -289,6 +339,43 @@ public class ClientServiceImpl implements ClientService {
     public List<CartResponse> getAllByCustomserIdNopage(Integer customerId) {
         return cartDetailRepository.getAllByCustomerIdNoPage(customerId);
     }
+
+    @Override
+    public VoucherBestResponse voucherBest(String customerId, String billValue) {
+        List<Voucher> vouchers = voucherRepository.findValidVouchers(customerId);
+        VoucherBest voucherBest = new VoucherBest();
+        return voucherBest.recommendBestVoucher(Double.valueOf(billValue), vouchers);
+    }
+
+    @Override
+    public List<Voucher> findValidVouchers(String customerId) {
+        return voucherRepository.findValidVouchers(customerId);
+    }
+
+    @Override
+    public Integer plus(Integer id) {
+        CartDetail cartDetail = cartDetailRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
+        cartDetail.setQuantity(cartDetail.getQuantity() + 1);
+        cartDetailRepository.save(cartDetail);
+
+        return cartDetail.getQuantity();
+    }
+
+    @Override
+    public Integer subtract(Integer id) {
+        CartDetail cartDetail = cartDetailRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
+        cartDetail.setQuantity(cartDetail.getQuantity()>0?cartDetail.getQuantity() - 1:0);
+        cartDetailRepository.save(cartDetail);
+
+        return cartDetail.getQuantity();    }
+
+    @Override
+    public Integer setQuantityCart(Integer id, Integer quantity) {
+        CartDetail cartDetail = cartDetailRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
+        cartDetail.setQuantity(quantity);
+        cartDetailRepository.save(cartDetail);
+
+        return cartDetail.getQuantity();    }
 
 
 }

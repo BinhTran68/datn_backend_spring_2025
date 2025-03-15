@@ -7,6 +7,8 @@ import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.CartResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
+import com.poly.app.domain.client.response.VoucherBestResponse;
+import com.poly.app.domain.model.Voucher;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -41,4 +43,15 @@ public interface ClientService {
     String deleteCartById(Integer cartDetailId);
 
     List<CartResponse> getAllByCustomserIdNopage(Integer customerId);
+
+    //    tìm voucher valid
+    VoucherBestResponse voucherBest(String customerId, String billValue);
+
+    List<Voucher> findValidVouchers(String customerId);
+
+    Integer plus(Integer id);
+
+    Integer subtract(Integer id);
+
+    Integer setQuantityCart(Integer id,Integer quantity);
 }

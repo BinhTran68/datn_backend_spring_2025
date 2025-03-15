@@ -7,9 +7,11 @@ import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.CartResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
+import com.poly.app.domain.client.response.VoucherBestResponse;
 import com.poly.app.domain.client.service.ClientService;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.Meta;
+import com.poly.app.domain.model.Voucher;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -195,8 +197,64 @@ public class ClientController {
             @PathVariable Integer id
     ) {
         return ApiResponse.<String>builder()
-                .message("lấy giỏ hàng của khách hàng")
+                .message("xóa sp trong giỏ hàng")
                 .data(clientService.deleteCartById(id))
+                .build();
+    }
+
+    @GetMapping("/voucherbest")
+    ApiResponse<VoucherBestResponse> voucherBesst(
+            @RequestParam(required = false) String customerId,
+            @RequestParam String billValue
+    ) {
+        return ApiResponse.<VoucherBestResponse>builder()
+                .message("gợi ý voucher")
+                .data(clientService.voucherBest(customerId, billValue))
+                .build();
+    }
+
+    @GetMapping("/findvalidvouchers")
+    ApiResponse<List<Voucher>> findValidVouchers(
+            @RequestParam(required = false) String customerId
+
+    ) {
+        return ApiResponse.<List<Voucher>>builder()
+                .message("lấy voucher hợp lệ")
+                .data(clientService.findValidVouchers(customerId))
+                .build();
+    }
+
+    @GetMapping("/plus")
+    ApiResponse<Integer> plus(
+            @RequestParam(required = false) Integer customerId
+
+    ) {
+        return ApiResponse.<Integer>builder()
+                .message("cộng thêm 1")
+                .data(clientService.plus(customerId))
+                .build();
+    }
+
+    @GetMapping("/subtract")
+    ApiResponse<Integer> subtract(
+            @RequestParam(required = false) Integer customerId
+
+    ) {
+        return ApiResponse.<Integer>builder()
+                .message("trừ 1")
+                .data(clientService.subtract(customerId))
+                .build();
+    }
+
+    @GetMapping("/setquantitycart")
+    ApiResponse<Integer> setQuantityCart(
+            @RequestParam(required = false) Integer customerId,
+            @RequestParam(required = false) Integer quantity
+
+    ) {
+        return ApiResponse.<Integer>builder()
+                .message("sửa lại số lượng")
+                .data(clientService.setQuantityCart(customerId, quantity))
                 .build();
     }
 
