@@ -33,7 +33,7 @@ public interface ProductService {
 
      boolean existsByProductNameAndIdNot (String productName, Integer id);
      List<ProductResponseSelect> getAll();
-
+     List<ProductResponseSelect> getAllhd();
      String switchStatus(Integer id, Status status);
 
 }

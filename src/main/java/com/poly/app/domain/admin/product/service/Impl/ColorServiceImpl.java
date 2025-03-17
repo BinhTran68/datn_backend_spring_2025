@@ -132,6 +132,12 @@ public class ColorServiceImpl implements ColorService {
     public List<ColorResponseSelect> getAll() {
         return colorRepository.dataSelect();
     }
+
+    @Override
+    public List<ColorResponseSelect> getAllHD() {
+        return colorRepository.dataSelectHD();
+    }
+
     @Override
     public String switchStatus(Integer id, Status status) {
         Color brand = colorRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));

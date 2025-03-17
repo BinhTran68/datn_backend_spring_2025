@@ -28,6 +28,7 @@ public interface BrandService {
     boolean existsByBrandNameAndIdNot (String brandName, Integer id);
 
     List<BrandResponseSelect> getAll();
+    List<BrandResponseSelect> getAllHD();
 
     String switchStatus(Integer id, Status  status);
 }

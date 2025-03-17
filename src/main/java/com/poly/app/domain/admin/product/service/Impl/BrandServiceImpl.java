@@ -136,6 +136,10 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
+    public List<BrandResponseSelect> getAllHD() {
+        return brandRepository.dataSelectHD();    }
+
+    @Override
     public String switchStatus(Integer id, Status status) {
         Brand brand = brandRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
         if (status.equals(Status.HOAT_DONG)) {

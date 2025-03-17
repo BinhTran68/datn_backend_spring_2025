@@ -123,6 +123,13 @@ public class SizeServiceImpl implements SizeService {
     public List<SizeResponseSelect> getAll() {
         return sizeRepository.dataSelect();
     }
+
+    @Override
+    public List<SizeResponseSelect> getAllhd() {
+        return sizeRepository.dataSelecthd();
+
+    }
+
     @Override
     public String switchStatus(Integer id, Status status) {
         Size brand = sizeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));

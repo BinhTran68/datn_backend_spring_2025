@@ -24,7 +24,8 @@ public interface ColorRepository extends JpaRepository<Color, Integer> {
 
     @Query(value = "select new com.poly.app.domain.admin.product.response.color.ColorResponseSelect(b.id,b.colorName,b.status,b.code) from Color b order by b.createdAt desc ")
     List<ColorResponseSelect> dataSelect();
-
+    @Query(value = "select new com.poly.app.domain.admin.product.response.color.ColorResponseSelect(b.id,b.colorName,b.status,b.code) from Color b where b.status=0 order by b.createdAt desc ")
+    List<ColorResponseSelect> dataSelectHD();
     boolean existsByColorName(String name);
 
     boolean existsByColorNameAndIdNot(String name, Integer id);

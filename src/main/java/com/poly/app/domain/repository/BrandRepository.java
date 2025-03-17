@@ -23,6 +23,9 @@ public interface BrandRepository extends JpaRepository<Brand, Integer> {
     @Query(value = "select new com.poly.app.domain.admin.product.response.brand.BrandResponseSelect(b.id,b.brandName,b.status) from Brand b order by b.createdAt desc ")
     List<BrandResponseSelect> dataSelect();
 
+    @Query(value = "select new com.poly.app.domain.admin.product.response.brand.BrandResponseSelect(b.id,b.brandName,b.status) from Brand b where b.status =0 order by b.createdAt desc ")
+    List<BrandResponseSelect> dataSelectHD();
+
     boolean existsByBrandName(String brandName);
 
     boolean existsByBrandNameAndIdNot(String brandName, Integer id);

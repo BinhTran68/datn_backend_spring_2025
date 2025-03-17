@@ -115,6 +115,13 @@ public class SoleController {
                 .data(soleService.getAll())
                 .build();
     }
+    @GetMapping("/getallselecthd")
+    public ApiResponse<List<SoleResponseSelect>> getAllSelecthd() {
+        return ApiResponse.<List<SoleResponseSelect>>builder()
+                .message("get all selected hd")
+                .data(soleService.getAllhd())
+                .build();
+    }
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
                                        @RequestParam("id") int id

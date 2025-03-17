@@ -100,7 +100,13 @@ public class ColorController {
                 .data(colorService.getAll())
                 .build();
     }
-
+    @GetMapping("/getallselecthd")
+    public ApiResponse<List<ColorResponseSelect>> getAllSelecthd() {
+        return ApiResponse.<List<ColorResponseSelect>>builder()
+                .message("get all selected hd")
+                .data(colorService.getAllHD())
+                .build();
+    }
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
                                        @RequestParam("id") int id

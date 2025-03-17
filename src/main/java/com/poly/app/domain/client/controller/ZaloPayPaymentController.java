@@ -42,13 +42,13 @@ public class ZaloPayPaymentController {
         return fmt.format(cal.getTimeInMillis());
     }
 
-//    @PostMapping(value = "/create-order")
-//    public Map<String, Object> createPayment(@RequestParam(name = "appuser") String appuser,
-//                                             @RequestParam(name = "amount") Long amount,
-//                                             @RequestParam(name = "order_id") Long order_id) throws Exception {
-//
-//        return zaloPayService.createPayment(appuser, amount, order_id);
-//    }
+    @PostMapping(value = "/create-order")
+    public Map<String, Object> createPayment(@RequestParam(name = "appuser") String appuser,
+                                             @RequestParam(name = "amount") Long amount,
+                                             @RequestParam(name = "order_id") Long order_id) throws Exception {
+
+        return zaloPayService.createPayment(appuser, amount, order_id);
+    }
 
     @GetMapping(value = "/getstatusbyapptransid")
     public Map<String, Object> getStatusByApptransid(

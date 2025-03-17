@@ -24,4 +24,6 @@ public interface MaterialRepository extends JpaRepository<Material,Integer> {
     boolean existsByMaterialNameAndIdNot(String name, Integer id);
     @Query(value = "select new com.poly.app.domain.admin.product.response.material.MaterialResponseSelect(b.id,b.materialName,b.status) from Material b order by b.createdAt desc ")
     List<MaterialResponseSelect> dataSelect();
+    @Query(value = "select new com.poly.app.domain.admin.product.response.material.MaterialResponseSelect(b.id,b.materialName,b.status) from Material b where b.status=0 order by b.createdAt desc ")
+    List<MaterialResponseSelect> dataSelecthd();
 }

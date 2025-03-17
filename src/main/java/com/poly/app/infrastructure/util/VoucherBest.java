@@ -64,7 +64,7 @@ public class VoucherBest {
 
         if (betterVoucher.isPresent()) {
             double amountNeeded = betterVoucher.get().getBillMinValue() - billValue;
-            return "Bạn chỉ cần mua thêm " + amountNeeded + "  để sử dụng voucher tốt hơn: " + betterVoucher.get().getVoucherName();
+            return "Đã áp dụng voucher tốt nhất bạn chỉ cần mua thêm " + amountNeeded + "  để sử dụng voucher tốt hơn: " + betterVoucher.get().getVoucherName();
         }
         return "";
     }

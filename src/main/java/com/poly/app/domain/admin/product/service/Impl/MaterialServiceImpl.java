@@ -120,6 +120,12 @@ public class MaterialServiceImpl implements MaterialService {
     public List<MaterialResponseSelect> getAll() {
         return materialRepository.dataSelect();
     }
+
+    @Override
+    public List<MaterialResponseSelect> getAllhd() {
+        return materialRepository.dataSelecthd();
+    }
+
     @Override
     public String switchStatus(Integer id, Status status) {
         Material brand = materialRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));

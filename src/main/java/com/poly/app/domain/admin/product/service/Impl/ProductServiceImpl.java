@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product createProduct(ProductRequest request) {
         if (productRepository.existsByProductName(request.getProductName())) {
-            throw new ApiException(ErrorCode.NAME_EXISTS );
+            throw new ApiException(ErrorCode.NAME_EXISTS);
         }
         Product product = Product.builder()
                 .productName(request.getProductName())
@@ -49,8 +49,8 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse updateProduct(ProductRequest request, int id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
 
-        if (productRepository.existsByProductNameAndIdNot(request.getProductName(),id)) {
-            throw new ApiException(ErrorCode.NAME_EXISTS );
+        if (productRepository.existsByProductNameAndIdNot(request.getProductName(), id)) {
+            throw new ApiException(ErrorCode.NAME_EXISTS);
         }
         product.setProductName(request.getProductName());
 
@@ -69,8 +69,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<IProductResponse> getAllProduct(int page, int product) {
         Pageable pageable = PageRequest.of(page, product);
-        Page<IProductResponse> response= productRepository.getAll(pageable);
-        return response ;    }
+        Page<IProductResponse> response = productRepository.getAll(pageable);
+        return response;
+    }
 
     @Override
     public Page<IProductResponse> fillbyProductName(int page, int product, String name) {
@@ -125,6 +126,13 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponseSelect> getAll() {
         return productRepository.dataSelect();
     }
+
+    @Override
+    public List<ProductResponseSelect> getAllhd() {
+        return productRepository.dataSelecthd();
+
+    }
+
     @Override
     public String switchStatus(Integer id, Status status) {
         Product brand = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));

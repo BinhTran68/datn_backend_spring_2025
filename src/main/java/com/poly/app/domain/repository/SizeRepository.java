@@ -28,7 +28,8 @@ public interface SizeRepository extends JpaRepository<Size, Integer> {
 
     @Query(value = "select new com.poly.app.domain.admin.product.response.size.SizeResponseSelect(b.id,b.sizeName,b.status) from Size b order by b.createdAt desc ")
     List<SizeResponseSelect> dataSelect();
-
+    @Query(value = "select new com.poly.app.domain.admin.product.response.size.SizeResponseSelect(b.id,b.sizeName,b.status) from Size b where b.status = 0 order by b.createdAt desc ")
+    List<SizeResponseSelect> dataSelecthd();
     @Query("SELECT DISTINCT new com.poly.app.domain.admin.product.response.size.SizeResponse(s.id,s.code, s.sizeName,s.updatedAt,s.status) " +
            "FROM Size s JOIN ProductDetail pd ON pd.size.id = s.id " +
            "WHERE pd.product.id = :productId and pd.status=0  order by s.sizeName ")

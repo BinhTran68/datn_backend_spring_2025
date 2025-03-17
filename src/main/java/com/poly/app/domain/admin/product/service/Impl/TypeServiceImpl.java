@@ -124,6 +124,12 @@ public class TypeServiceImpl implements TypeService {
     public List<TypeResponseSelect> getAll() {
         return typeRepository.dataSelect();
     }
+
+    @Override
+    public List<TypeResponseSelect> getAllhd() {
+        return typeRepository.dataSelecthd();
+    }
+
     @Override
     public String switchStatus(Integer id, Status status) {
         Type brand = typeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));

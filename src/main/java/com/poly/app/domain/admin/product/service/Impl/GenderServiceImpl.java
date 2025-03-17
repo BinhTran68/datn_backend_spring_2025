@@ -122,6 +122,12 @@ public class GenderServiceImpl implements GenderService {
     public List<GenderResponseSelect> getAll() {
         return genderRepository.dataSelect();
     }
+
+    @Override
+    public List<GenderResponseSelect> getAllhd() {
+        return genderRepository.dataSelecthd();
+    }
+
     @Override
     public String switchStatus(Integer id, Status status) {
         Gender brand = genderRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));

@@ -30,6 +30,7 @@ public interface SoleService {
      boolean existsBySoleNameAndIdNot (String soleName, Integer id);
 
      List<SoleResponseSelect> getAll();
+     List<SoleResponseSelect> getAllhd();
      String switchStatus(Integer id, Status status);
 
 }

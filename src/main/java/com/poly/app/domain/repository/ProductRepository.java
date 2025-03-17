@@ -54,6 +54,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query(value = "select new com.poly.app.domain.admin.product.response.product.ProductResponseSelect(b.id,b.productName,b.status) from Product b order by b.createdAt desc ")
     List<ProductResponseSelect> dataSelect();
+    @Query(value = "select new com.poly.app.domain.admin.product.response.product.ProductResponseSelect(b.id,b.productName,b.status) from Product b where b.status=0 order by b.createdAt desc ")
+    List<ProductResponseSelect> dataSelecthd();
     //respone lấy danh sách theo tên bla bla
 
 //    Optional<ProductDetail> findByProductName(String productName);

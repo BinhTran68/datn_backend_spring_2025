@@ -100,6 +100,13 @@ public class MaterialController {
                 .data(materialService.getAll())
                 .build();
     }
+    @GetMapping("/getallselecthd")
+    public ApiResponse<List<MaterialResponseSelect>> getAllSelecthd() {
+        return ApiResponse.<List<MaterialResponseSelect>>builder()
+                .message("get all selected hd ")
+                .data(materialService.getAllhd())
+                .build();
+    }
 
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,

@@ -121,6 +121,13 @@ public class ProductController {
                 .data(productService.getAll())
                 .build();
     }
+    @GetMapping("/getallselecthd")
+    public ApiResponse<List<ProductResponseSelect>> getAllSelecthd() {
+        return ApiResponse.<List<ProductResponseSelect>>builder()
+                .message("get all selected hd")
+                .data(productService.getAllhd())
+                .build();
+    }
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
                                        @RequestParam("id") int id
