@@ -1,33 +1,23 @@
 package com.poly.app.infrastructure.exception;
 
 
-import com.poly.app.infrastructure.constant.Message;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.http.HttpStatus;
 
+
+@Getter
+@Setter
 public class RestApiException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+    private final HttpStatus status;
 
-    private String message;
-
-    public RestApiException() {
-    }
-
-    public RestApiException(Message statusCode) {
-        this.message = statusCode.getMessage();
-    }
-
-    public RestApiException(String message) {
-        this.message = message;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
+    public RestApiException(String message, HttpStatus status) {
+        super(message);
+        this.status = status;
     }
 
 }
+
+
 

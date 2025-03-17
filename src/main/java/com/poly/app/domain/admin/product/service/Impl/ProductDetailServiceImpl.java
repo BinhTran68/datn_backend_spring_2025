@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.service.Impl;
 
+import com.poly.app.domain.admin.bill.service.WebSocketService;
 import com.poly.app.domain.admin.product.request.img.ImgRequest;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.response.img.ImgResponse;
@@ -20,13 +21,16 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +60,12 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     ImageRepository imageRepository;
 
     CloundinaryService cloundinaryService;
+
+    WebSocketService webSocketService;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
 
 
     @Override
@@ -229,6 +239,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
         productDetailRepository.save(productDetail);
 
+
+
         //  Tìm danh sách tất cả ProductDetail có cùng productId và colorId
         List<ProductDetail> relatedProductDetails = productDetailRepository
                 .findByProductIdAndColorId(request.getProductId(), request.getColorId());
@@ -253,9 +265,11 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                         .build());
             }
         }
-
+        String message = "Sản phẩm ID: " + productDetail.getId() + " cập nhật số lượng: " + productDetail.getPrice();
         // 🏷 Trả về response
-        return ProductDetailResponse.builder()
+
+
+        ProductDetailResponse productDetailResponse = ProductDetailResponse.builder()
                 .id(productDetail.getId())
                 .code(productDetail.getCode())
                 .productName(productDetail.getProduct().getProductName())
@@ -274,6 +288,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .updateAt(productDetail.getUpdatedAt())
                 .updateBy(productDetail.getUpdatedBy())
                 .build();
+        webSocketService.sendProductUpdate(productDetailResponse);
+        return productDetailResponse;
     }
 
 
@@ -296,8 +312,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 //    }
 
     @Override
-    public List<ProductDetail> getAllProductDetail() {
-        return productDetailRepository.findAll();
+    public List<ProductDetailResponse> getAllProductDetail() {
+        return productDetailRepository.getAllProductDetail();
     }
 
 
@@ -338,6 +354,24 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .image(images)
                 .build();
     }
+    //detail theo tên
+    @Override
+    public List<ProductDetailResponse> getAllProductDetailName(String productName) {
+        List<ProductDetailResponse> productDetails = productDetailRepository.getAllProductDetailByProductName(productName);
+        if (productDetails.isEmpty()) {
+            throw new IllegalArgumentException("Không tìm thấy sản phẩm nào với tên: " + productName);
+        }
+
+        productDetails.forEach(detail -> {
+            List<ImgResponse> images = imageRepository.findByProductDetailId(detail.getId());
+            detail.setImage(images);
+        });
+
+        return productDetails;
+    }
+
+
+    //
 //
 //    @Override
 //    public ProductDetailResponse getProductDetail(int id) {

@@ -18,13 +18,20 @@ public interface ProductDetailService {
     ProductDetailResponse updateProductDetail(ProductDetailRequest request, int id);
 
     //     chua phan trang
-    List<ProductDetail> getAllProductDetail();
+    List<ProductDetailResponse> getAllProductDetail();
 
     String deleteProductDetail(int id);
 
     ProductDetailResponse getProductDetail(int id);
 
     Page<ProductDetailResponse> getAllProductDetailPage(int page, int size);
+
+    //emtu
+        List<ProductDetailResponse> getAllProductDetailName(String productName);
+
+
+
+
 
     //     getall
     List<ProductDetailResponse> getAllProductDetailExportData();

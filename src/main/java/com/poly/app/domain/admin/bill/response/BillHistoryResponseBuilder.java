@@ -20,6 +20,7 @@ public class BillHistoryResponseBuilder  {
     BillStatus status;
     String description;
     Long createdAt;
+    String createdBy;
 
     
 }

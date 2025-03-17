@@ -20,6 +20,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Getter
 @Setter
 @NoArgsConstructor
@@ -44,8 +46,6 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
 
     @Column(columnDefinition = EntityProperties.DEFINITION_NAME)
     private String fullName;
-
-
 
     private LocalDateTime dateBirth;
 
@@ -87,12 +87,11 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-
-        // Kiểm tra role có null không trước khi lấy tên quyền
+        log.info("getAuthorities");
         String roleName = Optional.ofNullable(role)
                 .map(Role::getRoleName)
                 .orElse("ROLE_USER");  // Sử dụng quyền mặc định nếu role là null
-
+        log.warn("roleName: {}", roleName);
         authorities.add(new SimpleGrantedAuthority(roleName));
         return authorities;
     }

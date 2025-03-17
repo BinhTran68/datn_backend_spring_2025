@@ -22,7 +22,6 @@ public class Cart extends PrimaryEntity implements Serializable {
     @JoinColumn(unique = true)
     Customer customerid;
 
-    Integer quantity;
 
 
 }

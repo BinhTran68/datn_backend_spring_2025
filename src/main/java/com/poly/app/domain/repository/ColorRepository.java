@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,4 +28,9 @@ public interface ColorRepository extends JpaRepository<Color, Integer> {
     boolean existsByColorName(String name);
 
     boolean existsByColorNameAndIdNot(String name, Integer id);
+
+    @Query("SELECT DISTINCT new com.poly.app.domain.admin.product.response.color.ColorResponse(s.id,s.code, s.colorName,s.updatedAt,s.status) " +
+           "FROM Color s JOIN ProductDetail pd ON pd.color.id = s.id " +
+           "WHERE pd.product.id = :productId")
+    List<ColorResponse> findColorsByProductId(@Param("productId") int productId);
 }

@@ -23,5 +23,6 @@ public interface CustomerVoucherRepository extends JpaRepository<CustomerVoucher
     void deleteByVoucherId(@Param("voucherId") int voucherId);
 
 
+    List<CustomerVoucher> findCustomerVouchersByCustomerId(Integer customerId);
 
 }
