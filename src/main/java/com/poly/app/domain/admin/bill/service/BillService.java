@@ -38,6 +38,8 @@ public interface BillService {
 
     VoucherReponse updateQuantityVoucher(UpdateQuantityVoucherRequest request);
 
+     List<Map<String, Object>> getBillCountByStatus();
+
 
 
 }

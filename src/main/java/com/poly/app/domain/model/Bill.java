@@ -61,8 +61,6 @@ public class Bill extends PrimaryEntity implements Serializable {
     //    ngày ship
     LocalDateTime shipDate;
 
-
-
     @ManyToOne
     @JoinColumn(name = "shipping_address_id")
     Address shippingAddress;
@@ -79,6 +77,7 @@ public class Bill extends PrimaryEntity implements Serializable {
     String notes;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     BillStatus status;
 
     @ManyToOne

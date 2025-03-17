@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/bill")
@@ -143,5 +144,10 @@ public class BillController {
         return ResponseEntity.ok(billService.updateQuantityVoucher(request));
     }
 
+
+    @GetMapping("/count-by-status")
+    public ResponseEntity<List<Map<String, Object>>> getOrderCountByStatus() {
+        return ResponseEntity.ok(billService.getBillCountByStatus());
+    }
 
 }

@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface ImageRepository extends JpaRepository<Image, Integer> {
 
-    Image getImagesByProductDetailAndIsDefault(ProductDetail productDetail, Boolean isDefault);
+    Image getImagesByProductDetail(ProductDetail productDetail);
 
     @Query("SELECT new com.poly.app.domain.admin.product.response.img.ImgResponse(i.id,i.url,i.publicId) " +
            "FROM Image i WHERE i.productDetail.id = :productDetailId")

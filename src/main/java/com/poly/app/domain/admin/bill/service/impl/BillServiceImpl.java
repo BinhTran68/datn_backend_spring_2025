@@ -10,6 +10,7 @@ import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
+import com.poly.app.domain.admin.staff.response.AddressReponse;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
@@ -59,6 +60,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -115,7 +117,7 @@ public class BillServiceImpl implements BillService {
     ) {
         Sort sort = null;
         if (statusBill == BillStatus.CHO_XAC_NHAN) {
-            sort = Sort.by(Sort.Direction.ASC, "createdAt");
+            sort = Sort.by(Sort.Direction.DESC, "createdAt");
         } else {
             sort = Sort.by(Sort.Direction.DESC, "createdAt");
         }
@@ -435,10 +437,17 @@ public class BillServiceImpl implements BillService {
 
 
     private BillResponse convertBillToBillResponse(Bill bill) {
+        AddressReponse addressReponse;
+        if(bill.getShippingAddress() == null) {
+            addressReponse = null;
+        }else {
+             addressReponse   = new AddressReponse(bill.getShippingAddress());
+        }
+
         return BillResponse.builder()
                 .billCode(bill.getBillCode())
-                .customerName(bill.getCustomer() != null ? bill.getCustomer().getFullName() : "")
-                .customerPhone(bill.getCustomer() != null ? bill.getCustomer().getPhoneNumber() : "")
+                .customerName(bill.getCustomerName())
+                .customerPhone(bill.getNumberPhone())
                 .customerMoney(bill.getCustomerMoney())
                 .discountMoney(bill.getDiscountMoney())
                 .shipMoney(bill.getShipMoney())
@@ -450,9 +459,28 @@ public class BillServiceImpl implements BillService {
                 .desiredDateOfReceipt(bill.getDesiredDateOfReceipt())
                 .shipDate(bill.getShipDate())
                 .address(bill.getShippingAddress())
+                .addressReponse(addressReponse)
                 .email(bill.getEmail())
                 .status(bill.getStatus() != null ? bill.getStatus().toString() : null)
                 .createAt(bill.getCreatedAt())
                 .build();
+    }
+
+    @Override
+    public List<Map<String, Object>> getBillCountByStatus() {
+        List<Object[]> results = billRepository.countOrdersByStatus();
+        List<Map<String, Object>> response = new ArrayList<>();
+        for (Object[] result : results) {
+            BillStatus status = (BillStatus) result[0];
+            Long count = (Long) result[1];
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", status.name());
+            map.put("value", count);
+            response.add(map);
+        }
+        Long countAll = billRepository.count();
+        response.add(Map.of("name", "all", "value", countAll));
+        return response;
     }
 }
