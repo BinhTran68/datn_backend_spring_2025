@@ -7,11 +7,13 @@ import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.CartResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
+import com.poly.app.domain.client.response.RealPriceResponse;
 import com.poly.app.domain.client.response.VoucherBestResponse;
 import com.poly.app.domain.model.Voucher;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClientService {
     Page<ProductViewResponse> getAllProductHadPromotion(int page, int size);
@@ -54,4 +56,8 @@ public interface ClientService {
     Integer subtract(Integer id);
 
     Integer setQuantityCart(Integer id,Integer quantity);
+
+    List <RealPriceResponse> getRealPrice(List<AddCart> addCartList);
+
+    Optional<Object> findAdressDefaulCustomerId(Integer customerId);
 }

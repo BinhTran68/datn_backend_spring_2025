@@ -7,6 +7,7 @@ import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.CartResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
+import com.poly.app.domain.client.response.RealPriceResponse;
 import com.poly.app.domain.client.response.VoucherBestResponse;
 import com.poly.app.domain.client.service.ClientService;
 import com.poly.app.domain.common.ApiResponse;
@@ -257,5 +258,23 @@ public class ClientController {
                 .data(clientService.setQuantityCart(customerId, quantity))
                 .build();
     }
+    @PostMapping("/getrealprice")
+    ApiResponse<List<RealPriceResponse>> getRealPrice(
+            @RequestBody List<AddCart> addCart
+    ) {
+        return ApiResponse.<List<RealPriceResponse>>builder()
+                .message("get real price")
+                .data(clientService.getRealPrice(addCart))
+                .build();
+    }
+    @GetMapping("/getadressdefault")
+    ApiResponse<Object> getAddressDefault(
+            @RequestParam(required = false) Integer customerId
 
+    ) {
+        return ApiResponse.<Object>builder()
+                .message("sửa get addre")
+                .data(clientService.findAdressDefaulCustomerId(customerId))
+                .build();
+    }
 }

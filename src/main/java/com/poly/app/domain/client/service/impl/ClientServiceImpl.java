@@ -10,6 +10,7 @@ import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.CartResponse;
 import com.poly.app.domain.client.response.ProductViewResponse;
+import com.poly.app.domain.client.response.RealPriceResponse;
 import com.poly.app.domain.client.response.VoucherBestResponse;
 import com.poly.app.domain.client.service.ClientService;
 import com.poly.app.domain.client.service.ZaloPayService;
@@ -29,8 +30,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -132,17 +135,34 @@ public class ClientServiceImpl implements ClientService {
             voucher = voucherRepository.findById(request.getVoucherId()).orElse(null);
         }
         Address address = null;
-        if (request.getShippingAddressId() != null) {
-            address = addressRepository.findById(request.getShippingAddressId()).orElseThrow(()
-                    -> new ApiException(ErrorCode.HOA_DON_NOT_FOUND));
-        }
-        if (request.getAddress() != null && address == null) {
+        if (request.getDetailAddressShipping() != null && customer != null) {
+            Address address1 = addressRepository.findByCustomerIdAndProvinceIdAndDistrictIdAndWardIdAndSpecificAddress
+                    (customer.getId(),
+                            request.getDetailAddressShipping().getProvinceId(),
+                            request.getDetailAddressShipping().getDistrictId(),
+                            request.getDetailAddressShipping().getWardId(),
+                            request.getDetailAddressShipping().getSpecificAddress());
+            if (address1==null) {
+                Address newAddress = Address
+                        .builder()
+                        .wardId(request.getDetailAddressShipping().getWardId())
+                        .specificAddress(request.getDetailAddressShipping().getSpecificAddress())
+                        .provinceId(request.getDetailAddressShipping().getProvinceId())
+                        .districtId(request.getDetailAddressShipping().getDistrictId())
+                        .customer(customer)
+                        .build();
+                address = addressRepository.save(newAddress);
+            }else{
+                address = address1;
+            }
+
+        }else{
             Address newAddress = Address
                     .builder()
-                    .wardId(request.getAddress().getWardId())
-                    .specificAddress(request.getAddress().getSpecificAddress())
-                    .provinceId(request.getAddress().getProvinceId())
-                    .districtId(request.getAddress().getDistrictId())
+                    .wardId(request.getDetailAddressShipping().getWardId())
+                    .specificAddress(request.getDetailAddressShipping().getSpecificAddress())
+                    .provinceId(request.getDetailAddressShipping().getProvinceId())
+                    .districtId(request.getDetailAddressShipping().getDistrictId())
                     .customer(customer)
                     .build();
             address = addressRepository.save(newAddress);
@@ -189,7 +209,7 @@ public class ClientServiceImpl implements ClientService {
             }
         }
 //nếu có customer thì xóa sản phẩm đó khỏi giỏ hàng
-        if (request.getCustomerId()!=null) {
+        if (request.getCustomerId() != null) {
             List<CartResponse> cartResponses = cartDetailRepository.getAllByCustomerIdNoPage(request.getCustomerId());
 //            tìm kiếm xem có productDetailId của  mảng request.getBillDetailRequests() có trong cartResponses không nếu có thì delete cartResponse đó
 //            for (CartResponse i: cartResponses
@@ -364,10 +384,11 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Integer subtract(Integer id) {
         CartDetail cartDetail = cartDetailRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
-        cartDetail.setQuantity(cartDetail.getQuantity()>0?cartDetail.getQuantity() - 1:0);
+        cartDetail.setQuantity(cartDetail.getQuantity() > 0 ? cartDetail.getQuantity() - 1 : 0);
         cartDetailRepository.save(cartDetail);
 
-        return cartDetail.getQuantity();    }
+        return cartDetail.getQuantity();
+    }
 
     @Override
     public Integer setQuantityCart(Integer id, Integer quantity) {
@@ -375,7 +396,39 @@ public class ClientServiceImpl implements ClientService {
         cartDetail.setQuantity(quantity);
         cartDetailRepository.save(cartDetail);
 
-        return cartDetail.getQuantity();    }
+        return cartDetail.getQuantity();
+    }
+
+    @Override
+    public List<RealPriceResponse> getRealPrice(List<AddCart> addCartList) {
+        List<RealPriceResponse> realPriceResponses = new ArrayList<>();
+
+        for (AddCart i : addCartList) {
+            ProductDetail productDetail = productDetailRepository.findById(i.getProductDetailId())
+                    .orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
+
+            if (productDetail != null) {
+                RealPriceResponse response = RealPriceResponse.builder()
+                        .cartDetailId(null)
+                        .productDetailId(i.getProductDetailId())
+                        .productName(productDetail.getProduct().getProductName())
+                        .price(productDetail.getPrice())
+                        .quantityAddCart(i.getQuantityAddCart())
+                        .note(null)
+                        .build();
+
+                realPriceResponses.add(response);
+            }
+        }
+
+        return realPriceResponses;
+    }
+
+    @Override
+    public Optional<Object> findAdressDefaulCustomerId(Integer customerId) {
+        Object o = addressRepository.findByCustomerIdAndIsAddressDefault(customerId, true);
+        return Optional.of(o);
+    }
 
 
 }
