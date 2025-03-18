@@ -246,6 +246,10 @@ public class BillServiceImpl implements BillService {
         Voucher voucher = null;
         if (request.getVoucherId() != null) {
             voucher = voucherRepository.findById(request.getVoucherId()).orElse(null);
+            if (voucher != null) {
+                voucher.setQuantity(voucher.getQuantity() - 1);
+                voucherRepository.save(voucher);
+            }
         }
         Address address = null;
         if (request.getShippingAddressId() != null) {
@@ -333,6 +337,8 @@ public class BillServiceImpl implements BillService {
             savePaymentBill(billSave, bankPayment);
         }
         handleSaveBillHistory(billSave, customer, staffAuth, request, customerAuth);
+
+
         return convertBillToBillResponse(billSave);
     }
 
@@ -500,4 +506,5 @@ public class BillServiceImpl implements BillService {
         response.add(Map.of("name", "all", "value", countAll));
         return response;
     }
+
 }
