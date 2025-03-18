@@ -42,15 +42,21 @@ public class Bill extends PrimaryEntity implements Serializable {
 
     Double customerMoney;
 
+    // Tiền giảm giá
     Double discountMoney;
 
+    // Tiền ship
     Double shipMoney;
 
-    //    tổng tiền
-    Double totalMoney;
+    // Tiền sau giảm giá
+    Double totalMoney; // Tổng
 
+    // Tiền sau giảm giá
     Double moneyAfter;
-//    laoi
+
+    // Tiền trước áp phiếu giảm
+    Double moneyBeforeDiscount;
+
 
     //nagyf hoàn thành
     LocalDateTime completeDate;
