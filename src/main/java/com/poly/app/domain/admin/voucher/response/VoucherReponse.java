@@ -1,10 +1,9 @@
 package com.poly.app.domain.admin.voucher.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.poly.app.domain.model.StatusVoucher;
+import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.infrastructure.constant.DiscountType;
-import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.constant.VoucherType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,7 +30,7 @@ public class VoucherReponse {
     LocalDateTime startDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime endDate;
-    StatusVoucher statusVoucher;
+    StatusEnum statusVoucher;
     String discountValueType;
     DiscountType discountType;
     List<Integer> customerIds;

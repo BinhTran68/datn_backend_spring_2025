@@ -5,7 +5,7 @@ import com.poly.app.domain.admin.promotion.response.ApiResponse;
 import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.admin.promotion.service.PromotionService;
 import com.poly.app.domain.model.Promotion;
-import com.poly.app.domain.repository.PromotionRepository;
+import com.poly.app.domain.model.StatusEnum;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,7 +70,7 @@ public class PromotionController {
     @GetMapping("/page")
     public ApiResponse<Page<PromotionResponse>> phanTrang(@RequestParam(value = "page") Integer page,
                                                                        @RequestParam(value = "size") Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("createdAt")));
         Page<PromotionResponse> list = promotionService.getAllPromotion(pageable);
         return ApiResponse.<Page<PromotionResponse>>builder()
                 .message("")
@@ -77,16 +78,16 @@ public class PromotionController {
                 .build();
     }
 
-    @GetMapping("/search")
-    public ApiResponse<List<PromotionResponse>> searchPromotions(
-            @RequestParam(value = "promotionCode", required = false) String promotionCode,
-            @RequestParam(value = "promotionName", required = false) String promotionName,
-            @RequestParam(value = "promotionType", required = false) String promotionType,
-            @RequestParam(value = "status", required = false) String status) {
-        List<PromotionResponse> results = promotionService.searchPromotions(promotionCode, promotionName, promotionType, status);
-        return ApiResponse.<List<PromotionResponse>>builder()
-                .message("Search results")
-                .data(results)
+    @GetMapping("/switchStatus")
+    public com.poly.app.domain.admin.voucher.response.ApiResponse<String> switchStatus(@RequestParam(value = "id") Integer id,
+                                                                                       @RequestParam(value = "status")
+                                                                                               StatusEnum status
+    ) {
+        promotionService.switchStatus(id, status);
+
+        return com.poly.app.domain.admin.voucher.response.ApiResponse.<String>builder()
+                .message("")
+                .data(promotionService.switchStatus(id, status))
                 .build();
     }
 

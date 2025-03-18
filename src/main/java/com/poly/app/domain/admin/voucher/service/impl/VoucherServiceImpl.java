@@ -2,15 +2,13 @@ package com.poly.app.domain.admin.voucher.service.impl;
 
 import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
-import com.poly.app.domain.admin.voucher.response.VoucherResponse;
 import com.poly.app.domain.admin.voucher.service.VoucherService;
 import com.poly.app.domain.auth.request.RegisterRequest;
 import com.poly.app.domain.model.Customer;
-import com.poly.app.domain.admin.customer.service.impl.CustomerServiceImpl;
 import com.poly.app.domain.admin.customer.service.CustomerService;
 
 import com.poly.app.domain.model.CustomerVoucher;
-import com.poly.app.domain.model.StatusVoucher;
+import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.domain.repository.CustomerVoucherRepository;
 import com.poly.app.domain.repository.VoucherRepository;
@@ -48,22 +46,22 @@ public class VoucherServiceImpl implements VoucherService {
                 .map(voucher -> VoucherReponse.formEntity(voucher)).toList();
     }
 
-    public StatusVoucher checkVoucherStatus(LocalDateTime startDate, LocalDateTime endDate) {
+    public StatusEnum checkVoucherStatus(LocalDateTime startDate, LocalDateTime endDate) {
         LocalDateTime currentDate = LocalDateTime.now(); // Lấy thời gian hiện tại
 
         if (currentDate.isBefore(startDate)) {
-            return StatusVoucher.chua_kich_hoat; // Chưa kích hoạt
+            return StatusEnum.chua_kich_hoat; // Chưa kích hoạt
         } else if (currentDate.isAfter(endDate)) {
-            return StatusVoucher.ngung_kich_hoat; // Đã ngừng kích hoạt
+            return StatusEnum.ngung_kich_hoat; // Đã ngừng kích hoạt
         } else {
-            return StatusVoucher.dang_kich_hoat; // Đang kích hoạt
+            return StatusEnum.dang_kich_hoat; // Đang kích hoạt
         }
     }
 
     @Override
     public Voucher createVoucher(VoucherRequest request) {
 
-        StatusVoucher saStatusVoucher = checkVoucherStatus(request.getStartDate(), request.getEndDate());
+        StatusEnum saStatusVoucher = checkVoucherStatus(request.getStartDate(), request.getEndDate());
         // Sinh mã voucher tự động (định nghĩa logic trong createVoucher)
         String generatedVoucherCode = "MGG" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
@@ -350,31 +348,7 @@ public class VoucherServiceImpl implements VoucherService {
                 "\n" +
                 "</body>\n" +
                 "</html>\n");
-        //        if (request.getLoaivoucher()!=null) {
-//
-//
-//            if (request.getLoaivoucher() == 1) {
-//                for (String lkh : request.getGmailkh()
-//                ) {
-//                    Email email = new Email();
-//                    String[] emailSend = {lkh};
-//                    email.setToEmail(emailSend);
-//                    email.setSubject("Tạo tài khoản thành công");
-//                    email.setTitleEmail("");
-//                    email.setBody("<!DOCTYPE html>\n" +
-//                            "<html lang=\"en\">\n" +
-//                            "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; margin: 50px;\">\n" +
-//                            "\n" +
-//                            "    <div class=\"success-message\" style=\"background-color: #FFFFF; color: black; padding: 20px; border-radius: 10px; margin-top: 50px;\">\n" +
-//                            "        <h2 style=\"color: #333;\">Chúng tôi tặng bạn 1 phiếu giảm giá</h2>\n" +
-//                            "        <p style=\"color: #555;\">Cảm ơn bạn đã mua hàng tại TheHands. Dưới đây là thông tin phiếu giảm giá của bạn của bạn:</p>\n" +
-//                            "        <p><strong>Min:</strong> " + lkh + "</p>\n" +
-//                            "        <p><strong>Max:</strong> " + lkh + "</p>\n" +
-//                            "        <p style=\"color: #555;\">Đăng nhập ngay để trải nghiệm!</p>\n" +
-//                            "    </div>\n" +
-//                            "\n" +
-//                            "</body>\n" +
-//                            "</html>\n");
+
 
 
         emailSender.sendEmail(email);
@@ -382,18 +356,18 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public String switchStatus(Integer id, StatusVoucher status) {
+    public String switchStatus(Integer id, StatusEnum status) {
         LocalDateTime currentDate = LocalDateTime.now(); // Lấy thời gian hiện tại
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("ID không tồn tại"));
 
-        if (status == StatusVoucher.ngung_kich_hoat) {
-            voucher.setStatusVoucher(StatusVoucher.ngung_kich_hoat);
+        if (status == StatusEnum.ngung_kich_hoat) {
+            voucher.setStatusVoucher(StatusEnum.ngung_kich_hoat);
             voucher.setEndDate(currentDate);
             voucherRepository.save(voucher);
             return "ngung_kich_hoat";
         } else {
-            voucher.setStatusVoucher(StatusVoucher.dang_kich_hoat);
+            voucher.setStatusVoucher(StatusEnum.dang_kich_hoat);
             voucher.setStartDate(currentDate);
             voucherRepository.save(voucher);
             return "dang_kich_hoat";

@@ -1,28 +1,25 @@
 package com.poly.app.domain.admin.voucher.controller;
 
 
-import com.cloudinary.Api;
 import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.ApiResponse;
-import com.poly.app.domain.admin.voucher.response.VoucherResponse;
 import com.poly.app.domain.admin.voucher.service.VoucherService;
-import com.poly.app.domain.model.StatusVoucher;
+import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.domain.repository.VoucherRepository;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
-import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.constant.VoucherType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -110,7 +107,7 @@ public class VoucherController {
     @GetMapping("/switchStatus")
     public ApiResponse<String> switchStatus(@RequestParam(value = "id") Integer id,
                                             @RequestParam(value = "status")
-                                                    StatusVoucher status
+                                                    StatusEnum status
     ) {
         voucherService.switchStatus(id, status);
 
@@ -119,17 +116,4 @@ public class VoucherController {
                 .data(voucherService.switchStatus(id, status))
                 .build();
     }
-//    @GetMapping("/search")
-//    public ApiResponse<Page<VoucherReponse>> searchVouchers(@RequestParam String keyword,
-//                                                            @RequestParam(value = "page", defaultValue = "0") int page,
-//                                                            @RequestParam(value = "size", defaultValue = "10") int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        Page<VoucherReponse> searchResults = voucherService.searchVouchers(keyword, pageable);
-//        return ApiResponse.<Page<VoucherReponse>>builder()
-//                .message("Search results")
-//                .data(searchResults)
-//                .build();
-//    }
-//}
-
 }

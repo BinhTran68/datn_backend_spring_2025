@@ -2,20 +2,16 @@ package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
 import com.poly.app.infrastructure.constant.DiscountType;
-import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.constant.VoucherType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -50,6 +46,6 @@ public class Voucher extends PrimaryEntity implements Serializable {
     LocalDateTime endDate;
 //    Status status;
    @Enumerated(EnumType.STRING)
-    StatusVoucher statusVoucher;
+StatusEnum statusVoucher;
 
 }

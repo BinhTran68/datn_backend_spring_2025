@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.promotion.request;
 
-import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.domain.model.StatusEnum;
+import com.poly.app.infrastructure.constant.DiscountType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -22,13 +23,15 @@ public class PromotionRequest {
     String promotionType;
     // giá trị giảm
     Double discountValue;
+    DiscountType discountType;
     Integer quantity;
     // ngày bắt đầu
     LocalDateTime startDate;
     // ngày kết thúc
     LocalDateTime endDate;
     // trạng thái
-    Status status;
-
+    StatusEnum statusPromotion;
     List<Integer> productIds;
+    List<Integer> productDetailIds;
+
 }

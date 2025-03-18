@@ -242,21 +242,7 @@ public class StatisticalController {
                     .build();
         }
     }
-//    @GetMapping("/Y")
-//    public ApiResponseList<Map<String, Object>> getSS() {
-//        try {
-//            List<Object[]> data = repo.getSSProductYear();
-//            return ApiResponse.List<Map<String, Object>>builder()
-//                    .data(data)
-//                    .message(data.isEmpty() ? "Không có dữ liệu" : "Lấy dữ liệu thành công")
-//                    .build();
-//        } catch (Exception e) {
-//            return ApiResponse.List<Map<String, Object>>builder()
-//                    .data(null)
-//                    .message("Lỗi khi lấy dữ liệu: " + e.getMessage())
-//                    .build();
-//        }
-//    }
+
 }
 
 

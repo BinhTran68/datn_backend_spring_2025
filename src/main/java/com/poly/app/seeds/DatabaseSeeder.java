@@ -1,7 +1,6 @@
 package com.poly.app.seeds;
 
 
-import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Announcement;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillDetail;
@@ -19,7 +18,7 @@ import com.poly.app.domain.model.Role;
 import com.poly.app.domain.model.Size;
 import com.poly.app.domain.model.Sole;
 import com.poly.app.domain.model.Staff;
-import com.poly.app.domain.model.StatusVoucher;
+import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.domain.model.Type;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.infrastructure.constant.AccountStatus;
@@ -732,7 +731,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Voucher voucher1 = Voucher.builder()
                 .voucherCode("VOUCHER10")
-                .statusVoucher(StatusVoucher.dang_kich_hoat)
+                .statusVoucher(StatusEnum.dang_kich_hoat)
                 .voucherType(VoucherType.PUBLIC)
                 .discountType(DiscountType.MONEY)
                 .discountValue(10.0) // Giảm 10%
@@ -744,7 +743,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Voucher voucher2 = Voucher.builder()
                 .voucherCode("VOUCHER200")
-                .statusVoucher(StatusVoucher.dang_kich_hoat)
+                .statusVoucher(StatusEnum.dang_kich_hoat)
                 .voucherType(VoucherType.PUBLIC)
                 .discountType(DiscountType.MONEY)
                 .discountValue(200000.0) // Giảm 200.000đ
