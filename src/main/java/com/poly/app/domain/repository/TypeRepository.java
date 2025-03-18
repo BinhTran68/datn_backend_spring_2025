@@ -26,4 +26,6 @@ public interface TypeRepository extends JpaRepository<Type,Integer> {
     boolean existsByTypeNameAndIdNot(String name, Integer id);
     @Query(value = "select new com.poly.app.domain.admin.product.response.type.TypeResponseSelect(b.id,b.typeName,b.status) from Type b order by b.createdAt desc ")
     List<TypeResponseSelect> dataSelect();
+    @Query(value = "select new com.poly.app.domain.admin.product.response.type.TypeResponseSelect(b.id,b.typeName,b.status) from Type b where b.status = 0 order by b.createdAt desc ")
+    List<TypeResponseSelect> dataSelecthd();
 }

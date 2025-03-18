@@ -30,6 +30,7 @@ public interface TypeService {
      boolean existsByTypeNameAndIdNot (String typeName, Integer id);
 
      List<TypeResponseSelect> getAll();
+     List<TypeResponseSelect> getAllhd();
      String switchStatus(Integer id, Status status);
 
 }

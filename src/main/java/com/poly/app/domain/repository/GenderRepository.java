@@ -24,4 +24,6 @@ public interface GenderRepository extends JpaRepository<Gender, Integer> {
     boolean existsByGenderNameAndIdNot(String name, Integer id);
     @Query(value = "select new com.poly.app.domain.admin.product.response.gender.GenderResponseSelect(b.id,b.genderName,b.status) from Gender b order by b.createdAt desc ")
     List<GenderResponseSelect> dataSelect();
+    @Query(value = "select new com.poly.app.domain.admin.product.response.gender.GenderResponseSelect(b.id,b.genderName,b.status) from Gender b where b.status=0 order by b.createdAt desc ")
+    List<GenderResponseSelect> dataSelecthd();
 }

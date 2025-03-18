@@ -101,6 +101,13 @@ public class GenderController {
                 .data(genderService.getAll())
                 .build();
     }
+    @GetMapping("/getallselecthd")
+    public ApiResponse<List<GenderResponseSelect>> getAllSelecthd() {
+        return ApiResponse.<List<GenderResponseSelect>>builder()
+                .message("get all selected hd")
+                .data(genderService.getAllhd())
+                .build();
+    }
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
                                        @RequestParam("id") int id

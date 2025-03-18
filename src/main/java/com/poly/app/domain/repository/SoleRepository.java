@@ -26,4 +26,6 @@ public interface SoleRepository extends JpaRepository<Sole,Integer> {
     boolean existsBySoleNameAndIdNot(String name, Integer id);
     @Query(value = "select new com.poly.app.domain.admin.product.response.sole.SoleResponseSelect(b.id,b.soleName,b.status) from Sole b order by b.createdAt desc ")
     List<SoleResponseSelect> dataSelect();
+    @Query(value = "select new com.poly.app.domain.admin.product.response.sole.SoleResponseSelect(b.id,b.soleName,b.status) from Sole b where  b.status = 0 order by b.createdAt desc ")
+    List<SoleResponseSelect> dataSelecthd();
 }

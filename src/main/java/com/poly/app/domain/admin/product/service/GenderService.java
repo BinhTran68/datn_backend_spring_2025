@@ -24,6 +24,7 @@ public interface GenderService {
 
      boolean existsByGenderNameAndIdNot (String brandName, Integer id);
      List<GenderResponseSelect> getAll();
+     List<GenderResponseSelect> getAllhd();
      String switchStatus(Integer id, Status status);
 
 }

@@ -116,6 +116,13 @@ public class TypeController {
                 .data(typeService.getAll())
                 .build();
     }
+    @GetMapping("/getallselecthd")
+    public ApiResponse<List<TypeResponseSelect>> getAllSelecthd() {
+        return ApiResponse.<List<TypeResponseSelect>>builder()
+                .message("get all selected hd")
+                .data(typeService.getAllhd())
+                .build();
+    }
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
                                        @RequestParam("id") int id

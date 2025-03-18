@@ -2,7 +2,6 @@ package com.poly.app.domain.admin.product.controller;
 
 import com.poly.app.domain.admin.product.response.product.IProductResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
-import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.service.ProductListService;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.common.Meta;
@@ -24,7 +23,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("api/admin/product")
@@ -54,7 +52,7 @@ public class ProductController {
 
     @GetMapping()
     public ApiResponse<List<IProductResponse>> getAllProduct(@RequestParam(value = "page", defaultValue = "1") int page,
-                                                             @RequestParam(value = "size", defaultValue = "5") int product
+                                                      @RequestParam(value = "size", defaultValue = "5") int product
     ) {
 
         Page<IProductResponse> page1 = productService.getAllProduct(page - 1, product);
@@ -68,7 +66,6 @@ public class ProductController {
                         .build())
                 .build();
     }
-
     @GetMapping("{id}")
     public ApiResponse<ProductResponse> getProduct(@PathVariable int id) {
         return ApiResponse.<ProductResponse>builder()
@@ -79,8 +76,8 @@ public class ProductController {
 
     @GetMapping("/search")
     public ApiResponse<List<IProductResponse>> getProduct(@RequestParam("name") String name,
-                                                          @RequestParam(value = "page", defaultValue = "1") int page,
-                                                          @RequestParam(value = "size", defaultValue = "5") int product) {
+                                                   @RequestParam(value = "page", defaultValue = "1") int page,
+                                                   @RequestParam(value = "size", defaultValue = "5") int product) {
 
         Page<IProductResponse> page1 = productService.fillbyProductName(page - 1, product, name);
         return ApiResponse.<List<IProductResponse>>builder()
@@ -117,7 +114,6 @@ public class ProductController {
                 .data(productService.existsByProductNameAndIdNot(productName, id))
                 .build();
     }
-
     @GetMapping("/getallselect")
     public ApiResponse<List<ProductResponseSelect>> getAllSelect() {
         return ApiResponse.<List<ProductResponseSelect>>builder()
@@ -125,14 +121,20 @@ public class ProductController {
                 .data(productService.getAll())
                 .build();
     }
-
+    @GetMapping("/getallselecthd")
+    public ApiResponse<List<ProductResponseSelect>> getAllSelecthd() {
+        return ApiResponse.<List<ProductResponseSelect>>builder()
+                .message("get all selected hd")
+                .data(productService.getAllhd())
+                .build();
+    }
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
                                        @RequestParam("id") int id
     ) {
         return ApiResponse.<String>builder()
                 .message("get all selected")
-                .data(productService.switchStatus(id, status))
+                .data(productService.switchStatus(id,status))
                 .build();
     }
 
@@ -146,8 +148,6 @@ public class ProductController {
                 .data(productListService.getAllIn())
                 .build();
     }
-
-    //em tú
     @GetMapping("/page")
     public ApiResponse<Page<ProductResponse>> phanTrang(@RequestParam(value = "page") Integer page,
                                                         @RequestParam(value = "size") Integer size
@@ -160,21 +160,5 @@ public class ProductController {
                 .build();
     }
 
-    @GetMapping("/searchNameProduct/{productName}")
-    public ApiResponse<List<Map<String, Object>>> getAllProductName(@PathVariable String productName) {
-        return ApiResponse.<List<Map<String, Object>>>builder()
-                .message("Lấy thông tin chi tiết sản phẩm theo tên")
-                .data(productListService.searchProduct(productName))
-                .build();
-    }
-    @GetMapping("/searchQuantityProduct/{minQuantity}")
-    public ApiResponse<List<Map<String, Object>>> searchProduct(@PathVariable String minQuantity) {
-        return ApiResponse.<List<Map<String, Object>>>builder()
-                .message("Tìm kiếm sản phẩm theo số lượng")
-                .data(productListService.searchProduct(minQuantity))
-                .build();
-    }
-
-        //làmem tú hết làm
-
+    //
 }

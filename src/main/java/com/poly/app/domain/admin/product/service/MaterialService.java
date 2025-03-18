@@ -24,6 +24,7 @@ public interface MaterialService {
 
      boolean existsByMaterialNameAndIdNot (String brandName, Integer id);
      List<MaterialResponseSelect> getAll();
+     List<MaterialResponseSelect> getAllhd();
      String switchStatus(Integer id, Status status);
 
 }

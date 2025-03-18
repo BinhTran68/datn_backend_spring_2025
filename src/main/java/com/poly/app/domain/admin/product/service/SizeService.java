@@ -29,6 +29,8 @@ public interface SizeService {
 
      boolean existsBySizeNameAndIdNot (String sizeName, Integer id);
      List<SizeResponseSelect> getAll();
+     List<SizeResponseSelect> getAllhd();
+
      String switchStatus(Integer id, Status status);
 
 }

@@ -31,7 +31,7 @@ public class CreateBillClientRequest {
     Integer voucherId;
     String recipientName;
     String recipientPhoneNumber;
-    AddressRequest address;
+    AddressRequest detailAddressShipping;
     List<BillDetailRequest> billDetailRequests;
     //     pay
     PaymentMethodsType paymentMethodsType;

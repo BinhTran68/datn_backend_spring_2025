@@ -116,6 +116,13 @@ public class SizeController {
                 .data(sizeService.getAll())
                 .build();
     }
+    @GetMapping("/getallselecthd")
+    public ApiResponse<List<SizeResponseSelect>> getAllSelecthd() {
+        return ApiResponse.<List<SizeResponseSelect>>builder()
+                .message("get alhdl selected hd")
+                .data(sizeService.getAllhd())
+                .build();
+    }
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
                                        @RequestParam("id") int id

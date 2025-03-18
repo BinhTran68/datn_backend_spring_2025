@@ -124,6 +124,13 @@ public class SoleServiceImpl implements SoleService {
     public List<SoleResponseSelect> getAll() {
         return soleRepository.dataSelect();
     }
+
+    @Override
+    public List<SoleResponseSelect> getAllhd() {
+        return soleRepository.dataSelecthd();
+
+    }
+
     @Override
     public String switchStatus(Integer id, Status status) {
         Sole brand = soleRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));

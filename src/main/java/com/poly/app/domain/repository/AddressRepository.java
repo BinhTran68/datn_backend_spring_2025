@@ -13,4 +13,10 @@ public interface AddressRepository extends JpaRepository<Address,Integer> {
 
 
     Optional<Object> findByCustomerIdAndIsAddressDefault(Integer id, boolean b);
+
+
+    Address findByCustomerIdAndProvinceIdAndDistrictIdAndWardIdAndSpecificAddress
+            (Integer id,String province, String district, String ward, String spaci);
+
+
 }

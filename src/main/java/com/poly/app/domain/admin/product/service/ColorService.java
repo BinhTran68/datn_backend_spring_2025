@@ -24,6 +24,8 @@ public interface ColorService {
 
      boolean existsByColorNameAndIdNot (String brandName, Integer id);
      List<ColorResponseSelect> getAll();
+     List<ColorResponseSelect> getAllHD();
+
      String switchStatus(Integer id, Status status);
 
 }

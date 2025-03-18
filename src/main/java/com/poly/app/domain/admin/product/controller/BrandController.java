@@ -119,6 +119,13 @@ public class BrandController {
                 .data(brandService.getAll())
                 .build();
     }
+    @GetMapping("/getallselecthd")
+    public ApiResponse<List<BrandResponseSelect>> getAllSelecthd() {
+        return ApiResponse.<List<BrandResponseSelect>>builder()
+                .message("get all selected hd")
+                .data(brandService.getAllHD())
+                .build();
+    }
 
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
