@@ -287,7 +287,11 @@ public class BillServiceImpl implements BillService {
 
         // Trường hợp người dùng ship
         if (request.getIsShipping()) {
-            bill.setStatus(BillStatus.CHO_VAN_CHUYEN);
+            if(request.getIsCOD()) {
+                bill.setStatus(BillStatus.CHO_XAC_NHAN);
+            }else {
+                bill.setStatus(BillStatus.CHO_VAN_CHUYEN);
+            }
         } else {
             bill.setStatus(BillStatus.DA_HOAN_THANH);
         }
@@ -339,7 +343,20 @@ public class BillServiceImpl implements BillService {
                                        Customer customerAuth
     ) {
         // TH 1 Đặt hàng online
-        // TH 2 MUA HÀNG TAẠI QUẦY
+        // TH 2 MUA HÀNG TẠI QUẦY
+        if (request.getIsCOD()) {
+            BillHistory billHistory = BillHistory
+                    .builder()
+                    .customer(customer)
+                    .staff(staff)
+                    .bill(billSave)
+                    .status(BillStatus.CHO_XAC_NHAN)
+                    .build();
+
+            billHistoryRepository.save(billHistory);
+            return;
+        }
+
         BillHistory billHistory_1 = BillHistory
                 .builder()
                 .customer(customer)

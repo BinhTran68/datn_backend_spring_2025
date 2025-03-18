@@ -42,7 +42,7 @@ public class CreateBillRequest {
     private AddressRequest address;
     private List<BillDetailRequest> billDetailRequests;
     private String transactionCode;
-
+    private Boolean isCOD;
 }
 
 
