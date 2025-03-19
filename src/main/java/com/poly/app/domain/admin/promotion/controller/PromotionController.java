@@ -14,8 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -91,4 +93,44 @@ public class PromotionController {
                 .build();
     }
 
+
+    // 🔍 Tìm kiếm theo tên chương trình khuyến mãi
+    @GetMapping("/search/byName")
+    public ApiResponse<List<PromotionResponse>> searchPromotionByName(@RequestParam String promotionName) {
+        return ApiResponse.<List<PromotionResponse>>builder()
+                .message("Search results by promotion name")
+                .data(promotionService.searchPromotionByName(promotionName))
+                .build();
+    }
+
+    // 🔍 Tìm kiếm theo khoảng giá trị giảm giá
+    @GetMapping("/search/byDiscountRange")
+    public ApiResponse<List<PromotionResponse>> searchPromotionByDiscountRange(
+            @RequestParam Double minDiscount,
+            @RequestParam Double maxDiscount) {
+        return ApiResponse.<List<PromotionResponse>>builder()
+                .message("Search results by discount value range")
+                .data(promotionService.searchPromotionByDiscountRange(minDiscount, maxDiscount))
+                .build();
+    }
+
+    // 🔍 Tìm kiếm theo trạng thái khuyến mãi
+    @GetMapping("/search/byStatus")
+    public ApiResponse<List<PromotionResponse>> searchPromotionByStatus(@RequestParam StatusEnum statusPromotion) {
+        return ApiResponse.<List<PromotionResponse>>builder()
+                .message("Search results by status")
+                .data(promotionService.searchPromotionByStatus(statusPromotion))
+                .build();
+    }
+
+    // 🔍 Tìm kiếm theo khoảng thời gian bắt đầu và kết thúc
+    @GetMapping("/search/byEndDateRange")
+    public ApiResponse<List<PromotionResponse>> searchPromotionByEndDateRange(
+            @RequestParam LocalDateTime startDate,
+            @RequestParam LocalDateTime endDate) {
+        return ApiResponse.<List<PromotionResponse>>builder()
+                .message("Search results by end date range")
+                .data(promotionService.searchPromotionByEndDateRange(startDate, endDate))
+                .build();
+    }
 }

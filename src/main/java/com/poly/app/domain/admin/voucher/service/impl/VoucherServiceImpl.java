@@ -12,6 +12,7 @@ import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.domain.repository.CustomerVoucherRepository;
 import com.poly.app.domain.repository.VoucherRepository;
+import com.poly.app.infrastructure.constant.DiscountType;
 import com.poly.app.infrastructure.constant.VoucherType;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
@@ -20,12 +21,19 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -381,6 +389,129 @@ public class VoucherServiceImpl implements VoucherService {
         return List.of();
     }
 
+    // Tìm voucher theo tên
+    @Override
+    public List<VoucherReponse> searchVoucherByName(String voucherName) {
+        return voucherRepository.findByVoucherNameContainingIgnoreCase(voucherName)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public List<VoucherReponse> searchVoucherByStatus(StatusEnum statusVoucher) {
+        return voucherRepository.findByStatusVoucher(statusVoucher)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo số lượng
+    @Override
+    public List<VoucherReponse> searchVoucherByQuantity(Integer quantity) {
+        return voucherRepository.findByQuantity(quantity)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo loại
+    @Override
+    public List<VoucherReponse> searchVoucherByType(VoucherType voucherType) {
+        return voucherRepository.findByVoucherType(voucherType)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo khoảng giá trị giảm tối đa
+    @Override
+    public List<VoucherReponse> searchVoucherByDiscountMaxRange(Double minDiscount, Double maxDiscount) {
+        return voucherRepository.findByDiscountMaxValueBetween(minDiscount, maxDiscount)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo khoảng giá trị hóa đơn tối thiểu
+    @Override
+    public List<VoucherReponse> searchVoucherByBillMinRange(Double minBill, Double maxBill) {
+        return voucherRepository.findByBillMinValueBetween(minBill, maxBill)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+
+    // 🔍 Tìm voucher theo khoảng ngày bắt đầu và kết thúc
+    @Override
+    public List<VoucherReponse> searchVoucherByStartDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return voucherRepository.findByStartDateBetween(startDate, endDate)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherReponse> getPageVoucher(int size, int page, StatusEnum statusVoucher, String search, String startDate, String endDate, VoucherType voucherType, DiscountType discountType) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Specification<Voucher> spec = Specification.where(null);
+
+        // Lọc theo trạng thái voucher
+        if (statusVoucher != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("statusVoucher"), statusVoucher));
+        }
+
+        // Lọc theo loại voucher
+        if (voucherType != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("voucherType"), voucherType));
+        }
+
+        // Lọc theo loại giảm giá
+        if (discountType != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("discountType"), discountType));
+        }
+
+        // Tìm kiếm theo mã hoặc tên voucher
+        if (search != null && !search.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.or(
+                            criteriaBuilder.like(root.get("voucherCode"), "%" + search + "%"),
+                            criteriaBuilder.like(root.get("voucherName"), "%" + search + "%")
+                    ));
+        }
+
+        // Lọc theo ngày bắt đầu
+        if (startDate != null && !startDate.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"),
+                            parseDateTime(startDate)));
+        }
+
+        // Lọc theo ngày kết thúc
+        if (endDate != null && !endDate.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("endDate"),
+                            parseDateTime(endDate))
+            );
+        }
+
+        Page<Voucher> voucherPage = voucherRepository.findAll(spec, pageable);
+        List<VoucherReponse> voucherResponses = voucherPage.getContent().stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(voucherResponses, pageable, voucherPage.getTotalElements());
+    }
+
+    private  LocalDateTime parseDateTime(String dateTime) {
+        return LocalDate.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                .atStartOfDay(); // Đặt giờ thành 00:00:0
+    }
 }
 

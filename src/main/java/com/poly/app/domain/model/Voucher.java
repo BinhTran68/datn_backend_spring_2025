@@ -46,6 +46,6 @@ public class Voucher extends PrimaryEntity implements Serializable {
     LocalDateTime endDate;
 //    Status status;
    @Enumerated(EnumType.STRING)
-StatusEnum statusVoucher;
+    StatusEnum statusVoucher;
 
 }

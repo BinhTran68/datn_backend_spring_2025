@@ -57,7 +57,8 @@ public class BillController {
                              @RequestParam(required = false) String search,
                              @RequestParam(required = false) String startDate,
                              @RequestParam(required = false) String endDate,
-                             @RequestParam(required = false) BillStatus statusBill) {
+                             @RequestParam(required = false) BillStatus statusBill
+    ) {
         return new PageReponse(billService.getPageBill(size, page, statusBill, typeBill, search, startDate, endDate));
     }
 
