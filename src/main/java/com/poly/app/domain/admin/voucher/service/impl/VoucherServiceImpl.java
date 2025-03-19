@@ -381,6 +381,67 @@ public class VoucherServiceImpl implements VoucherService {
         return List.of();
     }
 
+    // Tìm voucher theo tên
+    @Override
+    public List<VoucherReponse> searchVoucherByName(String voucherName) {
+        return voucherRepository.findByVoucherNameContainingIgnoreCase(voucherName)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public List<VoucherReponse> searchVoucherByStatus(StatusEnum statusVoucher) {
+        return voucherRepository.findByStatusVoucher(statusVoucher)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo số lượng
+    @Override
+    public List<VoucherReponse> searchVoucherByQuantity(Integer quantity) {
+        return voucherRepository.findByQuantity(quantity)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo loại
+    @Override
+    public List<VoucherReponse> searchVoucherByType(VoucherType voucherType) {
+        return voucherRepository.findByVoucherType(voucherType)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo khoảng giá trị giảm tối đa
+    @Override
+    public List<VoucherReponse> searchVoucherByDiscountMaxRange(Double minDiscount, Double maxDiscount) {
+        return voucherRepository.findByDiscountMaxValueBetween(minDiscount, maxDiscount)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo khoảng giá trị hóa đơn tối thiểu
+    @Override
+    public List<VoucherReponse> searchVoucherByBillMinRange(Double minBill, Double maxBill) {
+        return voucherRepository.findByBillMinValueBetween(minBill, maxBill)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+
+    // 🔍 Tìm voucher theo khoảng ngày bắt đầu và kết thúc
+    @Override
+    public List<VoucherReponse> searchVoucherByStartDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return voucherRepository.findByStartDateBetween(startDate, endDate)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
 }
 

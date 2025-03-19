@@ -251,4 +251,39 @@ public class PromotionServiceImpl implements PromotionService {
         return List.of();
     }
 
+    // 🔍 Tìm kiếm theo tên chương trình khuyến mãi
+    @Override
+    public List<PromotionResponse> searchPromotionByName(String promotionName) {
+        return promotionRepository.findByPromotionNameContainingIgnoreCase(promotionName)
+                .stream()
+                .map(PromotionResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm kiếm theo khoảng giá trị giảm giá
+    @Override
+    public List<PromotionResponse> searchPromotionByDiscountRange(Double minDiscount, Double maxDiscount) {
+        return promotionRepository.findByDiscountValueBetween(minDiscount, maxDiscount)
+                .stream()
+                .map(PromotionResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm kiếm theo trạng thái khuyến mãi
+    @Override
+    public List<PromotionResponse> searchPromotionByStatus(StatusEnum statusPromotion) {
+        return promotionRepository.findByStatusPromotion(statusPromotion)
+                .stream()
+                .map(PromotionResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm kiếm theo khoảng thời gian bắt đầu và kết thúc
+    @Override
+    public List<PromotionResponse> searchPromotionByEndDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return promotionRepository.findByEndDateBetween(startDate, endDate)
+                .stream()
+                .map(PromotionResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
 }

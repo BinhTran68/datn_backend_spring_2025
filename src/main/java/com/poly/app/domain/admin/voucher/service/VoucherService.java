@@ -5,9 +5,11 @@ import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.auth.request.RegisterRequest;
 import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.domain.model.Voucher;
+import com.poly.app.infrastructure.constant.VoucherType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface VoucherService {
@@ -27,4 +29,26 @@ public interface VoucherService {
 
     List<VoucherReponse> getAllVouchersWithCustomer(Integer customerId);
 
+
+        // 🔍 Tìm voucher theo tên
+    List<VoucherReponse> searchVoucherByName(String voucherName);
+
+    // 🔍 Tìm voucher theo trạng thái
+    List<VoucherReponse> searchVoucherByStatus(StatusEnum statusVoucher);
+
+    // 🔍 Tìm voucher theo số lượng
+    List<VoucherReponse> searchVoucherByQuantity(Integer quantity);
+
+    // 🔍 Tìm voucher theo loại
+    List<VoucherReponse> searchVoucherByType(VoucherType voucherType);
+
+    // 🔍 Tìm voucher theo khoảng giá trị giảm tối đa
+    List<VoucherReponse> searchVoucherByDiscountMaxRange(Double minDiscount, Double maxDiscount);
+
+    // 🔍 Tìm voucher theo khoảng giá trị hóa đơn tối thiểu
+    List<VoucherReponse> searchVoucherByBillMinRange(Double minBill, Double maxBill);
+
+
+    // 🔍 Tìm voucher theo khoảng thời gian bắt đầu và kết thúc
+    List<VoucherReponse> searchVoucherByStartDateRange(LocalDateTime startDate, LocalDateTime endDate);
 }
