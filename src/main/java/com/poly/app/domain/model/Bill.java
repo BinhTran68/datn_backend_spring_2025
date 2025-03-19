@@ -20,7 +20,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "bill")
 //hóa đơn
-public class Bill extends PrimaryEntity implements Serializable {
+public class    Bill extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
@@ -56,7 +56,6 @@ public class Bill extends PrimaryEntity implements Serializable {
 
     // Tiền trước áp phiếu giảm
     Double moneyBeforeDiscount;
-
 
     //nagyf hoàn thành
     LocalDateTime completeDate;

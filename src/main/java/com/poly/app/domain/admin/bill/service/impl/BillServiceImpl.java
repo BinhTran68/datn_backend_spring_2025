@@ -256,7 +256,7 @@ public class BillServiceImpl implements BillService {
             address = addressRepository.findById(request.getShippingAddressId()).orElseThrow(()
                     -> new ApiException(ErrorCode.HOA_DON_NOT_FOUND));
         }
-        System.out.println(request.getAddress().toString());
+
         if (request.getAddress() != null) {
             Address newAddress = Address
                     .builder()
@@ -273,9 +273,11 @@ public class BillServiceImpl implements BillService {
                 .builder()
                 .typeBill(request.getTypeBill())
                 .customer(customer) // Cũng có thể là khách hàng đang đăng nhập hoặc chưa đăng nhập
-                .customerMoney(request.getCustomerMoney())
+                .customerMoney(request.getCustomerMoney()) // Tiền khách đưa cho cửa hàng => lấy ra tiền thừa = tiền khách đưa trừ cho tiền cần thanh toán
                 .discountMoney(request.getDiscountMoney())
                 .moneyAfter(request.getMoneyAfter())
+                .totalMoney(request.getTotalMoney() - request.getDiscountMoney()) // Sẽ là tổng tiền hàng trừ cho giảm giá
+                .moneyBeforeDiscount(request.getTotalMoney() + request.getDiscountMoney()) // Tiền trước khi được giảm giá
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
                 .totalMoney(request.getTotalMoney())
