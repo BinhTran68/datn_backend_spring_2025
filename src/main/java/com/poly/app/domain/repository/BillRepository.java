@@ -17,6 +17,8 @@ public interface BillRepository extends JpaRepository<Bill,Integer>, JpaSpecific
 
     Bill findByBillCode(String billCode);
 
+    Boolean existsByBillCode(String billCode);
+
 
 
 }

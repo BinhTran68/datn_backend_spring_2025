@@ -14,6 +14,7 @@ public class RealPriceResponse {
     String productName;
     Double price;
     Integer quantityAddCart;
+    Integer quantity;
     String image;
     String note;
 }

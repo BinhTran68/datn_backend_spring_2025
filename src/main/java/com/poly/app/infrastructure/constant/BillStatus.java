@@ -8,7 +8,9 @@ public enum BillStatus {
     DA_THANH_TOAN(5),
     DA_HOAN_THANH(6),
     DA_HUY(7),
-    TRA_HANG(8);
+    TRA_HANG(8),
+    DANG_XAC_MINH(9);
+
 
 //
 //    CHO_THANH_TOAN(7),
