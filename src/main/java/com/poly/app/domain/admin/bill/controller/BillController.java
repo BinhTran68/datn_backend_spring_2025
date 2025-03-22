@@ -117,6 +117,7 @@ public class BillController {
             for (RestoreQuantityRequest request : requests) {
                 ProductDetail product = productDetailRepository.findById(request.getId())
                         .orElseThrow(() -> new RuntimeException("Product not found"));
+
                 // Cộng lại số lượng
                 product.setQuantity(product.getQuantity() + request.getQuantity());
                 productDetailRepository.save(product);
@@ -126,6 +127,7 @@ public class BillController {
             return ResponseEntity.badRequest().body("Error restoring quantity: " + e.getMessage());
         }
     }
+
 
     @GetMapping("/vouchers")
     public ResponseEntity<?> getAllVoucher() {
