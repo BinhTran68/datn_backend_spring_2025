@@ -12,6 +12,8 @@ import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.*;
 import com.poly.app.domain.client.service.ClientService;
 import com.poly.app.domain.client.service.ZaloPayService;
+import com.poly.app.domain.common.ApiResponse;
+import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.*;
 import com.poly.app.infrastructure.constant.*;
@@ -186,7 +188,7 @@ public class ClientServiceImpl implements ClientService {
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
                 .voucher(voucher)
-                .status(customer!=null?BillStatus.CHO_XAC_NHAN:BillStatus.DANG_XAC_MINH)
+                .status(customer != null ? BillStatus.CHO_XAC_NHAN : BillStatus.DANG_XAC_MINH)
                 .email(request.getEmail())
                 .notes(request.getNotes())
                 .numberPhone(request.getRecipientPhoneNumber())
@@ -238,12 +240,13 @@ public class ClientServiceImpl implements ClientService {
 
 //Lưu lại lịch sử
 
-            billHistoryRepository.save(BillHistory
-                    .builder()
-                    .customer(customer)
-                    .bill(billSave)
-                    .status(customer!=null?BillStatus.CHO_XAC_NHAN:BillStatus.DANG_XAC_MINH)
-                    .build());
+        billHistoryRepository.save(BillHistory
+                .builder()
+                .customer(customer)
+                .bill(billSave)
+                .description(customer != null ? "chờ bên admin xác nhận" : " chờ xác minh danh tính")
+                .status(customer != null ? BillStatus.CHO_XAC_NHAN : BillStatus.DANG_XAC_MINH)
+                .build());
 
 
 //        lưu ptthanh toán
@@ -277,7 +280,7 @@ public class ClientServiceImpl implements ClientService {
                             .build());
 
                     if (customer == null) {
-                        veritifyBill(billSave.getEmail(),billSave,request.getPaymentMethodsType().toString());
+                        veritifyBill(billSave.getEmail(), billSave, request.getPaymentMethodsType().toString());
                         return "đang xác minh đơn hàng";
                     }
                     sendMail(request.getEmail(), billSave);
@@ -314,7 +317,7 @@ public class ClientServiceImpl implements ClientService {
                         .status(Status.HOAT_DONG)
                         .build());
                 if (customer == null) {
-                    veritifyBill(billSave.getEmail(),billSave,request.getPaymentMethodsType().toString());
+                    veritifyBill(billSave.getEmail(), billSave, request.getPaymentMethodsType().toString());
                     return "đang xác minh đơn hàng";
                 }
                 sendMail(request.getEmail(), billSave);
@@ -513,18 +516,19 @@ public class ClientServiceImpl implements ClientService {
         if (paymentMethods.getPaymentMethodsType().equals(PaymentMethodsType.COD)) {
             bill.setStatus(BillStatus.CHO_XAC_NHAN);
             billRepository.save(bill);
-            sendMail(bill.getEmail(),bill);
+            sendMail(bill.getEmail(), bill);
             billHistoryRepository.save(BillHistory
                     .builder()
                     .customer(null)
                     .bill(bill)
+                    .description("xác minh danh tính thành công")
                     .status(BillStatus.CHO_XAC_NHAN)
                     .build());
             return "xác minh thành công";
         } else if (paymentMethods.getPaymentMethodsType().equals(PaymentMethodsType.ZALO_PAY)) {
             bill.setStatus(BillStatus.CHO_XAC_NHAN);
             billRepository.save(bill);
-            sendMail(bill.getEmail(),bill);
+            sendMail(bill.getEmail(), bill);
             try {
                 Map<String, Object> zaloPayResponse = zaloPayService.createPayment(
                         bill.getCustomer() != null ? bill.getId().toString() : "guest",
@@ -538,6 +542,7 @@ public class ClientServiceImpl implements ClientService {
                 billHistoryRepository.save(BillHistory
                         .builder()
                         .customer(null)
+                        .description("xác minh danh tính thành công")
                         .bill(bill)
                         .status(BillStatus.CHO_XAC_NHAN)
                         .build());
@@ -550,11 +555,84 @@ public class ClientServiceImpl implements ClientService {
         return null;
     }
 
+    @Override
+    public ApiResponse<List<SearchStatusBillResponse>> getAllBillOfCustomerid(Integer customerId, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        List<SearchStatusBillResponse> searchStatusBillResponses = new ArrayList<>();
+        Page<Bill> page1 = billRepository.findByCustomerId(customerId, pageable);
+        if (page1 == null) {
+            throw new ApiException(ErrorCode.HOA_DON_NOT_FOUND);
+        }
+
+        for (Bill b :
+                page1) {
+            List<BillDetail> billDetails = billDetailRepository.findByBillId(b.getId());
+
+            List<BillDetailResponse> productDetails =
+                    billDetails.stream()
+                            .map(item -> new BillDetailResponse(item.getId(), item.getQuantity(), item.getPrice(), item.getImage()))
+                            .collect(Collectors.toList());
+            PaymentBill paymentBill = paymentBillRepository.findByBillId(b.getId());
+            PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
+            String voucherCode = "";
+            if (b.getVoucher() != null) voucherCode = b.getBillCode();
+            SearchStatusBillResponse searchStatusBillResponse = SearchStatusBillResponse.builder()
+                    .id(b.getId())
+                    .billCode(b.getBillCode())
+                    .discountMoney(b.getDiscountMoney())
+                    .shipMoney(b.getShipMoney())
+                    .totalMoney(b.getTotalMoney())
+                    .moneyAfter(b.getMoneyAfter())
+                    .shippingAddress(b.getShippingAddress().getId())
+                    .customerName(b.getCustomerName())
+                    .numberPhone(b.getNumberPhone())
+                    .email(b.getEmail())
+                    .typeBill(b.getTypeBill())
+                    .notes(b.getNotes())
+                    .status(b.getStatus())
+                    .payment(paymentMethods.getPaymentMethod().name())
+                    .voucher(voucherCode)
+                    .addressRequest(AddressRequest.builder()
+                            .provinceId(b.getShippingAddress().getProvinceId())
+                            .districtId(b.getShippingAddress().getDistrictId())
+                            .wardId(b.getShippingAddress().getWardId())
+                            .specificAddress(b.getShippingAddress().getSpecificAddress())
+                            .build())
+                    .billDetailResponse(productDetails)
+                    .build();
+            searchStatusBillResponses.add(searchStatusBillResponse);
+        }
+
+        return ApiResponse.<List<SearchStatusBillResponse>>builder()
+                .message("geta bill customer")
+                .meta(Meta.builder()
+                        .totalElement(page1.getTotalElements())
+                        .currentPage(page1.getNumber() + 1)
+                        .totalPages(page1.getTotalPages()).build())
+                .data(searchStatusBillResponses)
+                .build();
+    }
+
+    @Override
+    public String cancelBill(Integer id, String description) {
+        Bill bill = billRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
+        bill.setStatus(BillStatus.DA_HUY);
+        billRepository.save(bill);
+        billHistoryRepository.save(BillHistory
+                .builder()
+                .customer(bill.getCustomer())
+                .description("Hủy đơn hàng\n Lý do:"+description)
+                .bill(bill)
+                .status(BillStatus.DA_HUY)
+                .build());
+        return "Hủy đơn hàng, lý do:"+description;
+    }
+
     private void sendMail(String sendToMail, Bill billCode) {
         Email email = new Email();
         String[] emailSend = {sendToMail};
         email.setToEmail(emailSend);
-        email.setSubject("TheHands-Tạo Hóa Đơn");
+        email.setSubject("TheHands-Tạo Hóa Đơn Thành Công");
         email.setTitleEmail("");
         email.setBody("<!DOCTYPE html>\n" +
                       "<html lang=\"en\">\n" +
@@ -582,7 +660,7 @@ public class ClientServiceImpl implements ClientService {
         emailSender.sendEmail(email);
     }
 
-    private void veritifyBill(String sendToMail, Bill billCode,String paymentMethod) {
+    private void veritifyBill(String sendToMail, Bill billCode, String paymentMethod) {
         Email email = new Email();
         String[] emailSend = {sendToMail};
         email.setToEmail(emailSend);
@@ -590,32 +668,32 @@ public class ClientServiceImpl implements ClientService {
         email.setTitleEmail("");
         email.setBody(
                 """
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Xác Minh Đơn Hàng TheHands</title>
-                </head>
-                <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px;">
-                    <div style="max-width: 600px; background-color: #ffffff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: auto;">
-                        <h2 style="color: #333; font-size: 24px; margin-bottom: 10px;">✅ Xác Minh Đơn Hàng Của Bạn</h2>
-                        <p style="color: #666; font-size: 16px; line-height: 1.5;">Cảm ơn bạn đã đặt hàng tại <strong>TheHands</strong>. Vui lòng xác minh đơn hàng của bạn để tiếp tục xử lý.</p>
-                        <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
-                        <p style="color: #555; font-size: 16px;"><strong>📧 Email:</strong> %s</p>
-                        <p style="color: #555; font-size: 16px;"><strong>🧾 Mã đơn hàng:</strong> <span style="color: #007bff; font-weight: bold;">%s</span></p>
-                        <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
-                        <p style="color: #666; font-size: 16px; line-height: 1.5;">Để xác minh và xem chi tiết đơn hàng, hãy nhấp vào nút bên dưới:</p>
-                        <a href="http://localhost:5173/veritify?billcode=%s&paymentmethod=%s" 
-                           style="display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; transition: background-color 0.3s;">
-                           ✅ Xác Minh Đơn Hàng
-                        </a>
-                        <p style="margin-top: 25px; color: #e74c3c; font-size: 14px; font-style: italic;">Lưu ý: Nếu không xác minh trong 24 giờ, đơn hàng có thể bị hủy.</p>
-                        <p style="margin-top: 15px; font-size: 12px; color: #999; line-height: 1.4;">Nếu bạn không đặt đơn hàng này, vui lòng bỏ qua email hoặc liên hệ hỗ trợ qua <a href='mailto:support@thehands.com' style='color: #007bff;'>support@thehands.com</a>.</p>
-                    </div>
-                </body>
-                </html>
-                """.formatted(sendToMail, billCode.getBillCode(), billCode.getBillCode(), paymentMethod)
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Xác Minh Đơn Hàng TheHands</title>
+                        </head>
+                        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px;">
+                            <div style="max-width: 600px; background-color: #ffffff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: auto;">
+                                <h2 style="color: #333; font-size: 24px; margin-bottom: 10px;">✅ Xác Minh Đơn Hàng Của Bạn</h2>
+                                <p style="color: #666; font-size: 16px; line-height: 1.5;">Cảm ơn bạn đã đặt hàng tại <strong>TheHands</strong>. Vui lòng xác minh đơn hàng của bạn để tiếp tục xử lý.</p>
+                                <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
+                                <p style="color: #555; font-size: 16px;"><strong>📧 Email:</strong> %s</p>
+                                <p style="color: #555; font-size: 16px;"><strong>🧾 Mã đơn hàng:</strong> <span style="color: #007bff; font-weight: bold;">%s</span></p>
+                                <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
+                                <p style="color: #666; font-size: 16px; line-height: 1.5;">Để xác minh và xem chi tiết đơn hàng, hãy nhấp vào nút bên dưới:</p>
+                                <a href="http://localhost:5173/veritify?billcode=%s&paymentmethod=%s" 
+                                   style="display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; transition: background-color 0.3s;">
+                                   ✅ Xác Minh Đơn Hàng
+                                </a>
+                                <p style="margin-top: 25px; color: #e74c3c; font-size: 14px; font-style: italic;">Lưu ý: Nếu không xác minh trong 24 giờ, đơn hàng có thể bị hủy.</p>
+                                <p style="margin-top: 15px; font-size: 12px; color: #999; line-height: 1.4;">Nếu bạn không đặt đơn hàng này, vui lòng bỏ qua email hoặc liên hệ hỗ trợ qua <a href='mailto:support@thehands.com' style='color: #007bff;'>support@thehands.com</a>.</p>
+                            </div>
+                        </body>
+                        </html>
+                        """.formatted(sendToMail, billCode.getBillCode(), billCode.getBillCode(), paymentMethod)
         );
 
 

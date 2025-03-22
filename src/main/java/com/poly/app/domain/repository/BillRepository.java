@@ -7,10 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BillRepository extends JpaRepository<Bill,Integer>, JpaSpecificationExecutor<Bill> {
+public interface BillRepository extends JpaRepository<Bill, Integer>, JpaSpecificationExecutor<Bill> {
 
     Page<Bill> findByStatus(BillStatus status, Pageable pageable);
 
@@ -19,6 +20,8 @@ public interface BillRepository extends JpaRepository<Bill,Integer>, JpaSpecific
 
     Boolean existsByBillCode(String billCode);
 
+    @Query(value = "select b from Bill b where b.customer.id = :customerId order by b.createdAt desc")
+    Page<Bill> findByCustomerId(Integer customerId,Pageable pageable);
 
 
 }

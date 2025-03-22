@@ -295,4 +295,24 @@ public class ClientController {
                 .data(clientService.veritifyBill(billCode))
                 .build();
     }
+    @GetMapping("/getallbillcustomerId")
+    ApiResponse<List<SearchStatusBillResponse>> getALlBillCustomerId(
+            @RequestParam(value = "customerId", required = false) Integer customerId,
+
+            @RequestParam(value = "page", defaultValue = "1") Integer page
+            , @RequestParam(value = "size", defaultValue = "5") Integer size
+    ) {
+        return clientService.getAllBillOfCustomerid(customerId,page,size);
+    }
+    @GetMapping("/cancelbill")
+    ApiResponse<String> cacelBill(
+            @RequestParam(required = false) Integer billId,
+            @RequestParam(required = false) String description
+
+            ) {
+        return ApiResponse.<String>builder()
+                .message("Hủy đơn hàng")
+                .data(clientService.cancelBill(billId,description))
+                .build();
+    }
 }
