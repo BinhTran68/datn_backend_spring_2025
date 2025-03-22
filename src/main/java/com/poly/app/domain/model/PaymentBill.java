@@ -1,6 +1,7 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
+import com.poly.app.infrastructure.constant.PayMentBillStatus;
 import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,7 +28,16 @@ public class PaymentBill extends PrimaryEntity implements Serializable {
     @JoinColumn
     PaymentMethods paymentMethods;
 
+    Double totalMoney; // Tổng tiền
+
+    String notes; // Ghi chú
+
+    String transactionCode; // Mã giao dịch
+
+    @Enumerated(EnumType.STRING)
+    PayMentBillStatus payMentBillStatus;
     Status status;
+
 
 
 }

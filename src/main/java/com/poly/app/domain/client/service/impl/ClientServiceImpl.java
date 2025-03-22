@@ -268,7 +268,6 @@ public class ClientServiceImpl implements ClientService {
                     PaymentMethods paymentMethods = paymentMethodsRepository
                             .findByPaymentMethodsType(PaymentMethodsType.ZALO_PAY)
                             .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
-                                    .paymentMethod(PaymentMethodEnum.CHUYEN_KHOAN)
                                     .paymentMethodsType(PaymentMethodsType.ZALO_PAY)
                                     .status(Status.HOAT_DONG)
                                     .build()));
@@ -276,7 +275,7 @@ public class ClientServiceImpl implements ClientService {
                     paymentBillRepository.save(PaymentBill.builder()
                             .bill(billSave)
                             .paymentMethods(paymentMethods)
-                            .status(Status.HOAT_DONG)
+                            .payMentBillStatus(PayMentBillStatus.CHUA_THANH_TOAN)
                             .build());
 
                     if (customer == null) {
@@ -306,7 +305,6 @@ public class ClientServiceImpl implements ClientService {
                 PaymentMethods paymentMethods = paymentMethodsRepository
                         .findByPaymentMethodsType(PaymentMethodsType.COD)
                         .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
-                                .paymentMethod(PaymentMethodEnum.TIEN_MAT)
                                 .paymentMethodsType(PaymentMethodsType.COD)
                                 .status(Status.HOAT_DONG)
                                 .build()));
@@ -314,7 +312,7 @@ public class ClientServiceImpl implements ClientService {
                 paymentBillRepository.save(PaymentBill.builder()
                         .bill(billSave)
                         .paymentMethods(paymentMethods)
-                        .status(Status.HOAT_DONG)
+                        .payMentBillStatus(PayMentBillStatus.CHUA_THANH_TOAN)
                         .build());
                 if (customer == null) {
                     veritifyBill(billSave.getEmail(), billSave, request.getPaymentMethodsType().toString());
@@ -339,7 +337,7 @@ public class ClientServiceImpl implements ClientService {
 //        kiểm tra có giỏ hàng chưa
         Cart cart = cartRepository.getCart(addCart.getCustomerId());
         if (cart == null) {
-            cartRepository.save(Cart.builder()
+            cart = cartRepository.save(Cart.builder()
                     .customerid(customerRepository.findById(addCart.getCustomerId()).get())
                     .build());
         }
@@ -351,7 +349,7 @@ public class ClientServiceImpl implements ClientService {
             cartDetailRepository.save(cartDetail);
         } else {
             cartDetail = cartDetailRepository.save(CartDetail.builder()
-                    .cart(cartRepository.getCart(addCart.getCustomerId()))
+                    .cart(cart)
                     .price(addCart.getPrice())
                     .productDetailId(productDetailRepository.findById(addCart.getProductDetailId()).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY)))
                     .imageUrl(addCart.getImage())
@@ -489,7 +487,7 @@ public class ClientServiceImpl implements ClientService {
                 .typeBill(bill.getTypeBill())
                 .notes(bill.getNotes())
                 .status(bill.getStatus())
-                .payment(paymentMethods.getPaymentMethod().name())
+                .payment(paymentMethods.getPaymentMethodsType().name())
                 .voucher(voucherCode)
                 .addressRequest(AddressRequest.builder()
                         .provinceId(bill.getShippingAddress().getProvinceId())
@@ -590,7 +588,7 @@ public class ClientServiceImpl implements ClientService {
                     .typeBill(b.getTypeBill())
                     .notes(b.getNotes())
                     .status(b.getStatus())
-                    .payment(paymentMethods.getPaymentMethod().name())
+                    .payment(paymentMethods.getPaymentMethodsType().name())
                     .voucher(voucherCode)
                     .addressRequest(AddressRequest.builder()
                             .provinceId(b.getShippingAddress().getProvinceId())
@@ -621,11 +619,58 @@ public class ClientServiceImpl implements ClientService {
         billHistoryRepository.save(BillHistory
                 .builder()
                 .customer(bill.getCustomer())
-                .description("Hủy đơn hàng\n Lý do:"+description)
+                .description("Hủy đơn hàng\n Lý do:" + description)
                 .bill(bill)
                 .status(BillStatus.DA_HUY)
                 .build());
-        return "Hủy đơn hàng, lý do:"+description;
+
+        PaymentBill paymentBill = paymentBillRepository.findByBillId(bill.getId());
+        PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
+
+        if (paymentMethods.getPaymentMethodsType().equals(PaymentMethodsType.COD)) {
+            bill.setStatus(BillStatus.CHO_XAC_NHAN);
+            billRepository.save(bill);
+            sendMail(bill.getEmail(), bill);
+            billHistoryRepository.save(BillHistory
+                    .builder()
+                    .customer(null)
+                    .bill(bill)
+                    .description("xác minh danh tính thành công")
+                    .status(BillStatus.CHO_XAC_NHAN)
+                    .build());
+            return "xác minh thành công";
+        }
+        return "Hủy đơn hàng, lý do:" + description;
+    }
+
+    @Override
+    public String buyBack(Integer billId, Integer customerId) {
+        List<BillDetail> billDetail = billDetailRepository.findByBillId(billId);
+        Cart cart = cartRepository.getCart(customerId);
+
+        CartDetail cartDetail;
+        for (BillDetail b :
+                billDetail) {
+            cartDetail = cartDetailRepository.findByProductDetailId(b.getProductDetail().getId(), customerId);
+            if (cartDetail != null) {
+                cartDetail.setQuantity(cartDetail.getQuantity() + b.getQuantity());
+                cartDetailRepository.save(cartDetail);
+            } else {
+                cartDetail = cartDetailRepository.save(CartDetail.builder()
+                        .cart(cart)
+                        .price(b.getPrice())
+                        .productDetailId(b.getProductDetail())
+                        .imageUrl(b.getImage())
+                        .quantity(b.getQuantity())
+                        .productName(b.getProductDetail().getProduct().getProductName()
+                                     + " [ " + b.getProductDetail().getColor().getColorName() + " - "
+                                     + b.getProductDetail().getSize().getSizeName() + " ] ")
+                        .build());
+
+            }
+        }
+
+        return "thêm vào giỏ hàng thành coong";
     }
 
     private void sendMail(String sendToMail, Bill billCode) {

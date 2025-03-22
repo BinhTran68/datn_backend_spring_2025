@@ -315,4 +315,15 @@ public class ClientController {
                 .data(clientService.cancelBill(billId,description))
                 .build();
     }
+    @GetMapping("/buyback")
+    ApiResponse<String> buyBack(
+            @RequestParam Integer billId,
+            @RequestParam Integer customerId
+
+    ) {
+        return ApiResponse.<String>builder()
+                .message("Hủy đơn hàng")
+                .data(clientService.buyBack(billId,customerId))
+                .build();
+    }
 }

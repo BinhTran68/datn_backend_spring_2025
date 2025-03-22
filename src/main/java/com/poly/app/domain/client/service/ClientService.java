@@ -67,4 +67,6 @@ public interface ClientService {
 
     String cancelBill(Integer id, String description);
 
+    String buyBack(Integer billId, Integer customerId);
+
 }
