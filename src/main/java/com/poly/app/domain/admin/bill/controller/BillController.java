@@ -7,14 +7,17 @@ import com.poly.app.domain.admin.bill.request.RestoreQuantityRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityProductRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityVoucherRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
+import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillService;
+import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.ProductDetail;
+import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.ProductDetailRepository;
 import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.TypeBill;
@@ -48,6 +51,8 @@ public class BillController {
     BillService billService;
     @Autowired
     private ProductDetailRepository productDetailRepository;
+    @Autowired
+    BillRepository billRepository;
 
     @GetMapping("/index")
     public PageReponse index(@RequestParam(defaultValue = "10") Integer size,
@@ -143,5 +148,13 @@ public class BillController {
         return ResponseEntity.ok(billService.updateQuantityVoucher(request));
     }
 
+
+    @GetMapping("/hien")
+    public ApiResponse<List<Object[]>> getAllBillDasboard() {
+        return ApiResponse.<List<Object[]>>builder()
+                .message("list bill dasbora")
+                .data(billRepository.getFullBillStatusSummary())
+                .build();
+    }
 
 }
