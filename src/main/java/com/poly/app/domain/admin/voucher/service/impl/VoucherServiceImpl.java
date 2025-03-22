@@ -2,18 +2,17 @@ package com.poly.app.domain.admin.voucher.service.impl;
 
 import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
-import com.poly.app.domain.admin.voucher.response.VoucherResponse;
 import com.poly.app.domain.admin.voucher.service.VoucherService;
 import com.poly.app.domain.auth.request.RegisterRequest;
 import com.poly.app.domain.model.Customer;
-import com.poly.app.domain.admin.customer.service.impl.CustomerServiceImpl;
 import com.poly.app.domain.admin.customer.service.CustomerService;
 
 import com.poly.app.domain.model.CustomerVoucher;
-import com.poly.app.domain.model.StatusVoucher;
+import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.domain.repository.CustomerVoucherRepository;
 import com.poly.app.domain.repository.VoucherRepository;
+import com.poly.app.infrastructure.constant.DiscountType;
 import com.poly.app.infrastructure.constant.VoucherType;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
@@ -22,12 +21,19 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,22 +54,22 @@ public class VoucherServiceImpl implements VoucherService {
                 .map(voucher -> VoucherReponse.formEntity(voucher)).toList();
     }
 
-    public StatusVoucher checkVoucherStatus(LocalDateTime startDate, LocalDateTime endDate) {
+    public StatusEnum checkVoucherStatus(LocalDateTime startDate, LocalDateTime endDate) {
         LocalDateTime currentDate = LocalDateTime.now(); // Lấy thời gian hiện tại
 
         if (currentDate.isBefore(startDate)) {
-            return StatusVoucher.chua_kich_hoat; // Chưa kích hoạt
+            return StatusEnum.chua_kich_hoat; // Chưa kích hoạt
         } else if (currentDate.isAfter(endDate)) {
-            return StatusVoucher.ngung_kich_hoat; // Đã ngừng kích hoạt
+            return StatusEnum.ngung_kich_hoat; // Đã ngừng kích hoạt
         } else {
-            return StatusVoucher.dang_kich_hoat; // Đang kích hoạt
+            return StatusEnum.dang_kich_hoat; // Đang kích hoạt
         }
     }
 
     @Override
     public Voucher createVoucher(VoucherRequest request) {
 
-        StatusVoucher saStatusVoucher = checkVoucherStatus(request.getStartDate(), request.getEndDate());
+        StatusEnum saStatusVoucher = checkVoucherStatus(request.getStartDate(), request.getEndDate());
         // Sinh mã voucher tự động (định nghĩa logic trong createVoucher)
         String generatedVoucherCode = "MGG" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
@@ -350,31 +356,7 @@ public class VoucherServiceImpl implements VoucherService {
                 "\n" +
                 "</body>\n" +
                 "</html>\n");
-        //        if (request.getLoaivoucher()!=null) {
-//
-//
-//            if (request.getLoaivoucher() == 1) {
-//                for (String lkh : request.getGmailkh()
-//                ) {
-//                    Email email = new Email();
-//                    String[] emailSend = {lkh};
-//                    email.setToEmail(emailSend);
-//                    email.setSubject("Tạo tài khoản thành công");
-//                    email.setTitleEmail("");
-//                    email.setBody("<!DOCTYPE html>\n" +
-//                            "<html lang=\"en\">\n" +
-//                            "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; margin: 50px;\">\n" +
-//                            "\n" +
-//                            "    <div class=\"success-message\" style=\"background-color: #FFFFF; color: black; padding: 20px; border-radius: 10px; margin-top: 50px;\">\n" +
-//                            "        <h2 style=\"color: #333;\">Chúng tôi tặng bạn 1 phiếu giảm giá</h2>\n" +
-//                            "        <p style=\"color: #555;\">Cảm ơn bạn đã mua hàng tại TheHands. Dưới đây là thông tin phiếu giảm giá của bạn của bạn:</p>\n" +
-//                            "        <p><strong>Min:</strong> " + lkh + "</p>\n" +
-//                            "        <p><strong>Max:</strong> " + lkh + "</p>\n" +
-//                            "        <p style=\"color: #555;\">Đăng nhập ngay để trải nghiệm!</p>\n" +
-//                            "    </div>\n" +
-//                            "\n" +
-//                            "</body>\n" +
-//                            "</html>\n");
+
 
 
         emailSender.sendEmail(email);
@@ -382,18 +364,18 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public String switchStatus(Integer id, StatusVoucher status) {
+    public String switchStatus(Integer id, StatusEnum status) {
         LocalDateTime currentDate = LocalDateTime.now(); // Lấy thời gian hiện tại
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("ID không tồn tại"));
 
-        if (status == StatusVoucher.ngung_kich_hoat) {
-            voucher.setStatusVoucher(StatusVoucher.ngung_kich_hoat);
+        if (status == StatusEnum.ngung_kich_hoat) {
+            voucher.setStatusVoucher(StatusEnum.ngung_kich_hoat);
             voucher.setEndDate(currentDate);
             voucherRepository.save(voucher);
             return "ngung_kich_hoat";
         } else {
-            voucher.setStatusVoucher(StatusVoucher.dang_kich_hoat);
+            voucher.setStatusVoucher(StatusEnum.dang_kich_hoat);
             voucher.setStartDate(currentDate);
             voucherRepository.save(voucher);
             return "dang_kich_hoat";
@@ -407,6 +389,129 @@ public class VoucherServiceImpl implements VoucherService {
         return List.of();
     }
 
+    // Tìm voucher theo tên
+    @Override
+    public List<VoucherReponse> searchVoucherByName(String voucherName) {
+        return voucherRepository.findByVoucherNameContainingIgnoreCase(voucherName)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public List<VoucherReponse> searchVoucherByStatus(StatusEnum statusVoucher) {
+        return voucherRepository.findByStatusVoucher(statusVoucher)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo số lượng
+    @Override
+    public List<VoucherReponse> searchVoucherByQuantity(Integer quantity) {
+        return voucherRepository.findByQuantity(quantity)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo loại
+    @Override
+    public List<VoucherReponse> searchVoucherByType(VoucherType voucherType) {
+        return voucherRepository.findByVoucherType(voucherType)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo khoảng giá trị giảm tối đa
+    @Override
+    public List<VoucherReponse> searchVoucherByDiscountMaxRange(Double minDiscount, Double maxDiscount) {
+        return voucherRepository.findByDiscountMaxValueBetween(minDiscount, maxDiscount)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    // 🔍 Tìm voucher theo khoảng giá trị hóa đơn tối thiểu
+    @Override
+    public List<VoucherReponse> searchVoucherByBillMinRange(Double minBill, Double maxBill) {
+        return voucherRepository.findByBillMinValueBetween(minBill, maxBill)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+
+    // 🔍 Tìm voucher theo khoảng ngày bắt đầu và kết thúc
+    @Override
+    public List<VoucherReponse> searchVoucherByStartDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return voucherRepository.findByStartDateBetween(startDate, endDate)
+                .stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherReponse> getPageVoucher(int size, int page, StatusEnum statusVoucher, String search, String startDate, String endDate, VoucherType voucherType, DiscountType discountType) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Specification<Voucher> spec = Specification.where(null);
+
+        // Lọc theo trạng thái voucher
+        if (statusVoucher != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("statusVoucher"), statusVoucher));
+        }
+
+        // Lọc theo loại voucher
+        if (voucherType != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("voucherType"), voucherType));
+        }
+
+        // Lọc theo loại giảm giá
+        if (discountType != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("discountType"), discountType));
+        }
+
+        // Tìm kiếm theo mã hoặc tên voucher
+        if (search != null && !search.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.or(
+                            criteriaBuilder.like(root.get("voucherCode"), "%" + search + "%"),
+                            criteriaBuilder.like(root.get("voucherName"), "%" + search + "%")
+                    ));
+        }
+
+        // Lọc theo ngày bắt đầu
+        if (startDate != null && !startDate.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"),
+                            parseDateTime(startDate)));
+        }
+
+        // Lọc theo ngày kết thúc
+        if (endDate != null && !endDate.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("endDate"),
+                            parseDateTime(endDate))
+            );
+        }
+
+        Page<Voucher> voucherPage = voucherRepository.findAll(spec, pageable);
+        List<VoucherReponse> voucherResponses = voucherPage.getContent().stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(voucherResponses, pageable, voucherPage.getTotalElements());
+    }
+
+    private  LocalDateTime parseDateTime(String dateTime) {
+        return LocalDate.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                .atStartOfDay(); // Đặt giờ thành 00:00:0
+    }
 }
 

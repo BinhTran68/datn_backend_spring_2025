@@ -1,15 +1,16 @@
 package com.poly.app.domain.model;
 
 import com.poly.app.domain.model.base.PrimaryEntity;
-import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.constant.DiscountType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -30,12 +31,14 @@ public class Promotion extends PrimaryEntity implements Serializable {
     String promotionType;
 // giá trị giảm
     Double discountValue;
+    @Enumerated(EnumType.STRING)
+    DiscountType discountType;
     Integer quantity;
     // ngày bắt đầu
     LocalDateTime startDate;
 // ngày kết thúc
     LocalDateTime endDate;
 // trạng thái
-    Status status;
-
+@Enumerated(EnumType.STRING)
+StatusEnum statusPromotion;
 }

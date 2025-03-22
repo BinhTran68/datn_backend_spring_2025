@@ -79,9 +79,10 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
                                         .price(billDetail.getProductDetail().getPrice())
                                         .quantity(billDetail.getQuantity())
                                         .totalPrice(billDetail.getPrice())
+                                        .createdAt(billDetail.getCreatedAt())
                                         .urlImage(
                                                 Optional.ofNullable(
-                                                                imageRepository.getImagesByProductDetailAndIsDefault(billDetail.getProductDetail(), true)
+                                                                imageRepository.getImagesByProductDetail(billDetail.getProductDetail())
                                                         )
                                                         .map(Image::getUrl) // Lấy URL nếu không null
                                                         .orElse(null)

@@ -1,8 +1,7 @@
 package com.poly.app.domain.admin.voucher.request.voucher;
 
-import com.poly.app.domain.model.StatusVoucher;
+import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.infrastructure.constant.DiscountType;
-import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.constant.VoucherType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -34,7 +33,7 @@ public class VoucherRequest {
         Double billMinValue;
         LocalDateTime startDate;
         LocalDateTime endDate;
-        StatusVoucher statusVoucher;
+        StatusEnum statusVoucher;
         List<String> gmailkh;
         Integer loaivoucher;
 }

@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Integer>, JpaSpecificationExecutor<Bill> {
 
@@ -22,6 +24,8 @@ public interface BillRepository extends JpaRepository<Bill, Integer>, JpaSpecifi
 
     @Query(value = "select b from Bill b where b.customer.id = :customerId order by b.createdAt desc")
     Page<Bill> findByCustomerId(Integer customerId,Pageable pageable);
+    @Query("SELECT o.status, COUNT(o) FROM Bill o GROUP BY o.status")
+    List<Object[]> countOrdersByStatus();
 
 
 }

@@ -675,4 +675,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         }
 
     }
+    //Phầm em tú làm
+    public List<ProductDetailResponse> getProductDetailsByProductId(Integer productId) {
+        return productDetailRepository.findByProductId(productId);
+    }
+
+    //Em tú hết làm
 }

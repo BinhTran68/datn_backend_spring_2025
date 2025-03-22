@@ -27,7 +27,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "    MAX(pd.updated_at) AS lastUpdated\n" +
             "FROM product p \n" +
             "left JOIN product_detail pd ON p.id = pd.product_id \n" +
-            "WHERE p.product_name LIKE :name "+
+            "WHERE p.product_name LIKE :name " +
             "GROUP BY p.id, p.code, p.product_name, p.updated_at, p.status\n" +
             "ORDER BY lastUpdated DESC",
             nativeQuery = true)
@@ -58,7 +58,25 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     List<ProductResponseSelect> dataSelecthd();
     //respone lấy danh sách theo tên bla bla
 
-//    Optional<ProductDetail> findByProductName(String productName);
+    //    Optional<ProductDetail> findByProductName(String productName);
+//em tú làm
+    @Query(value = "SELECT p.product_name, COALESCE(SUM(pd.quantity), 0) AS total_quantity " +
+            "FROM product p " +
+            "LEFT JOIN product_detail pd ON p.id = pd.product_id " +
+            "WHERE p.product_name LIKE %:productName% " +
+            "GROUP BY p.product_name",
+            nativeQuery = true)
+    List<Object[]> findProductQuantityByName(@Param("productName") String productName);
+
+    @Query(value = "SELECT p.product_name, COALESCE(SUM(pd.quantity), 0) AS total_quantity " +
+            "FROM product p " +
+            "LEFT JOIN product_detail pd ON p.id = pd.product_id " +
+            "GROUP BY p.product_name " +
+            "HAVING total_quantity <= :minQuantity",
+            nativeQuery = true)
+    List<Object[]> findProductByMinQuantity(@Param("minQuantity") int minQuantity);
+
+    //em tú hết làm
 
 
 

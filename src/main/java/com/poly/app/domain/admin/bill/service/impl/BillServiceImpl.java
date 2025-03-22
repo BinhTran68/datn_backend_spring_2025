@@ -3,17 +3,21 @@ package com.poly.app.domain.admin.bill.service.impl;
 import com.poly.app.domain.admin.bill.request.BillDetailRequest;
 import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
+import com.poly.app.domain.admin.bill.request.UpdateQuantityVoucherRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
+import com.poly.app.domain.admin.staff.response.AddressReponse;
+import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillDetail;
 import com.poly.app.domain.model.BillHistory;
 import com.poly.app.domain.model.Customer;
+import com.poly.app.domain.model.CustomerVoucher;
 import com.poly.app.domain.model.PaymentBill;
 import com.poly.app.domain.model.PaymentMethods;
 import com.poly.app.domain.model.ProductDetail;
@@ -24,6 +28,7 @@ import com.poly.app.domain.repository.BillDetailRepository;
 import com.poly.app.domain.repository.BillHistoryRepository;
 import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.CustomerRepository;
+import com.poly.app.domain.repository.CustomerVoucherRepository;
 import com.poly.app.domain.repository.PaymentBillRepository;
 import com.poly.app.domain.repository.PaymentMethodsRepository;
 import com.poly.app.domain.repository.ProductDetailRepository;
@@ -33,6 +38,7 @@ import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.TypeBill;
+import com.poly.app.infrastructure.constant.VoucherType;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.security.Auth;
@@ -52,7 +58,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -96,6 +104,8 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     private Auth auth;
+    @Autowired
+    private CustomerVoucherRepository customerVoucherRepository;
 
     @Override
     public Page<BillResponse> getPageBill(Integer size, Integer page,
@@ -106,9 +116,9 @@ public class BillServiceImpl implements BillService {
                                           String endDate
     ) {
         Sort sort = null;
-        if(statusBill == BillStatus.CHO_XAC_NHAN) {
-            sort  = Sort.by(Sort.Direction.ASC, "createdAt");
-        }else {
+        if (statusBill == BillStatus.CHO_XAC_NHAN) {
+            sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        } else {
             sort = Sort.by(Sort.Direction.DESC, "createdAt");
         }
 
@@ -218,9 +228,8 @@ public class BillServiceImpl implements BillService {
     public File printBillById(String billCode) {
         Bill bill = billRepository.findByBillCode(billCode);
         BillHistory billHistory = billHistoryRepository.findDistinctFirstByBillOrderByCreatedAtDesc(bill);
-        Customer account = bill.getCustomer();
         List<BillDetail> lstBillDetail = billDetailRepository.findByBill(bill);
-        return genHoaDon.genHoaDon(bill, lstBillDetail, billHistory, account);
+        return genHoaDon.genHoaDon(bill, lstBillDetail, billHistory);
     }
 
     @Override
@@ -237,13 +246,17 @@ public class BillServiceImpl implements BillService {
         Voucher voucher = null;
         if (request.getVoucherId() != null) {
             voucher = voucherRepository.findById(request.getVoucherId()).orElse(null);
+            if (voucher != null) {
+                voucher.setQuantity(voucher.getQuantity() - 1);
+                voucherRepository.save(voucher);
+            }
         }
         Address address = null;
         if (request.getShippingAddressId() != null) {
             address = addressRepository.findById(request.getShippingAddressId()).orElseThrow(()
                     -> new ApiException(ErrorCode.HOA_DON_NOT_FOUND));
         }
-        System.out.println(request.getAddress().toString());
+
         if (request.getAddress() != null) {
             Address newAddress = Address
                     .builder()
@@ -260,9 +273,11 @@ public class BillServiceImpl implements BillService {
                 .builder()
                 .typeBill(request.getTypeBill())
                 .customer(customer) // Cũng có thể là khách hàng đang đăng nhập hoặc chưa đăng nhập
-                .customerMoney(request.getCustomerMoney())
+                .customerMoney(request.getCustomerMoney()) // Tiền khách đưa cho cửa hàng => lấy ra tiền thừa = tiền khách đưa trừ cho tiền cần thanh toán
                 .discountMoney(request.getDiscountMoney())
                 .moneyAfter(request.getMoneyAfter())
+                .totalMoney(request.getTotalMoney() - request.getDiscountMoney()) // Sẽ là tổng tiền hàng trừ cho giảm giá
+                .moneyBeforeDiscount(request.getTotalMoney() + request.getDiscountMoney()) // Tiền trước khi được giảm giá
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
                 .totalMoney(request.getTotalMoney())
@@ -278,7 +293,11 @@ public class BillServiceImpl implements BillService {
 
         // Trường hợp người dùng ship
         if (request.getIsShipping()) {
-            bill.setStatus(BillStatus.CHO_VAN_CHUYEN);
+            if(request.getIsCOD()) {
+                bill.setStatus(BillStatus.CHO_XAC_NHAN);
+            }else {
+                bill.setStatus(BillStatus.CHO_VAN_CHUYEN);
+            }
         } else {
             bill.setStatus(BillStatus.DA_HOAN_THANH);
         }
@@ -313,13 +332,15 @@ public class BillServiceImpl implements BillService {
             savePaymentBill(billSave, cashPaymentMethods);
             savePaymentBill(billSave, bankPaymentMethods);
         } else if (request.getCashCustomerMoney() != null) {
-            PaymentMethods cashPaymentMethods =  createAndSavePaymentMethod(request.getCashCustomerMoney(), PaymentMethodEnum.TIEN_MAT, null);
+            PaymentMethods cashPaymentMethods = createAndSavePaymentMethod(request.getCashCustomerMoney(), PaymentMethodEnum.TIEN_MAT, null);
             savePaymentBill(billSave, cashPaymentMethods);
         } else if (request.getBankCustomerMoney() != null) {
             PaymentMethods bankPayment = createAndSavePaymentMethod(request.getBankCustomerMoney(), PaymentMethodEnum.CHUYEN_KHOAN, request.getTransactionCode());
             savePaymentBill(billSave, bankPayment);
-       }
+        }
         handleSaveBillHistory(billSave, customer, staffAuth, request, customerAuth);
+
+
         return convertBillToBillResponse(billSave);
     }
 
@@ -330,7 +351,20 @@ public class BillServiceImpl implements BillService {
                                        Customer customerAuth
     ) {
         // TH 1 Đặt hàng online
-        // TH 2 MUA HÀNG TAẠI QUẦY
+        // TH 2 MUA HÀNG TẠI QUẦY
+        if (request.getIsCOD()) {
+            BillHistory billHistory = BillHistory
+                    .builder()
+                    .customer(customer)
+                    .staff(staff)
+                    .bill(billSave)
+                    .status(BillStatus.CHO_XAC_NHAN)
+                    .build();
+
+            billHistoryRepository.save(billHistory);
+            return;
+        }
+
         BillHistory billHistory_1 = BillHistory
                 .builder()
                 .customer(customer)
@@ -375,6 +409,33 @@ public class BillServiceImpl implements BillService {
 
     }
 
+    @Override
+    public List<VoucherReponse> getAllVoucherResponse() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Voucher> vouchers = voucherRepository
+                .findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThan(now, now, 0);
+        List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
+        return voucherReponses;
+    }
+
+    @Override
+    public List<VoucherReponse> getAllVoucherResponseByCustomerId(Integer customerId) {
+        List<CustomerVoucher> customerVouchers = customerVoucherRepository.findCustomerVouchersByCustomerId(customerId);
+        List<Voucher> vouchers = customerVouchers.stream().map(customerVoucher -> customerVoucher.getVoucher()).toList();
+        List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
+        return voucherReponses;
+    }
+
+    @Override
+    public VoucherReponse updateQuantityVoucher(UpdateQuantityVoucherRequest request) {
+        Voucher voucher = voucherRepository.findById(request.getId()).orElseThrow(
+                () -> new RuntimeException("voucher not found"));
+        voucher.setQuantity(request.getQuantity());
+        Voucher voucherSave = voucherRepository.save(voucher);
+        VoucherReponse voucherReponse = VoucherReponse.formEntity(voucher);
+        return voucherReponse;
+    }
+
     private PaymentMethods createAndSavePaymentMethod(Double amount, PaymentMethodEnum methodEnum, String transactionCode) {
         if (amount == null) return null;
 
@@ -401,10 +462,17 @@ public class BillServiceImpl implements BillService {
 
 
     private BillResponse convertBillToBillResponse(Bill bill) {
+        AddressReponse addressReponse;
+        if(bill.getShippingAddress() == null) {
+            addressReponse = null;
+        }else {
+             addressReponse   = new AddressReponse(bill.getShippingAddress());
+        }
+
         return BillResponse.builder()
                 .billCode(bill.getBillCode())
-                .customerName(bill.getCustomer() != null ? bill.getCustomer().getFullName() : "")
-                .customerPhone(bill.getCustomer() != null ? bill.getCustomer().getPhoneNumber() : "")
+                .customerName(bill.getCustomerName())
+                .customerPhone(bill.getNumberPhone())
                 .customerMoney(bill.getCustomerMoney())
                 .discountMoney(bill.getDiscountMoney())
                 .shipMoney(bill.getShipMoney())
@@ -416,9 +484,29 @@ public class BillServiceImpl implements BillService {
                 .desiredDateOfReceipt(bill.getDesiredDateOfReceipt())
                 .shipDate(bill.getShipDate())
                 .address(bill.getShippingAddress())
+                .addressReponse(addressReponse)
                 .email(bill.getEmail())
                 .status(bill.getStatus() != null ? bill.getStatus().toString() : null)
                 .createAt(bill.getCreatedAt())
                 .build();
     }
+
+    @Override
+    public List<Map<String, Object>> getBillCountByStatus() {
+        List<Object[]> results = billRepository.countOrdersByStatus();
+        List<Map<String, Object>> response = new ArrayList<>();
+        for (Object[] result : results) {
+            BillStatus status = (BillStatus) result[0];
+            Long count = (Long) result[1];
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", status.name());
+            map.put("value", count);
+            response.add(map);
+        }
+        Long countAll = billRepository.count();
+        response.add(Map.of("name", "all", "value", countAll));
+        return response;
+    }
+
 }

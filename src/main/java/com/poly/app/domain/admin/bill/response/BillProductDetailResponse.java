@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BillProductDetailResponse extends AuditEntity {
+public class BillProductDetailResponse  {
 
     String urlImage;
     Integer quantity;
@@ -22,5 +22,6 @@ public class BillProductDetailResponse extends AuditEntity {
     String size;
     String color;
     Double totalPrice;
+    Long createdAt;
 
 }

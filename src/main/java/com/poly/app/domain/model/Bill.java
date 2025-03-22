@@ -20,7 +20,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "bill")
 //hóa đơn
-public class Bill extends PrimaryEntity implements Serializable {
+public class    Bill extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn
@@ -42,15 +42,20 @@ public class Bill extends PrimaryEntity implements Serializable {
 
     Double customerMoney;
 
+    // Tiền giảm giá
     Double discountMoney;
 
+    // Tiền ship
     Double shipMoney;
 
-    //    tổng tiền
-    Double totalMoney;
+    // Tiền sau giảm giá
+    Double totalMoney; // Tổng
 
+    // Tiền sau giảm giá
     Double moneyAfter;
-//    laoi
+
+    // Tiền trước áp phiếu giảm
+    Double moneyBeforeDiscount;
 
     //nagyf hoàn thành
     LocalDateTime completeDate;
@@ -60,8 +65,6 @@ public class Bill extends PrimaryEntity implements Serializable {
     LocalDateTime desiredDateOfReceipt;
     //    ngày ship
     LocalDateTime shipDate;
-
-
 
     @ManyToOne
     @JoinColumn(name = "shipping_address_id")
@@ -79,6 +82,7 @@ public class Bill extends PrimaryEntity implements Serializable {
     String notes;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     BillStatus status;
 
     @ManyToOne

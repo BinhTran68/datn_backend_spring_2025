@@ -28,6 +28,8 @@ public interface ProductDetailService {
 
     //emtu
         List<ProductDetailResponse> getAllProductDetailName(String productName);
+    List<ProductDetailResponse> getProductDetailsByProductId(Integer productId);
+
 
 
 
