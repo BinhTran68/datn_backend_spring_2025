@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class RestoreQuantityRequest {
     private Integer id;          // ID của sản phẩm
     private Integer quantity;   // Số lượng cần hoàn trả
+    private Boolean isRestoreQuantity = false;
 }

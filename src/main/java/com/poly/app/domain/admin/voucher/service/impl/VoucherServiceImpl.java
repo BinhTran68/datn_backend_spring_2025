@@ -510,7 +510,7 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     private  LocalDateTime parseDateTime(String dateTime) {
-        return LocalDate.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        return LocalDate.parse(dateTime, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                 .atStartOfDay(); // Đặt giờ thành 00:00:0
     }
 }

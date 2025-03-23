@@ -46,8 +46,8 @@ public class VoucherController {
                              @RequestParam(required = false) VoucherType voucherType,
                              @RequestParam(required = false)DiscountType discountType
     )
-
     {
+        log.info("startDate {}, endDate {}" , startDate,  endDate);
         return new PageReponse(voucherService.getPageVoucher(
                 size,
                 page,

@@ -9,6 +9,7 @@ import com.poly.app.domain.admin.bill.response.BillResponse;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
+import com.poly.app.domain.admin.bill.service.WebSocketService;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.staff.response.AddressReponse;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
@@ -106,6 +107,9 @@ public class BillServiceImpl implements BillService {
     private Auth auth;
     @Autowired
     private CustomerVoucherRepository customerVoucherRepository;
+
+    @Autowired
+    private WebSocketService webSocketService;
 
     @Override
     public Page<BillResponse> getPageBill(Integer size, Integer page,
@@ -307,8 +311,6 @@ public class BillServiceImpl implements BillService {
         for (BillDetailRequest billDetailRequest : request.getBillDetailRequests()) {
             ProductDetail productDetail = productDetailRepository.findById(billDetailRequest.getProductDetailId()).orElse(null);
             if (productDetail != null) {
-                productDetail.setQuantity(productDetail.getQuantity() - billDetailRequest.getQuantity());
-                productDetailRepository.save(productDetail);
                 BillDetail billDetail = BillDetail
                         .builder()
                         .productDetail(productDetail)
@@ -403,7 +405,8 @@ public class BillServiceImpl implements BillService {
                     findById(request.getId()).orElse(null);
             if (productDetail != null) {
                 productDetail.setQuantity(request.getQuantity());
-                productDetailRepository.save(productDetail);
+              ProductDetail productDetailSave =  productDetailRepository.save(productDetail);
+              webSocketService.sendProductUpdate(ProductDetailResponse.fromEntity(productDetailSave));
             }
         });
 

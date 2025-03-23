@@ -9,13 +9,18 @@ import com.poly.app.domain.admin.bill.request.UpdateQuantityVoucherRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillService;
+import com.poly.app.domain.admin.bill.service.WebSocketService;
+import com.poly.app.domain.admin.product.response.img.ImgResponse;
+import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.ProductDetail;
+import com.poly.app.domain.repository.ImageRepository;
 import com.poly.app.domain.repository.ProductDetailRepository;
+import com.poly.app.domain.repository.VoucherRepository;
 import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.TypeBill;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +54,8 @@ public class BillController {
     BillService billService;
     @Autowired
     private ProductDetailRepository productDetailRepository;
+    @Autowired
+    private WebSocketService webSocketService;
 
     @GetMapping("/index")
     public PageReponse index(@RequestParam(defaultValue = "10") Integer size,
@@ -111,16 +118,26 @@ public class BillController {
         return ResponseEntity.ok().build();
     }
 
+    @Autowired
+    private ImageRepository imageRepository;
+
     @PostMapping("/restore-quantity")
-    public ResponseEntity<?> restoreQuantity(@RequestBody List<RestoreQuantityRequest> requests) {
+    public ResponseEntity<?> restoreQuantity(
+            @RequestBody List<RestoreQuantityRequest> requests) {
         try {
             for (RestoreQuantityRequest request : requests) {
                 ProductDetail product = productDetailRepository.findById(request.getId())
                         .orElseThrow(() -> new RuntimeException("Product not found"));
-
-                // Cộng lại số lượng
-                product.setQuantity(product.getQuantity() + request.getQuantity());
-                productDetailRepository.save(product);
+                if(request.getIsRestoreQuantity()) {
+                    product.setQuantity(product.getQuantity() + request.getQuantity());
+                }else {
+                    product.setQuantity( product.getQuantity() - request.getQuantity());
+                }
+                     ProductDetail productDetail =    productDetailRepository.save(product);
+                ProductDetailResponse productDetailResponse = ProductDetailResponse.fromEntity(productDetail);
+                List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
+                productDetailResponse.setImage(images);
+                webSocketService.sendProductUpdate(productDetailResponse);
             }
             return ResponseEntity.ok().build();
         } catch (Exception e) {
