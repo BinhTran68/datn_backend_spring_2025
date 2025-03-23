@@ -159,7 +159,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Gender genderOther = Gender.builder()
                 .genderCode("O")
-                .genderName("Khác")
+                .genderName("Nam/Nữ")
                 .status(Status.HOAT_DONG)
                 .build();
         genderRepository.save(genderOther);

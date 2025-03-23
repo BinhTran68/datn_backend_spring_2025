@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface BillDetailRepository extends JpaRepository<BillDetail,Integer> {
 
     List<BillDetail> findByBill(Bill bill);
+    List<BillDetail> findByBillId(Integer id);
 
     Optional<BillDetail> findByBillAndProductDetail(Bill bill, ProductDetail productDetail);
 }

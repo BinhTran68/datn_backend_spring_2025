@@ -16,6 +16,8 @@ public interface PaymentBillRepository extends JpaRepository<PaymentBill,Integer
 
     List<PaymentBill> findByBill(Bill bill);
 
+    PaymentBill findByBillId(Integer id);
+
     @Query(value = "SELECT " +
             "pm.paymentMethodsType AS paymentMethodsType, " +
             "pm.paymentMethod AS paymentMethod, " +
