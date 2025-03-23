@@ -627,19 +627,21 @@ public class ClientServiceImpl implements ClientService {
         PaymentBill paymentBill = paymentBillRepository.findByBillId(bill.getId());
         PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
 
-        if (paymentMethods.getPaymentMethodsType().equals(PaymentMethodsType.COD)) {
-            bill.setStatus(BillStatus.CHO_XAC_NHAN);
-            billRepository.save(bill);
-            sendMail(bill.getEmail(), bill);
-            billHistoryRepository.save(BillHistory
-                    .builder()
-                    .customer(null)
-                    .bill(bill)
-                    .description("xác minh danh tính thành công")
-                    .status(BillStatus.CHO_XAC_NHAN)
-                    .build());
-            return "xác minh thành công";
-        }
+//        if (paymentMethods.getPaymentMethodsType().equals(PaymentMethodsType.COD)) {
+//            bill.setStatus(BillStatus.CHO_XAC_NHAN);
+//            billRepository.save(bill);
+//            sendMail(bill.getEmail(), bill);
+//            billHistoryRepository.save(BillHistory
+//                    .builder()
+//                    .customer(null)
+//                    .bill(bill)
+//                    .description("xác minh danh tính thành công")
+//                    .status(BillStatus.CHO_XAC_NHAN)
+//                    .build());
+//            return "xác minh thành công";
+//        }
+cancelBill(bill.getEmail(),bill);
+
         return "Hủy đơn hàng, lý do:" + description;
     }
 
@@ -741,6 +743,43 @@ public class ClientServiceImpl implements ClientService {
                         """.formatted(sendToMail, billCode.getBillCode(), billCode.getBillCode(), paymentMethod)
         );
 
+
+        emailSender.sendEmail(email);
+    }
+    private void cancelBill(String sendToMail, Bill billCode) {
+        Email email = new Email();
+        String[] emailSend = {sendToMail};
+        email.setToEmail(emailSend);
+        email.setSubject("TheHands-Thông Báo Hủy Đơn Hàng");
+        email.setTitleEmail("");
+        email.setBody(
+                """
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Hủy Đơn Hàng Thành Công - TheHands</title>
+                        </head>
+                        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px;">
+                            <div style="max-width: 600px; background-color: #ffffff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: auto;">
+                                <h2 style="color: #333; font-size: 24px; margin-bottom: 10px;">❌ Hủy Đơn Hàng Thành Công</h2>
+                                <p style="color: #666; font-size: 16px; line-height: 1.5;">Chúng tôi xin thông báo rằng đơn hàng của bạn tại <strong>TheHands</strong> đã được hủy thành công theo yêu cầu.</p>
+                                <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
+                                <p style="color: #555; font-size: 16px;"><strong>📧 Email:</strong> %s</p>
+                                <p style="color: #555; font-size: 16px;"><strong>🧾 Mã đơn hàng:</strong> <span style="color: #e74c3c; font-weight: bold;">%s</span></p>
+                                <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
+                                <p style="color: #666; font-size: 16px; line-height: 1.5;">Nếu bạn cần hỗ trợ hoặc muốn đặt lại đơn hàng, vui lòng liên hệ với chúng tôi.</p>
+                                <a href="mailto:support@thehands.com" 
+                                   style="display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; transition: background-color 0.3s;">
+                                   📩 Liên Hệ Hỗ Trợ
+                                </a>
+                                <p style="margin-top: 25px; font-size: 12px; color: #999; line-height: 1.4;">Cảm ơn bạn đã tin tưởng <strong>TheHands</strong>. Hy vọng sẽ được phục vụ bạn trong tương lai!</p>
+                            </div>
+                        </body>
+                        </html>
+                        """.formatted(sendToMail, billCode.getBillCode())
+        );
 
         emailSender.sendEmail(email);
     }
