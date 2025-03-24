@@ -298,7 +298,7 @@ public class BillServiceImpl implements BillService {
         // Trường hợp người dùng ship
         if (request.getIsShipping()) {
             if(request.getIsCOD()) {
-                bill.setStatus(BillStatus.CHO_XAC_NHAN);
+                bill.setStatus(BillStatus.DA_XAC_NHAN);
             }else {
                 bill.setStatus(BillStatus.CHO_VAN_CHUYEN);
             }

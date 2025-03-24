@@ -1,11 +1,10 @@
 package com.poly.app.infrastructure.constant;
 
 public enum PaymentMethodsType {
+    // Kieeur thanh toán
     THANH_TOAN_TRUOC,
-    THANH_TOAN_KHI_NHAN_HANG,
-    VN_PAY,
-    MOMO,
     ZALO_PAY,
     COD
+
 }
 

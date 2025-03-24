@@ -683,7 +683,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         paymentMethodsRepository.save(paymentMethod2);
 
         PaymentMethods paymentMethod3 = PaymentMethods.builder()
-                .paymentMethodsType(PaymentMethodsType.THANH_TOAN_KHI_NHAN_HANG)
+                .paymentMethodsType(PaymentMethodsType.COD)
                 .status(Status.HOAT_DONG) // Trạng thái không hoạt động
                 .build();
         paymentMethodsRepository.save(paymentMethod3);
