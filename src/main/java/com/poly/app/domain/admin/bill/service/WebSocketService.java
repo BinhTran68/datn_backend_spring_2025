@@ -19,4 +19,7 @@ public class WebSocketService {
     public void sendProductUpdate(ProductDetailResponse productDetailResponse) {
         messagingTemplate.convertAndSend("/topic/product-updates", productDetailResponse);
     }
+
+
+
 }

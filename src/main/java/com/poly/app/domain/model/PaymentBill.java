@@ -36,8 +36,5 @@ public class PaymentBill extends PrimaryEntity implements Serializable {
 
     @Enumerated(EnumType.STRING)
     PayMentBillStatus payMentBillStatus;
-    Status status;
-
-
 
 }

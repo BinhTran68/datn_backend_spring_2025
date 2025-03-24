@@ -21,10 +21,10 @@ public interface PaymentBillRepository extends JpaRepository<PaymentBill,Integer
     @Query(value = "SELECT " +
             "pm.paymentMethodsType AS paymentMethodsType, " +
             "pm.paymentMethod AS paymentMethod, " +
-            "pm.notes AS notes, " +
-            "pm.totalMoney AS totalMoney, " +
+            "pb.notes AS notes, " +
+            "pb.totalMoney AS totalMoney, " +
             "pm.createdAt AS createdAt, " +
-            "pm.transactionCode AS transactionCode " +
+            "pb.transactionCode AS transactionCode " +
             "FROM PaymentBill pb " +
             "LEFT JOIN PaymentMethods pm ON pm.id = pb.paymentMethods.id " +
             "LEFT JOIN Bill b ON b.id = pb.bill.id " +
