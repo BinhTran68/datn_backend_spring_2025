@@ -24,6 +24,7 @@ import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.util.VoucherBest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
@@ -31,12 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,6 +61,9 @@ public class ClientServiceImpl implements ClientService {
     CartDetailRepository cartDetailRepository;
     CartRepository cartRepository;
     EmailSender emailSender;
+    SimpMessagingTemplate messagingTemplate;
+     AnnouncementRepository announcementRepository;
+
 
 
     @Override
@@ -272,7 +274,7 @@ public class ClientServiceImpl implements ClientService {
                                     .status(Status.HOAT_DONG)
                                     .build()));
 //và lưu pttt
-                    paymentBillRepository.save(PaymentBill.builder()
+                    PaymentBill paymentBill = paymentBillRepository.save(PaymentBill.builder()
                             .bill(billSave)
                             .paymentMethods(paymentMethods)
                             .payMentBillStatus(PayMentBillStatus.CHUA_THANH_TOAN)
@@ -285,7 +287,7 @@ public class ClientServiceImpl implements ClientService {
                     sendMail(request.getEmail(), billSave);
                     Map<String, Object> zaloPayResponse = zaloPayService.createPayment(
                             customer != null ? customer.getId().toString() : "guest",
-                            request.getTotalMoney().longValue(),
+                            request.getMoneyAfter().longValue(),
                             billSave.getId().longValue()
                     );
 
@@ -293,7 +295,8 @@ public class ClientServiceImpl implements ClientService {
                         throw new ApiException(ErrorCode.INVALID_KEY);
                     }
 
-
+                    paymentBill.setTransactionCode(zaloPayResponse.get("apptransid").toString());
+                    paymentBill.setTotalMoney(Double.valueOf(zaloPayResponse.get("amount").toString()));
                     return (String) zaloPayResponse.get("orderurl"); // Trả về URL thanh toán ngay lập tức
                 } catch (Exception e) {
                     log.error("Lỗi khi tạo đơn hàng ZaloPay", e);
@@ -619,30 +622,47 @@ public class ClientServiceImpl implements ClientService {
         billHistoryRepository.save(BillHistory
                 .builder()
                 .customer(bill.getCustomer())
-                .description("Hủy đơn hàng\n Lý do:" + description)
+                .description("Hủy đơn hàng\n Lý do: " + description)
                 .bill(bill)
                 .status(BillStatus.DA_HUY)
                 .build());
 
+        // Tạo thông báo với nội dung phù hợp về việc hủy đơn hàng
+        Announcement announcement = new Announcement();
+        announcement.setCustomer(bill.getCustomer());
+        announcement.setAnnouncementContent("Đơn hàng #" + bill.getId() + " đã bị hủy. Lý do: " + description);
+        announcementRepository.save(announcement);
+
+        // Gửi thông báo qua WebSocket đến customer
+        if (bill.getCustomer() != null) {
+            try {
+                messagingTemplate.convertAndSend(
+
+                        "/topic/global-notifications/"+bill.getCustomer().getId(),
+                        new NotificationResponse(
+                                Long.valueOf(announcement.getId()), // Chắc chắn ID không null sau khi đã save
+                                announcement.getAnnouncementContent(),
+                                new Date(announcement.getCreatedAt()),
+                                false
+                        )
+                );
+                System.out.println("Đã gửi thông báo WebSocket tới user: " + bill.getCustomer().getId());
+            } catch (Exception e) {
+                System.err.println("Lỗi khi gửi thông báo WebSocket: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
         PaymentBill paymentBill = paymentBillRepository.findByBillId(bill.getId());
-        PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
+        if (paymentBill != null) {
+            PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
+            // Xử lý logic hoàn tiền nếu cần
+        }
 
-//        if (paymentMethods.getPaymentMethodsType().equals(PaymentMethodsType.COD)) {
-//            bill.setStatus(BillStatus.CHO_XAC_NHAN);
-//            billRepository.save(bill);
-//            sendMail(bill.getEmail(), bill);
-//            billHistoryRepository.save(BillHistory
-//                    .builder()
-//                    .customer(null)
-//                    .bill(bill)
-//                    .description("xác minh danh tính thành công")
-//                    .status(BillStatus.CHO_XAC_NHAN)
-//                    .build());
-//            return "xác minh thành công";
-//        }
-cancelBill(bill.getEmail(),bill);
+        // Gửi email thông báo hủy đơn hàng
+        cancelBill(bill.getEmail(), bill);
 
-        return "Hủy đơn hàng, lý do:" + description;
+        return "Hủy đơn hàng thành công. Lý do: " + description;
     }
 
     @Override
@@ -746,6 +766,7 @@ cancelBill(bill.getEmail(),bill);
 
         emailSender.sendEmail(email);
     }
+
     private void cancelBill(String sendToMail, Bill billCode) {
         Email email = new Email();
         String[] emailSend = {sendToMail};
