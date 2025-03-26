@@ -1,5 +1,6 @@
 package com.poly.app.domain.model;
 
+import com.poly.app.domain.client.response.LastMesage;
 import com.poly.app.domain.model.base.PrimaryEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,6 +25,6 @@ public class Conversation extends PrimaryEntity implements Serializable {
     @JoinColumn(name = "staff_id", nullable = false)
     private Staff staff;
     @Transient // Không lưu vào database
-    private String lastMessage; // Tin nhắn gần nhất (tùy chọn)
+    private LastMesage lastMessage; // Tin nhắn gần nhất (tùy chọn)
 
 }

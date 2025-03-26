@@ -1,6 +1,7 @@
 package com.poly.app.domain.client.controller;
 
 import com.poly.app.domain.client.request.ConversationRequest;
+import com.poly.app.domain.client.response.LastMesage;
 import com.poly.app.domain.model.Conversation;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Message;
@@ -56,7 +57,10 @@ public class ConversationController {
         conversations.forEach(conv -> {
             List<Message> messages = messageRepository.findByConversationId(Long.valueOf(conv.getId()));
             if (!messages.isEmpty()) {
-                conv.setLastMessage(messages.get(messages.size() - 1).getContent()); // Tin nhắn gần nhất
+                conv.setLastMessage(LastMesage.builder()
+                        .lastMesage(messages.get(messages.size() - 1).getContent())
+                        .senderType(messages.get(messages.size() - 1).getSenderType())
+                        .build()); // Tin nhắn gần nhất
             }
         });
         return ResponseEntity.ok(conversations);

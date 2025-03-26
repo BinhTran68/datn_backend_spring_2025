@@ -35,7 +35,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class WebSocketControllerClient {
-    SimpMessagingTemplate messagingTemplate;
+    SimpMessagingTemplate simpMessagingTemplate;
     CommentService commentService;
     ConversationRepository conversationRepository;
     MessageRepository messageRepository;
@@ -45,7 +45,7 @@ public class WebSocketControllerClient {
     public String sendMessageViaRest() {
         String destination = "/topic/global-notifications"; // Gửi đến tất cả user
 
-        messagingTemplate.convertAndSend(destination, "Hello tất cả mọi người!");
+        simpMessagingTemplate.convertAndSend(destination, "Hello tất cả mọi người!");
         System.out.println("Đã gửi tin nhắn tới: " + destination);
 
         return "Đã gửi tin nhắn thành công!";
@@ -85,6 +85,8 @@ public class WebSocketControllerClient {
                 .status(MessageStatus.valueOf(message.getStatus()))
                 .senderId(message.getSenderId())
                 .build());
+        simpMessagingTemplate.convertAndSend("/topic/anou","thong báo mới");
+
         // Trả về tin nhắn đã lưu để gửi qua WebSocket
         return savedMessage;
     }
