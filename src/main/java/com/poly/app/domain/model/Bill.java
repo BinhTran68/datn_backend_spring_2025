@@ -86,6 +86,10 @@ public class    Bill extends PrimaryEntity implements Serializable {
     BillStatus status;
 
     @ManyToOne
+    @JoinColumn(name = "freeship_order_id", referencedColumnName = "id")
+    private FreeshipOrder freeshipOrder;
+
+    @ManyToOne
     @JoinColumn(name = "voucher_id", referencedColumnName = "id")
     private Voucher voucher;
 
