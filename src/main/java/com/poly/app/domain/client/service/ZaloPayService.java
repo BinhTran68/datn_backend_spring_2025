@@ -112,6 +112,7 @@ public class ZaloPayService {
         kq.put("returncode", result.get("returncode"));
         kq.put("zptranstoken", result.get("zptranstoken"));
         kq.put("apptransid", zalopay_Params.get("apptransid"));
+        kq.put("amount", amount);
 
 
         log.info(kq.toString());

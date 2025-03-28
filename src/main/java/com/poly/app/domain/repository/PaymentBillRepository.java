@@ -3,6 +3,8 @@ package com.poly.app.domain.repository;
 import com.poly.app.domain.admin.bill.response.PaymentBillResponse;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.PaymentBill;
+import com.poly.app.infrastructure.constant.PayMentBillStatus;
+import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PaymentBillRepository extends JpaRepository<PaymentBill,Integer> {
+public interface PaymentBillRepository extends JpaRepository<PaymentBill, Integer> {
 
 
     List<PaymentBill> findByBill(Bill bill);
@@ -31,4 +33,10 @@ public interface PaymentBillRepository extends JpaRepository<PaymentBill,Integer
             "WHERE b.code = :billCode")
     List<PaymentBillResponse> findPaymentBillByBillCode(@Param("billCode") String billCode);
 
+    @Query(value = "select pb from PaymentBill pb where pb.payMentBillStatus = :payMentBillStatus " +
+                   "and pb.paymentMethods.paymentMethodsType = :paymentMethodType " +
+                   "and pb.createdAt >= :timeLimit")
+    List<PaymentBill> getAllPaymentBillCTT(@Param("payMentBillStatus") PayMentBillStatus payMentBillStatus,
+                                           @Param("paymentMethodType") PaymentMethodsType paymentMethodType,
+                                           @Param("timeLimit") Long timeLimit);
 }

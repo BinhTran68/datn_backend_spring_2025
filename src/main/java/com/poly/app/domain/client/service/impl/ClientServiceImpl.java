@@ -24,6 +24,7 @@ import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.util.VoucherBest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
@@ -31,12 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,6 +61,9 @@ public class ClientServiceImpl implements ClientService {
     CartDetailRepository cartDetailRepository;
     CartRepository cartRepository;
     EmailSender emailSender;
+    SimpMessagingTemplate messagingTemplate;
+     AnnouncementRepository announcementRepository;
+
 
 
     @Override
@@ -272,7 +274,7 @@ public class ClientServiceImpl implements ClientService {
                                     .status(Status.HOAT_DONG)
                                     .build()));
 //và lưu pttt
-                    paymentBillRepository.save(PaymentBill.builder()
+                    PaymentBill paymentBill = paymentBillRepository.save(PaymentBill.builder()
                             .bill(billSave)
                             .paymentMethods(paymentMethods)
                             .payMentBillStatus(PayMentBillStatus.CHUA_THANH_TOAN)
@@ -285,7 +287,7 @@ public class ClientServiceImpl implements ClientService {
                     sendMail(request.getEmail(), billSave);
                     Map<String, Object> zaloPayResponse = zaloPayService.createPayment(
                             customer != null ? customer.getId().toString() : "guest",
-                            request.getTotalMoney().longValue(),
+                            request.getMoneyAfter().longValue(),
                             billSave.getId().longValue()
                     );
 
@@ -293,7 +295,8 @@ public class ClientServiceImpl implements ClientService {
                         throw new ApiException(ErrorCode.INVALID_KEY);
                     }
 
-
+                    paymentBill.setTransactionCode(zaloPayResponse.get("apptransid").toString());
+                    paymentBill.setTotalMoney(Double.valueOf(zaloPayResponse.get("amount").toString()));
                     return (String) zaloPayResponse.get("orderurl"); // Trả về URL thanh toán ngay lập tức
                 } catch (Exception e) {
                     log.error("Lỗi khi tạo đơn hàng ZaloPay", e);
@@ -619,28 +622,47 @@ public class ClientServiceImpl implements ClientService {
         billHistoryRepository.save(BillHistory
                 .builder()
                 .customer(bill.getCustomer())
-                .description("Hủy đơn hàng\n Lý do:" + description)
+                .description("Hủy đơn hàng\n Lý do: " + description)
                 .bill(bill)
                 .status(BillStatus.DA_HUY)
                 .build());
 
-        PaymentBill paymentBill = paymentBillRepository.findByBillId(bill.getId());
-        PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
+        // Tạo thông báo với nội dung phù hợp về việc hủy đơn hàng
+        Announcement announcement = new Announcement();
+        announcement.setCustomer(bill.getCustomer());
+        announcement.setAnnouncementContent("Đơn hàng #" + bill.getId() + " đã bị hủy. Lý do: " + description);
+        announcementRepository.save(announcement);
 
-        if (paymentMethods.getPaymentMethodsType().equals(PaymentMethodsType.COD)) {
-            bill.setStatus(BillStatus.CHO_XAC_NHAN);
-            billRepository.save(bill);
-            sendMail(bill.getEmail(), bill);
-            billHistoryRepository.save(BillHistory
-                    .builder()
-                    .customer(null)
-                    .bill(bill)
-                    .description("xác minh danh tính thành công")
-                    .status(BillStatus.CHO_XAC_NHAN)
-                    .build());
-            return "xác minh thành công";
+        // Gửi thông báo qua WebSocket đến customer
+        if (bill.getCustomer() != null) {
+            try {
+                messagingTemplate.convertAndSend(
+
+                        "/topic/global-notifications/"+bill.getCustomer().getId(),
+                        new NotificationResponse(
+                                Long.valueOf(announcement.getId()), // Chắc chắn ID không null sau khi đã save
+                                announcement.getAnnouncementContent(),
+                                new Date(announcement.getCreatedAt()),
+                                false
+                        )
+                );
+                System.out.println("Đã gửi thông báo WebSocket tới user: " + bill.getCustomer().getId());
+            } catch (Exception e) {
+                System.err.println("Lỗi khi gửi thông báo WebSocket: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
-        return "Hủy đơn hàng, lý do:" + description;
+
+        PaymentBill paymentBill = paymentBillRepository.findByBillId(bill.getId());
+        if (paymentBill != null) {
+            PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
+            // Xử lý logic hoàn tiền nếu cần
+        }
+
+        // Gửi email thông báo hủy đơn hàng
+        cancelBill(bill.getEmail(), bill);
+
+        return "Hủy đơn hàng thành công. Lý do: " + description;
     }
 
     @Override
@@ -741,6 +763,44 @@ public class ClientServiceImpl implements ClientService {
                         """.formatted(sendToMail, billCode.getBillCode(), billCode.getBillCode(), paymentMethod)
         );
 
+
+        emailSender.sendEmail(email);
+    }
+
+    private void cancelBill(String sendToMail, Bill billCode) {
+        Email email = new Email();
+        String[] emailSend = {sendToMail};
+        email.setToEmail(emailSend);
+        email.setSubject("TheHands-Thông Báo Hủy Đơn Hàng");
+        email.setTitleEmail("");
+        email.setBody(
+                """
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Hủy Đơn Hàng Thành Công - TheHands</title>
+                        </head>
+                        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px;">
+                            <div style="max-width: 600px; background-color: #ffffff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: auto;">
+                                <h2 style="color: #333; font-size: 24px; margin-bottom: 10px;">❌ Hủy Đơn Hàng Thành Công</h2>
+                                <p style="color: #666; font-size: 16px; line-height: 1.5;">Chúng tôi xin thông báo rằng đơn hàng của bạn tại <strong>TheHands</strong> đã được hủy thành công theo yêu cầu.</p>
+                                <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
+                                <p style="color: #555; font-size: 16px;"><strong>📧 Email:</strong> %s</p>
+                                <p style="color: #555; font-size: 16px;"><strong>🧾 Mã đơn hàng:</strong> <span style="color: #e74c3c; font-weight: bold;">%s</span></p>
+                                <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
+                                <p style="color: #666; font-size: 16px; line-height: 1.5;">Nếu bạn cần hỗ trợ hoặc muốn đặt lại đơn hàng, vui lòng liên hệ với chúng tôi.</p>
+                                <a href="mailto:support@thehands.com" 
+                                   style="display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; transition: background-color 0.3s;">
+                                   📩 Liên Hệ Hỗ Trợ
+                                </a>
+                                <p style="margin-top: 25px; font-size: 12px; color: #999; line-height: 1.4;">Cảm ơn bạn đã tin tưởng <strong>TheHands</strong>. Hy vọng sẽ được phục vụ bạn trong tương lai!</p>
+                            </div>
+                        </body>
+                        </html>
+                        """.formatted(sendToMail, billCode.getBillCode())
+        );
 
         emailSender.sendEmail(email);
     }

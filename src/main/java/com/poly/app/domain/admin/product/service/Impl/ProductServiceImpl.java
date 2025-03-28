@@ -5,6 +5,7 @@ import com.poly.app.domain.admin.product.response.product.IProductResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.model.Product;
+import com.poly.app.domain.repository.ProductDetailRepository;
 import com.poly.app.domain.repository.ProductRepository;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
 import com.poly.app.domain.admin.product.response.product.ProductResponse;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
@@ -32,6 +34,7 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     ProductRepository productRepository;
+    ProductDetailRepository productDetailRepository;
 
     @Override
     public Product createProduct(ProductRequest request) {
@@ -133,16 +136,19 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+    @Transactional
     @Override
     public String switchStatus(Integer id, Status status) {
         Product brand = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
         if (status.equals(Status.HOAT_DONG)) {
             brand.setStatus(Status.HOAT_DONG);
             productRepository.save(brand);
+            productDetailRepository.switchStatusPD("0", id);
             return "hoat dong";
         } else {
             brand.setStatus(Status.NGUNG_HOAT_DONG);
             productRepository.save(brand);
+            productDetailRepository.switchStatusPD("1", id);
             return "ngung hoat dong";
 
         }
