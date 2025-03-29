@@ -4,8 +4,11 @@ import com.poly.app.domain.admin.promotion.request.PromotionRequest;
 import com.poly.app.domain.admin.promotion.response.ProductpromotionResponse;
 import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.admin.promotion.service.PromotionService;
+import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.*;
+import com.poly.app.infrastructure.constant.DiscountType;
+import com.poly.app.infrastructure.constant.VoucherType;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -13,11 +16,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -113,11 +118,6 @@ public class PromotionServiceImpl implements PromotionService {
         );
     }
 
-//    @Override
-//    public PromotionResponse getPromotionDetail(int id) {
-//        return null;
-//    }
-
 
     @Transactional
     @Override
@@ -176,31 +176,25 @@ public class PromotionServiceImpl implements PromotionService {
         return PromotionResponse.fromEntity(promotionRepository.save(promotion));
     }
 
+
+
+
+
+    @Transactional
     @Override
     public String deletePromotion(int id) {
-        return null;
-    }
+        // Kiểm tra sự tồn tại của Promotion
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Promotion với ID: " + id));
 
-//
-//
-//
-//
-//    @Transactional
-//    @Override
-//    public String deletePromotion(int id) {
-//        // Kiểm tra sự tồn tại của Promotion
-//        Promotion promotion = promotionRepository.findById(id)
-//                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Promotion với ID: " + id));
-//
-//        // Xóa tất cả ProductPromotion liên quan
-//        productPromotionRepository.deleteAllByPromotionId(id);
-//
-//        // Xóa Promotion
-//        promotionRepository.delete(promotion);
-//
-//        return "Promotion với ID " + id + " đã được xóa thành công.";
-//    }
-//
+        // Xóa tất cả ProductPromotion liên quan
+        productPromotionRepository.deleteAllByPromotionId(id);
+
+        // Xóa Promotion
+        promotionRepository.delete(promotion);
+
+        return "Promotion với ID " + id + " đã được xóa thành công.";
+    }
 
 
 
@@ -259,39 +253,60 @@ public class PromotionServiceImpl implements PromotionService {
         return List.of();
     }
 
-    // 🔍 Tìm kiếm theo tên chương trình khuyến mãi
     @Override
-    public List<PromotionResponse> searchPromotionByName(String promotionName) {
-        return promotionRepository.findByPromotionNameContainingIgnoreCase(promotionName)
-                .stream()
+    public Page<PromotionResponse> getPagePromotion(int size, int page, StatusEnum statusPromotion, String search, String startDate, String endDate,Double discountValue ) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Specification<Promotion> spec = Specification.where(null);
+
+        // Lọc theo trạng thái Promotion
+        if (statusPromotion != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("statusPromotion"), statusPromotion));
+        }
+        // Tìm kiếm theo mã hoặc tên promotion
+        if (search != null && !search.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.or(
+                            criteriaBuilder.like(root.get("promotionCode"), "%" + search + "%"),
+                            criteriaBuilder.like(root.get("promotionName"), "%" + search + "%")
+
+                    ));
+        }
+        if (discountValue != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("discountValue"), discountValue)
+            );
+        }
+
+
+        // Lọc theo ngày bắt đầu
+        if (startDate != null && !startDate.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("startDate"),
+                            parseDateTime(startDate)));
+        }
+
+        // Lọc theo ngày kết thúc
+        if (endDate != null && !endDate.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("endDate"),
+                            parseDateTime(endDate))
+            );
+        }
+
+        Page<Promotion> PromotionPage =promotionRepository.findAll(spec, pageable);
+        List<PromotionResponse> promotionResponses = PromotionPage.getContent().stream()
                 .map(PromotionResponse::fromEntity)
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(promotionResponses, pageable, PromotionPage.getTotalElements());
     }
 
-    // 🔍 Tìm kiếm theo khoảng giá trị giảm giá
-    @Override
-    public List<PromotionResponse> searchPromotionByDiscountRange(Double minDiscount, Double maxDiscount) {
-        return promotionRepository.findByDiscountValueBetween(minDiscount, maxDiscount)
-                .stream()
-                .map(PromotionResponse::fromEntity)
-                .collect(Collectors.toList());
+    private  LocalDateTime parseDateTime(String dateTime) {
+        return LocalDate.parse(dateTime, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                .atStartOfDay(); // Đặt giờ thành 00:00:0
     }
 
-    // 🔍 Tìm kiếm theo trạng thái khuyến mãi
-    @Override
-    public List<PromotionResponse> searchPromotionByStatus(StatusEnum statusPromotion) {
-        return promotionRepository.findByStatusPromotion(statusPromotion)
-                .stream()
-                .map(PromotionResponse::fromEntity)
-                .collect(Collectors.toList());
-    }
-
-    // 🔍 Tìm kiếm theo khoảng thời gian bắt đầu và kết thúc
-    @Override
-    public List<PromotionResponse> searchPromotionByEndDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return promotionRepository.findByEndDateBetween(startDate, endDate)
-                .stream()
-                .map(PromotionResponse::fromEntity)
-                .collect(Collectors.toList());
-    }
 }

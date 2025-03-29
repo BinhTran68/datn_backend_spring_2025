@@ -441,14 +441,22 @@ public class BillServiceImpl implements BillService {
 
     }
 
-    @Override
-    public List<VoucherReponse> getAllVoucherResponse() {
-        LocalDateTime now = LocalDateTime.now();
-        List<Voucher> vouchers = voucherRepository
-                .findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThan(now, now, 0);
-        List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
-        return voucherReponses;
-    }
+//    @Override
+//    public List<VoucherReponse> getAllVoucherResponse() {
+//        LocalDateTime now = LocalDateTime.now();
+//        List<Voucher> vouchers = voucherRepository
+//                .findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThan(now, now, 0);
+//        List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
+//        return voucherReponses;
+//    }
+@Override
+public List<VoucherReponse> getAllVoucherResponse() {
+    LocalDateTime now = LocalDateTime.now();
+    List<Voucher> vouchers = voucherRepository
+            .findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThan(now, now, 0);
+    List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
+    return voucherReponses;
+}
 
     @Override
     public List<VoucherReponse> getAllVoucherResponseByCustomerId(Integer customerId) {

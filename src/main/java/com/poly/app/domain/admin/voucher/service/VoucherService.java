@@ -21,15 +21,12 @@ public interface VoucherService {
 
     VoucherReponse updateVoucher(VoucherRequest request, int id);
 
-    //    VoucherReponse updateTt(VoucherRequest request, int id);
-//VoucherReponse updateVoucherStatus(int id, StatusVoucher status);
     String deleteVoucher(int id);
 
     VoucherReponse getVoucherDetail(int id);
 
     Page<VoucherReponse> getAllVoucher(Pageable pageable);
 
-    //    Page<VoucherReponse> searchVouchers(String keyword, Pageable pageable);
     Boolean register(RegisterRequest request);
 
     String switchStatus(Integer id, StatusEnum status);
@@ -37,28 +34,6 @@ public interface VoucherService {
 
     List<VoucherReponse> getAllVouchersWithCustomer(Integer customerId);
 
-
-    // 🔍 Tìm voucher theo tên
-    List<VoucherReponse> searchVoucherByName(String voucherName);
-
-    // 🔍 Tìm voucher theo trạng thái
-    List<VoucherReponse> searchVoucherByStatus(StatusEnum statusVoucher);
-
-    // 🔍 Tìm voucher theo số lượng
-    List<VoucherReponse> searchVoucherByQuantity(Integer quantity);
-
-    // 🔍 Tìm voucher theo loại
-    List<VoucherReponse> searchVoucherByType(VoucherType voucherType);
-
-    // 🔍 Tìm voucher theo khoảng giá trị giảm tối đa
-    List<VoucherReponse> searchVoucherByDiscountMaxRange(Double minDiscount, Double maxDiscount);
-
-    // 🔍 Tìm voucher theo khoảng giá trị hóa đơn tối thiểu
-    List<VoucherReponse> searchVoucherByBillMinRange(Double minBill, Double maxBill);
-
-
-    // 🔍 Tìm voucher theo khoảng thời gian bắt đầu và kết thúc
-    List<VoucherReponse> searchVoucherByStartDateRange(LocalDateTime startDate, LocalDateTime endDate);
 
 
     Page<VoucherReponse> getPageVoucher(int size,
