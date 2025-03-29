@@ -30,8 +30,6 @@ public class PaymentBillServiceImpl implements PaymentBillService {
 
         List<PaymentBillResponse> paymentBillList = paymentBillRepository.findPaymentBillByBillCode(bill.getCode());
 
-
-
         return paymentBillList;
     }
 }

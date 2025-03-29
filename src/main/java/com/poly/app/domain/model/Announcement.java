@@ -25,5 +25,6 @@ public class Announcement extends PrimaryEntity implements Serializable {
     String announcementCode;
 //    nội dung thông báo
     String announcementContent;
+    Boolean isRead = false;
 
 }

@@ -3,11 +3,13 @@ package com.poly.app.domain.repository;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
+import com.poly.app.infrastructure.constant.Status;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -183,6 +185,11 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
 
 
     List<ProductDetail> findByProductIdAndColorId(int productId, int colorId);
+
+    @Modifying
+    @Query(value = "UPDATE product_detail SET status = :status WHERE product_id = :id", nativeQuery = true)
+    void switchStatusPD(@Param("status") String status, @Param("id") Integer id);
+
 
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

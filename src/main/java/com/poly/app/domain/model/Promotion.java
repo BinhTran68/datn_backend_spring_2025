@@ -23,22 +23,22 @@ import java.time.LocalDateTime;
 // đợt giảm giá
 public class Promotion extends PrimaryEntity implements Serializable {
     Integer id;
-// mã giảm
+    // mã giảm
     String promotionCode;
-// tên loại giảm
+    // tên loại giảm
     String promotionName;
-// loại giảm
+    // loại giảm
     String promotionType;
-// giá trị giảm
+    // giá trị giảm
     Double discountValue;
     @Enumerated(EnumType.STRING)
     DiscountType discountType;
     Integer quantity;
     // ngày bắt đầu
     LocalDateTime startDate;
-// ngày kết thúc
+    // ngày kết thúc
     LocalDateTime endDate;
-// trạng thái
-@Enumerated(EnumType.STRING)
-StatusEnum statusPromotion;
+    // trạng thái
+    @Enumerated(EnumType.STRING)
+    StatusEnum statusPromotion;
 }

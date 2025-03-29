@@ -5,10 +5,7 @@ import com.poly.app.domain.admin.product.response.productdetail.ProductDetailRes
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
 import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
-import com.poly.app.domain.client.response.CartResponse;
-import com.poly.app.domain.client.response.ProductViewResponse;
-import com.poly.app.domain.client.response.RealPriceResponse;
-import com.poly.app.domain.client.response.VoucherBestResponse;
+import com.poly.app.domain.client.response.*;
 import com.poly.app.domain.client.service.ClientService;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.Meta;
@@ -258,6 +255,7 @@ public class ClientController {
                 .data(clientService.setQuantityCart(customerId, quantity))
                 .build();
     }
+
     @PostMapping("/getrealprice")
     ApiResponse<List<RealPriceResponse>> getRealPrice(
             @RequestBody List<AddCart> addCart
@@ -267,6 +265,7 @@ public class ClientController {
                 .data(clientService.getRealPrice(addCart))
                 .build();
     }
+
     @GetMapping("/getadressdefault")
     ApiResponse<Object> getAddressDefault(
             @RequestParam(required = false) Integer customerId
@@ -275,6 +274,56 @@ public class ClientController {
         return ApiResponse.<Object>builder()
                 .message("sửa get addre")
                 .data(clientService.findAdressDefaulCustomerId(customerId))
+                .build();
+    }
+
+    @GetMapping("/searchbill")
+    ApiResponse<SearchStatusBillResponse> searchBill(
+            @RequestParam(required = false) String billCode
+    ) {
+        return ApiResponse.<SearchStatusBillResponse>builder()
+                .message("lấy trạng thái hóa đơn")
+                .data(clientService.searchBill(billCode))
+                .build();
+    }
+    @GetMapping("/veritifybillcode")
+    ApiResponse<String> veritify(
+            @RequestParam(required = false) String billCode
+    ) {
+        return ApiResponse.<String>builder()
+                .message("xác minh danh tính")
+                .data(clientService.veritifyBill(billCode))
+                .build();
+    }
+    @GetMapping("/getallbillcustomerId")
+    ApiResponse<List<SearchStatusBillResponse>> getALlBillCustomerId(
+            @RequestParam(value = "customerId", required = false) Integer customerId,
+
+            @RequestParam(value = "page", defaultValue = "1") Integer page
+            , @RequestParam(value = "size", defaultValue = "5") Integer size
+    ) {
+        return clientService.getAllBillOfCustomerid(customerId,page,size);
+    }
+    @GetMapping("/cancelbill")
+    ApiResponse<String> cacelBill(
+            @RequestParam(required = false) Integer billId,
+            @RequestParam(required = false) String description
+
+            ) {
+        return ApiResponse.<String>builder()
+                .message("Hủy đơn hàng")
+                .data(clientService.cancelBill(billId,description))
+                .build();
+    }
+    @GetMapping("/buyback")
+    ApiResponse<String> buyBack(
+            @RequestParam Integer billId,
+            @RequestParam Integer customerId
+
+    ) {
+        return ApiResponse.<String>builder()
+                .message("Hủy đơn hàng")
+                .data(clientService.buyBack(billId,customerId))
                 .build();
     }
 }

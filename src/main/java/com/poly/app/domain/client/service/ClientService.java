@@ -5,10 +5,8 @@ import com.poly.app.domain.admin.product.response.productdetail.ProductDetailRes
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
 import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
-import com.poly.app.domain.client.response.CartResponse;
-import com.poly.app.domain.client.response.ProductViewResponse;
-import com.poly.app.domain.client.response.RealPriceResponse;
-import com.poly.app.domain.client.response.VoucherBestResponse;
+import com.poly.app.domain.client.response.*;
+import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.model.Voucher;
 import org.springframework.data.domain.Page;
 
@@ -60,4 +58,15 @@ public interface ClientService {
     List <RealPriceResponse> getRealPrice(List<AddCart> addCartList);
 
     Optional<Object> findAdressDefaulCustomerId(Integer customerId);
+
+    SearchStatusBillResponse searchBill (String billCode);
+
+    String veritifyBill(String billCode);
+
+    ApiResponse<List<SearchStatusBillResponse>> getAllBillOfCustomerid(Integer customerId, Integer page, Integer size);
+
+    String cancelBill(Integer id, String description);
+
+    String buyBack(Integer billId, Integer customerId);
+
 }

@@ -1,7 +1,10 @@
 package com.poly.app.infrastructure.constant;
 
 public enum PaymentMethodEnum {
+  // Phương thức thanh toán
     TIEN_MAT,
     CHUYEN_KHOAN,
-    TIEN_MAT_AND_CHUYEN_KHOAN,
+    VN_PAY,
+    MOMO,
+    ZALO_PAY,
 }

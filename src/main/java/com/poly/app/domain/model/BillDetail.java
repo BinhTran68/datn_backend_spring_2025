@@ -38,4 +38,6 @@ public class BillDetail extends PrimaryEntity implements Serializable {
 
     Status status;
 
+    String image;
+
 }

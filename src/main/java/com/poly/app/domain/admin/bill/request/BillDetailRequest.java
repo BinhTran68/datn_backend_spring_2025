@@ -11,5 +11,6 @@ public class BillDetailRequest {
     private Integer productDetailId;
     private Integer quantity;
     private Double price;
+    private String image;
 
 }

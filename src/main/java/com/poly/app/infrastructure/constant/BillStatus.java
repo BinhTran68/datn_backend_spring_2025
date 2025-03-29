@@ -1,6 +1,7 @@
 package com.poly.app.infrastructure.constant;
 
 public enum BillStatus {
+
     DA_HUY,
     CHO_XAC_NHAN,
     DA_XAC_NHAN,
@@ -14,6 +15,8 @@ public enum BillStatus {
     TRA_HANG, //9
     KHONG_TON_TAI, //10
     HUY_YEU_CAU_TRA_HANG,
-    TU_CHOI_TRA_HANG
+    TU_CHOI_TRA_HANG,
+    DANG_XAC_MINH;
+
 
 }

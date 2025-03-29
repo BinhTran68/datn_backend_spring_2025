@@ -155,7 +155,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Gender genderOther = Gender.builder()
                 .genderCode("O")
-                .genderName("Khác")
+                .genderName("Nam/Nữ")
                 .status(Status.HOAT_DONG)
                 .build();
         genderRepository.save(genderOther);
@@ -665,11 +665,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
 
         PaymentMethods paymentMethod1 = PaymentMethods.builder()
-                .paymentMethod(PaymentMethodEnum.TIEN_MAT)// Tên phương thức thanh toán
-                .totalMoney(1000000.0) // Tổng tiền
                 .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
-                .notes("Thanh toán qua thẻ Visa hoặc MasterCard") // Ghi chú
-                .transactionCode("TXN001") // Mã giao dịch
                 .status(Status.HOAT_DONG) // Trạng thái (1: Hoạt động, 0: Không hoạt động)
                 .build();
 
@@ -677,22 +673,13 @@ public class DatabaseSeeder implements CommandLineRunner {
         paymentMethodsRepository.save(paymentMethod1);
 
         PaymentMethods paymentMethod2 = PaymentMethods.builder()
-
-                .paymentMethod(PaymentMethodEnum.TIEN_MAT)
-                .totalMoney(2000000.0)
                 .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
-                .notes("Thanh toán qua chuyển khoản vào tài khoản ngân hàng")
-                .transactionCode("TXN002")
                 .status(Status.HOAT_DONG)
                 .build();
         paymentMethodsRepository.save(paymentMethod2);
 
         PaymentMethods paymentMethod3 = PaymentMethods.builder()
-                .paymentMethod(PaymentMethodEnum.CHUYEN_KHOAN)
-                .totalMoney(500000.0)
-                .paymentMethodsType(PaymentMethodsType.THANH_TOAN_KHI_NHAN_HANG)
-                .notes("Thanh toán khi nhận sản phẩm tại nhà")
-                .transactionCode("TXN003")
+                .paymentMethodsType(PaymentMethodsType.COD)
                 .status(Status.HOAT_DONG) // Trạng thái không hoạt động
                 .build();
         paymentMethodsRepository.save(paymentMethod3);
@@ -709,7 +696,6 @@ public class DatabaseSeeder implements CommandLineRunner {
             PaymentBill paymentBill1 = PaymentBill.builder()
                     .bill(bill1)
                     .paymentMethods(paymentMethod1)
-                    .status(Status.HOAT_DONG) // Trạng thái thanh toán thành công
                     .build();
             paymentBillRepository.save(paymentBill1);
         }
@@ -719,7 +705,6 @@ public class DatabaseSeeder implements CommandLineRunner {
             PaymentBill paymentBill2 = PaymentBill.builder()
                     .bill(bill2)
                     .paymentMethods(paymentMethod2)
-                    .status(Status.HOAT_DONG) // Trạng thái thanh toán chưa hoàn thành
                     .build();
             paymentBillRepository.save(paymentBill2);
         }
