@@ -112,7 +112,7 @@ public class VoucherServiceImpl implements VoucherService {
                             "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
                             "        <p style=\"color: #555;\">Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của TheHands. Chúng tôi dành tặng bạn một mã giảm giá đặc biệt!</p>\n" +
                             "        <p><strong>Mã voucher:</strong> " + generatedVoucherCode + "</p>\n" +
-                            "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+                            "<p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + (request.getDiscountType().equals(DiscountType.MONEY.name()) ? "Tiền" : "%") + "</p>\n" +
                             "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "Đ</p>\n" +
                             "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " Đ</p>\n" +
                             "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
@@ -196,7 +196,7 @@ public class VoucherServiceImpl implements VoucherService {
                         "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
                         "        <p style=\"color: #555;\">Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của TheHands. Chúng tôi dành tặng bạn một mã giảm giá đặc biệt!</p>\n" +
                         "        <p><strong>Mã voucher:</strong> " + generatedVoucherCode + "</p>\n" +
-                        "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+                        "<p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + (request.getDiscountType().equals(DiscountType.MONEY.name()) ? "Tiền" : "%") + "</p>\n" +
                         "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "Đ</p>\n" +
                         "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " Đ</p>\n" +
                         "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
@@ -225,7 +225,7 @@ public class VoucherServiceImpl implements VoucherService {
                                 "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
                                 "        <p style=\"color: #555;\"> Chúng tôi có thay đổi về mã giảm giá của bạn!</p>\n" +
                                 "        <p><strong>Mã voucher:</strong> " + existingVoucherCode + "</p>\n" +
-                                "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+                                "<p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + (request.getDiscountType().equals(DiscountType.MONEY.name()) ? "Tiền" : "%") + "</p>\n" +
                                 "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "</p>\n" +
                                 "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " VNĐ</p>\n" +
                                 "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
@@ -255,7 +255,8 @@ public class VoucherServiceImpl implements VoucherService {
                                 "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
                                 "        <p style=\"color: #555;\"> Chúng tôi rất tiếc phải hủy phiếu giảm giá của bạn!</p>\n" +
                                 "        <p><strong>Mã voucher:</strong> " + existingVoucherCode + "</p>\n" +
-                                "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+
+                                "<p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + (request.getDiscountType().equals(DiscountType.MONEY.name()) ? "Tiền" : "%") + "</p>\n" +
                                 "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "</p>\n" +
                                 "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " VNĐ</p>\n" +
                                 "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +

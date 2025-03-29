@@ -21,7 +21,8 @@ public interface PromotionService {
 
     Page<PromotionResponse> getAllPromotion(Pageable pageable);
 
-    PromotionResponse getPromotionDetail(int id);
+    public PromotionResponse getPromotionDetail(int id);
+
     String switchStatus(Integer id, StatusEnum status);
     List<PromotionResponse> getAllPromotionsWithCustomer(Integer productIds);
     List<PromotionResponse> searchPromotionByName(String promotionName);

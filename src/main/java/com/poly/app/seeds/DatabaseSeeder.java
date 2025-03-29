@@ -106,10 +106,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Autowired
     PromotionRepository promotionRepository;
-
-    @Autowired
-    PromotionDetailRepository promotionDetailRepository;
-
     @Autowired
     VoucherRepository voucherRepository;
 

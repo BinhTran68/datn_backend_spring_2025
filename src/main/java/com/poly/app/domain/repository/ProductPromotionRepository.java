@@ -15,14 +15,16 @@ public interface ProductPromotionRepository extends JpaRepository<ProductPromoti
     //       Tìm tất cả bản ghi ProductPromotion theo Promotion
     List<ProductPromotion> findProductPromotionByPromotion(Promotion promotion);
 //     Xóa bản ghi ProductPromotion theo Product, ProductDetail, và Promotion
-    void deleteByProductAndProductDetailAndPromotion(Product product, ProductDetail productDetail, Promotion promotion);
+    void deleteByProductDetailAndPromotion( ProductDetail productDetail, Promotion promotion);
+//    void deleteByProductAndProductDetailAndPromotion(Product product, ProductDetail productDetail, Promotion promotion);
 //      Xóa tất cả ProductPromotion theo promotionId (sửa lỗi sai tên hàm)
+
 @Modifying
 @Transactional
 @Query("DELETE FROM ProductPromotion pp WHERE pp.promotion.id = :promotionId")
 void deleteAllByPromotionId(@Param("promotionId") int promotionId);
 
 //      Tìm danh sách ProductPromotion theo Product ID
-    @Query("SELECT pp FROM ProductPromotion pp WHERE pp.product.id = :productId")
-    List<ProductPromotion> findProductPromotionByProductId(@Param("productId") Integer productId);
+//    @Query("SELECT pp FROM ProductPromotion pp WHERE pp.product.id = :productId")
+//    List<ProductPromotion> findProductPromotionByProductId(@Param("productId") Integer productId);
 }

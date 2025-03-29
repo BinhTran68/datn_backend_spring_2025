@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.promotion.service.impl;
 
 import com.poly.app.domain.admin.promotion.request.PromotionRequest;
+import com.poly.app.domain.admin.promotion.response.ProductpromotionResponse;
 import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.admin.promotion.service.PromotionService;
 import com.poly.app.domain.model.*;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,8 +33,6 @@ public class PromotionServiceImpl implements PromotionService {
     PromotionRepository promotionRepository;
     @Autowired
     ProductDetailRepository productDetailRepository;
-    @Autowired
-    PromotionDetailRepository promotionDetailRepository;
     @Autowired
     ProductPromotionRepository productPromotionRepository;
     @Autowired
@@ -69,31 +69,21 @@ public class PromotionServiceImpl implements PromotionService {
 
         Promotion promotionSaved = promotionRepository.save(promotion);
 
-        // Lấy danh sách Product cùng lúc
-        if (request.getProductIds() != null && !request.getProductIds().isEmpty()) {
-            List<Product> products = productRepository.findAllById(request.getProductIds());
-            List<ProductPromotion> productPromotions = products.stream()
-                    .map(product -> ProductPromotion.builder()
-                            .product(product)
-                            .promotion(promotionSaved)
-                            .quantity(request.getQuantity())
-                            .build())
-                    .collect(Collectors.toList());
-            productPromotionRepository.saveAll(productPromotions);
-        }
-
-        // Lấy danh sách ProductDetail cùng lúc
         if (request.getProductDetailIds() != null && !request.getProductDetailIds().isEmpty()) {
             List<ProductDetail> productDetails = productDetailRepository.findAllById(request.getProductDetailIds());
-            List<ProductPromotion> productDetailPromotions = productDetails.stream()
+
+            List<ProductPromotion> productPromotions = productDetails.stream()
                     .map(productDetail -> ProductPromotion.builder()
+                            .product(productDetail.getProduct().getId()) // Lưu ID sản phẩm nếu cần
                             .productDetail(productDetail)
                             .promotion(promotionSaved)
                             .quantity(request.getQuantity())
                             .build())
                     .collect(Collectors.toList());
-            productPromotionRepository.saveAll(productDetailPromotions);
+
+            productPromotionRepository.saveAll(productPromotions);
         }
+
 
         return promotionSaved;
     }
@@ -123,13 +113,19 @@ public class PromotionServiceImpl implements PromotionService {
         );
     }
 
+//    @Override
+//    public PromotionResponse getPromotionDetail(int id) {
+//        return null;
+//    }
+
 
     @Transactional
     @Override
     public PromotionResponse updatePromotion(PromotionRequest request, int id) {
+        StatusEnum saStatusPromotion = checkPromotionStatus(request.getStartDate(), request.getEndDate());
         // Lấy thông tin chương trình khuyến mãi từ database
         Promotion promotion = promotionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Promotion not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Promotion not found with ID: " + id));
 
         // Cập nhật trạng thái chương trình khuyến mãi
         promotion.setStatusPromotion(checkPromotionStatus(request.getStartDate(), request.getEndDate()));
@@ -143,56 +139,68 @@ public class PromotionServiceImpl implements PromotionService {
         promotion.setStartDate(request.getStartDate());
         promotion.setEndDate(request.getEndDate());
 
-        // Xóa quan hệ cũ giữa promotion và products
+        // Xóa tất cả các quan hệ cũ giữa promotion và product/productDetail
         productPromotionRepository.deleteAllByPromotionId(id);
+
+        List<ProductPromotion> productPromotions = new ArrayList<>();
 
         // Cập nhật danh sách sản phẩm nếu có
         if (request.getProductIds() != null && !request.getProductIds().isEmpty()) {
-            List<ProductPromotion> productPromotions = productRepository.findAllById(request.getProductIds()).stream()
-                    .map(product -> ProductPromotion.builder()
-                            .product(product)
-                            .promotion(promotion)
-                            .quantity(request.getQuantity())
-                            .build())
-                    .collect(Collectors.toList());
-            productPromotionRepository.saveAll(productPromotions);
+            List<Product> products = productRepository.findAllById(request.getProductIds());
+            for (Product product : products) {
+                productPromotions.add(ProductPromotion.builder()
+                        .product(product.getId()) // Lưu ID sản phẩm thay vì đối tượng Product
+                        .promotion(promotion)
+                        .quantity(request.getQuantity())
+                        .build());
+            }
         }
 
         // Cập nhật danh sách chi tiết sản phẩm nếu có
         if (request.getProductDetailIds() != null && !request.getProductDetailIds().isEmpty()) {
-            List<ProductPromotion> productDetailPromotions = productDetailRepository.findAllById(request.getProductDetailIds()).stream()
-                    .map(productDetail -> ProductPromotion.builder()
-                            .productDetail(productDetail)
-                            .promotion(promotion)
-                            .quantity(request.getQuantity())
-                            .build())
-                    .collect(Collectors.toList());
-            productPromotionRepository.saveAll(productDetailPromotions);
+            List<ProductDetail> productDetails = productDetailRepository.findAllById(request.getProductDetailIds());
+            for (ProductDetail productDetail : productDetails) {
+                productPromotions.add(ProductPromotion.builder()
+                        .product(productDetail.getProduct().getId()) // Lưu ID sản phẩm từ ProductDetail
+                        .productDetail(productDetail)
+                        .promotion(promotion)
+                        .quantity(request.getQuantity())
+                        .build());
+            }
         }
 
-        // Lưu cập nhật vào cơ sở dữ liệu
+        // Lưu danh sách mới vào cơ sở dữ liệu
+        productPromotionRepository.saveAll(productPromotions);
+
+        // Lưu cập nhật chương trình khuyến mãi
         return PromotionResponse.fromEntity(promotionRepository.save(promotion));
     }
 
-
-
-
-    @Transactional
     @Override
     public String deletePromotion(int id) {
-        // Kiểm tra sự tồn tại của Promotion
-        Promotion promotion = promotionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Promotion với ID: " + id));
-
-        // Xóa tất cả ProductPromotion liên quan
-        productPromotionRepository.deleteAllByPromotionId(id);
-
-        // Xóa Promotion
-        promotionRepository.delete(promotion);
-
-        return "Promotion với ID " + id + " đã được xóa thành công.";
+        return null;
     }
 
+//
+//
+//
+//
+//    @Transactional
+//    @Override
+//    public String deletePromotion(int id) {
+//        // Kiểm tra sự tồn tại của Promotion
+//        Promotion promotion = promotionRepository.findById(id)
+//                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Promotion với ID: " + id));
+//
+//        // Xóa tất cả ProductPromotion liên quan
+//        productPromotionRepository.deleteAllByPromotionId(id);
+//
+//        // Xóa Promotion
+//        promotionRepository.delete(promotion);
+//
+//        return "Promotion với ID " + id + " đã được xóa thành công.";
+//    }
+//
 
 
 
@@ -205,18 +213,16 @@ public class PromotionServiceImpl implements PromotionService {
         // Lấy danh sách sản phẩm và chi tiết sản phẩm liên quan đến promotion
         List<ProductPromotion> productPromotions = productPromotionRepository.findProductPromotionByPromotion(promotion);
 
-        // Lấy danh sách productIds và productDetailIds, đảm bảo tránh NullPointerException
-        List<Integer> productIds = new ArrayList<>();
-        List<Integer> productDetailIds = new ArrayList<>();
+        // Lấy danh sách productIds và productDetailIds
+        List<Integer> productIds = productPromotions.stream()
+                .map(ProductPromotion::getProduct)
+                .filter(Objects::nonNull) // Tránh null
+                .collect(Collectors.toList());
 
-        for (ProductPromotion pp : productPromotions) {
-            if (pp.getProduct() != null) {
-                productIds.add(pp.getProduct().getId());
-            }
-            if (pp.getProductDetail() != null) {
-                productDetailIds.add(pp.getProductDetail().getId());
-            }
-        }
+        List<Integer> productDetailIds = productPromotions.stream()
+                .map(pp -> pp.getProductDetail() != null ? pp.getProductDetail().getId() : null)
+                .filter(Objects::nonNull) // Tránh null
+                .collect(Collectors.toList());
 
         // Chuyển đổi từ Entity sang Response
         PromotionResponse promotionResponse = PromotionResponse.fromEntity(promotion);
@@ -225,6 +231,8 @@ public class PromotionServiceImpl implements PromotionService {
 
         return promotionResponse;
     }
+
+
 
 
     @Override
