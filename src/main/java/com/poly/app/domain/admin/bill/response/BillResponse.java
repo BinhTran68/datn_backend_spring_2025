@@ -1,6 +1,8 @@
 package com.poly.app.domain.admin.bill.response;
 
 import com.poly.app.domain.admin.staff.response.AddressReponse;
+import com.poly.app.domain.admin.voucher.response.VoucherReponse;
+import com.poly.app.domain.admin.voucher.response.VoucherResponse;
 import com.poly.app.domain.model.Address;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -37,7 +39,6 @@ public class BillResponse {
     private String status;
     private String notes;
     private Long createAt;
+    private VoucherReponse voucherReponse;
     private AddressReponse addressReponse;
-
-
 }

@@ -13,6 +13,7 @@ import com.poly.app.domain.admin.bill.service.WebSocketService;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.staff.response.AddressReponse;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
+import com.poly.app.domain.auth.service.AuthenticationService;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillDetail;
@@ -111,6 +112,9 @@ public class BillServiceImpl implements BillService {
     @Autowired
     private WebSocketService webSocketService;
 
+    @Autowired
+    private AuthenticationService authenticationService;
+
     @Override
     public Page<BillResponse> getPageBill(Integer size, Integer page,
                                           BillStatus statusBill,
@@ -204,11 +208,13 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
+    @Transactional // Bên admin
     public BillResponse updateBillInfo(String billCode, UpdateBillRequest request) {
-        System.out.println(request.toString());
         Bill bill = billRepository.findByBillCode(billCode);
         bill.setNumberPhone(request.getCustomerPhone());
         bill.setNotes(request.getNote());
+        bill.setCustomerName(request.getCustomerName());
+        bill.setEmail(request.getEmail());
 
         Address newAddress = bill.getShippingAddress();
         if (newAddress == null) {
@@ -223,7 +229,15 @@ public class BillServiceImpl implements BillService {
         if (newAddress.getId() == null) {
             addressRepository.save(newAddress);  // Lưu mới nếu chưa có ID
         }
-
+        Staff staff = authenticationService.getStaffAuth();
+        BillHistory billHistory = BillHistory
+                .builder()
+                .staff(staff)
+                .bill(bill)
+                .status(bill.getStatus())
+                .description("Cập nhật thông tin khách hàng")
+                .build();
+        billHistoryRepository.save(billHistory);
         billRepository.save(bill);
         return convertBillToBillResponse(bill);
     }
@@ -489,6 +503,10 @@ public class BillServiceImpl implements BillService {
         }else {
              addressReponse   = new AddressReponse(bill.getShippingAddress());
         }
+        VoucherReponse voucher = null;
+        if(bill.getVoucher() != null) {
+            voucher  = VoucherReponse.formEntity(bill.getVoucher());
+        }
 
         return BillResponse.builder()
                 .billCode(bill.getBillCode())
@@ -507,6 +525,7 @@ public class BillServiceImpl implements BillService {
                 .address(bill.getShippingAddress())
                 .addressReponse(addressReponse)
                 .email(bill.getEmail())
+                .voucherReponse(voucher)
                 .status(bill.getStatus() != null ? bill.getStatus().toString() : null)
                 .createAt(bill.getCreatedAt())
                 .build();

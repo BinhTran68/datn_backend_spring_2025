@@ -81,6 +81,11 @@ public class    Bill extends PrimaryEntity implements Serializable {
 
     String notes;
 
+    // Phụ phí
+    String surcharge;
+    // Phụ phí notes
+    String surchargeNotes;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
     BillStatus status;

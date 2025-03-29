@@ -23,5 +23,4 @@ public class FreeshipOrder extends PrimaryEntity implements Serializable {
 
     @Column(name = "shipping_discount", nullable = false)
     private Double shippingDiscount;
-
 }
