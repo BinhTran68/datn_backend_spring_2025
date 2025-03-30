@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.File;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -14,4 +16,6 @@ public class Email {
     private String subject;
     private String body;
     private String titleEmail;
+    private File pdfFile;
+    private String fileName;
 }

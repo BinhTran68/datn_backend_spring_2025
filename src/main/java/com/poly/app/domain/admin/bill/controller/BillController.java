@@ -83,8 +83,6 @@ public class BillController {
         return ResponseEntity.ok().build();
     }
 
-
-
     @PutMapping("/{code}/update")
     public ApiResponse<?> updateBillStatus(@PathVariable String code, @RequestBody UpdateStatusBillRequest request) {
         return ApiResponse.builder().data(billService.updateStatusBill(code, request)).build();
