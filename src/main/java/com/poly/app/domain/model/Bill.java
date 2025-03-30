@@ -96,6 +96,6 @@ public class    Bill extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "voucher_id", referencedColumnName = "id")
-    private Voucher voucher;
+    private Voucher voucher;  //
 
 }

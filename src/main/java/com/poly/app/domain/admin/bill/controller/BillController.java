@@ -4,6 +4,7 @@ package com.poly.app.domain.admin.bill.controller;
 import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
 import com.poly.app.domain.admin.bill.request.RestoreQuantityRequest;
+import com.poly.app.domain.admin.bill.request.UpdateProductBillRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityProductRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityVoucherRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
@@ -74,6 +75,14 @@ public class BillController {
     public ApiResponse<?> findBillByBillCode(@PathVariable String billCode) {
         return ApiResponse.builder().data(billService.getBillResponseByBillCode(billCode)).build();
     }
+
+
+    @PutMapping("/update-product-bill/{billCode}")
+    public ResponseEntity<?> updateProductBill(@PathVariable String billCode, @RequestBody UpdateProductBillRequest request) {
+        billService.updateProductBill(billCode, request);
+        return ResponseEntity.ok().build();
+    }
+
 
 
     @PutMapping("/{code}/update")

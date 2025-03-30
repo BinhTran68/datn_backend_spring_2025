@@ -73,6 +73,7 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
                 billDetails.stream().map(billDetail ->
                                 BillProductDetailResponse
                                         .builder()
+                                        .ProductDetailId(billDetail.getProductDetail().getId())
                                         .productName(billDetail.getProductDetail().getProduct().getProductName())
                                         .color(billDetail.getProductDetail().getColor().getColorName())
                                         .size(billDetail.getProductDetail().getSize().getSizeName())

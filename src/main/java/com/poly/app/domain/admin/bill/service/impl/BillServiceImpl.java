@@ -3,6 +3,7 @@ package com.poly.app.domain.admin.bill.service.impl;
 import com.poly.app.domain.admin.bill.request.BillDetailRequest;
 import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
+import com.poly.app.domain.admin.bill.request.UpdateProductBillRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityVoucherRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
@@ -10,6 +11,7 @@ import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.admin.bill.service.WebSocketService;
+import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequest;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.staff.response.AddressReponse;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
@@ -43,6 +45,7 @@ import com.poly.app.infrastructure.constant.TypeBill;
 import com.poly.app.infrastructure.constant.VoucherType;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
+import com.poly.app.infrastructure.exception.RestApiException;
 import com.poly.app.infrastructure.security.Auth;
 import com.poly.app.infrastructure.util.DateUtil;
 import com.poly.app.infrastructure.util.GenHoaDon;
@@ -51,12 +54,14 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.embedded.netty.NettyWebServer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -65,6 +70,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -516,6 +522,7 @@ public class BillServiceImpl implements BillService {
                 .discountMoney(bill.getDiscountMoney())
                 .shipMoney(bill.getShipMoney())
                 .totalMoney(bill.getTotalMoney())
+                .moneyBeforeDiscount(bill.getMoneyBeforeDiscount())
                 .billType(bill.getTypeBill().toString())
                 .notes(bill.getNotes())
                 .completeDate(bill.getCompleteDate())
@@ -547,6 +554,78 @@ public class BillServiceImpl implements BillService {
         Long countAll = billRepository.count();
         response.add(Map.of("name", "all", "value", countAll));
         return response;
+    }
+
+    @Transactional
+    @Override
+    public void updateProductBill(String billCode, UpdateProductBillRequest request) {
+        try {
+            Bill bill = billRepository.findByBillCode(billCode);
+            Voucher voucher = voucherRepository.findVoucherByVoucherCode(request.getVoucherCode());
+            bill.setTotalMoney(request.getTotalMoney());
+            bill.setMoneyBeforeDiscount(request.getMoneyBeforeDiscount());
+            bill.setDiscountMoney(request.getDiscountMoney());
+            bill.setShipMoney(request.getShipMoney());
+            bill.setVoucher(voucher);
+
+            billRepository.save(bill);
+
+            List<BillDetail> billDetails = billDetailRepository.findByBillId(bill.getId());
+
+            List<BillProductDetailRequest> productDetailRequestList = request.getProductDetailRequestList();
+
+            Map<Integer, BillDetail> billDetailMap = billDetails.stream()
+                    .collect(Collectors.toMap(
+                            billDetail -> billDetail.getProductDetail().getId()
+                            , Function.identity()));
+
+
+            Map<Integer, BillProductDetailRequest> requestMap = productDetailRequestList.stream()
+                    .collect(Collectors.toMap(BillProductDetailRequest::getProductDetailId, Function.identity()));
+
+
+            List<BillDetail> toUpdate = new ArrayList<>();
+            List<BillDetail> toDelete = new ArrayList<>();
+            List<BillDetail> toInsert = new ArrayList<>();
+
+            // 1. Kiểm tra sản phẩm có trong DB nhưng không có trong request -> Xóa
+            for (BillDetail billDetail : billDetails) {
+                if (!requestMap.containsKey(billDetail.getProductDetail().getId())) {
+                    toDelete.add(billDetail);
+                }
+            }
+
+            // 2. Kiểm tra sản phẩm có trong cả hai -> Cập nhật
+            for (BillProductDetailRequest requestDetail : productDetailRequestList) {
+                BillDetail existingBillDetail = billDetailMap.get(requestDetail.getProductDetailId());
+                ProductDetail productDetail = productDetailRepository.findById(requestDetail.getProductDetailId()).orElseThrow(
+                        () -> new RestApiException("product detail not found", HttpStatus.NOT_FOUND)
+                );
+                if (existingBillDetail != null) {
+                    // Nếu có thay đổi về số lượng, cập nhật
+                    if (!existingBillDetail.getQuantity().equals(requestDetail.getQuantity())) {
+                        existingBillDetail.setQuantity(requestDetail.getQuantity());
+                        toUpdate.add(existingBillDetail);
+                    }
+                } else {
+                    // 3. Nếu sản phẩm mới không có trong DB -> Thêm mới
+                    BillDetail newBillDetail = new BillDetail();
+                    newBillDetail.setBill(bill);
+                    newBillDetail.setProductDetail(productDetail);
+                    newBillDetail.setQuantity(requestDetail.getQuantity());
+                    toInsert.add(newBillDetail);
+                }
+            }
+
+// Thực hiện các thao tác với repository
+            billDetailRepository.deleteAll(toDelete);
+            billDetailRepository.saveAll(toUpdate);
+            billDetailRepository.saveAll(toInsert);
+
+        }catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RestApiException("Update product failer", HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

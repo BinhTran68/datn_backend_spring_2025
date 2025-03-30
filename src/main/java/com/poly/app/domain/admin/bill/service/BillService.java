@@ -2,6 +2,7 @@ package com.poly.app.domain.admin.bill.service;
 
 import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
+import com.poly.app.domain.admin.bill.request.UpdateProductBillRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityVoucherRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
@@ -38,8 +39,9 @@ public interface BillService {
 
     VoucherReponse updateQuantityVoucher(UpdateQuantityVoucherRequest request);
 
-     List<Map<String, Object>> getBillCountByStatus();
+    List<Map<String, Object>> getBillCountByStatus();
 
+    void updateProductBill(String billCode, UpdateProductBillRequest request);
 
 
 }

@@ -10,6 +10,9 @@ import lombok.ToString;
 public class BillProductDetailRequest {
 
     Integer id;
+    Integer productDetailId;
     Integer quantity;
+
+    Double price;
 
 }

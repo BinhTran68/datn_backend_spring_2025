@@ -29,6 +29,7 @@ public class BillResponse {
     private Double discountMoney;
     private Double shipMoney;
     private Double totalMoney;
+    private Double moneyBeforeDiscount;
     private String billType;
     private LocalDateTime completeDate;
     private LocalDateTime confirmDate;
