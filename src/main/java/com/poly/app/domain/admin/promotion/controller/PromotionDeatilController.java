@@ -1,7 +1,5 @@
 package com.poly.app.domain.admin.promotion.controller;
 
-import com.poly.app.domain.admin.promotion.service.PromotionDetailService;
-import com.poly.app.domain.repository.PromotionDetailRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

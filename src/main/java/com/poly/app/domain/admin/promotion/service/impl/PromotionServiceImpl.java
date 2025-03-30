@@ -31,8 +31,8 @@ public class PromotionServiceImpl implements PromotionService {
     PromotionRepository promotionRepository;
     @Autowired
     ProductDetailRepository productDetailRepository;
-    @Autowired
-    PromotionDetailRepository promotionDetailRepository;
+//    @Autowired
+//    PromotionDetailRepository promotionDetailRepository;
     @Autowired
     ProductPromotionRepository productPromotionRepository;
     @Autowired

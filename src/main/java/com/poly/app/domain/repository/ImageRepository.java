@@ -19,6 +19,12 @@ public interface ImageRepository extends JpaRepository<Image, Integer> {
     @Query("SELECT new com.poly.app.domain.admin.product.response.img.ImgResponse(i.id,i.url,i.publicId) " +
            "FROM Image i WHERE i.productDetail.id = :productDetailId")
     List<ImgResponse> findByProductDetailId(@Param("productDetailId") Integer productDetailId);
+    @Query("""
+    SELECT new com.poly.app.domain.admin.product.response.img.ImgResponse(i.id, i.url, i.publicId) 
+    FROM Image i 
+    WHERE i.productDetail.product.id = :productId
+    """)
+    List<ImgResponse> findByProductId(@Param("productId") Integer productId);
 
     List<Image> getImageByPublicId(String publicId);
 

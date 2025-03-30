@@ -2,10 +2,12 @@ package com.poly.app.domain.client.service;
 
 import com.poly.app.domain.client.response.NotificationResponse;
 import com.poly.app.domain.model.Announcement;
+import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillHistory;
 import com.poly.app.domain.model.PaymentBill;
 import com.poly.app.domain.repository.AnnouncementRepository;
 import com.poly.app.domain.repository.BillHistoryRepository;
+import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.PaymentBillRepository;
 import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.PayMentBillStatus;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -34,11 +37,13 @@ public class ZaloPayStatusChecker {
     private static final ExecutorService executor = Executors.newFixedThreadPool(10);
     private ScheduledFuture<?> scheduledFuture;
     @Autowired
-    private  PaymentBillRepository paymentBillRepository;
+    private PaymentBillRepository paymentBillRepository;
     @Autowired
     private ZaloPayService zaloPayService;
     @Autowired
     private BillHistoryRepository billHistoryRepository;
+    @Autowired
+    private BillRepository billRepository;
     @Autowired
     private AnnouncementRepository announcementRepository;
 
@@ -74,7 +79,7 @@ public class ZaloPayStatusChecker {
         long timeLimit = currentTimeMillis - (20 * 60 * 1000);
         List<PaymentBill> paymentBills = paymentBillRepository.getAllPaymentBillCTT(
                 PayMentBillStatus.CHUA_THANH_TOAN,
-                PaymentMethodsType.ZALO_PAY,timeLimit
+                PaymentMethodsType.ZALO_PAY, timeLimit
         );
 
         System.out.println("✅ Đang kiểm tra trạng thái đơn hàng... (Số lượng: " + paymentBills.size() + ")");
@@ -86,7 +91,6 @@ public class ZaloPayStatusChecker {
                         if (res != null && "1".equals(String.valueOf(res.get("returncode")))) {
                             pb.setPayMentBillStatus(PayMentBillStatus.DA_HOAN_THANH);
                             paymentBillRepository.save(pb);
-
                             billHistoryRepository.save(BillHistory
                                     .builder()
                                     .customer(pb.getBill().getCustomer())
@@ -94,23 +98,40 @@ public class ZaloPayStatusChecker {
                                     .bill(pb.getBill())
                                     .status(BillStatus.DA_THANH_TOAN)
                                     .build());
+                            Bill bill = billRepository.findById(pb.getBill().getId()).get();
+                            bill.setStatus(BillStatus.DA_XAC_NHAN);
+                            billRepository.save(bill);
+                            billHistoryRepository.save(BillHistory
+                                    .builder()
+                                    .customer(pb.getBill().getCustomer())
+                                    .description("Cập nhận trạng thái đơn hàng đã xác nhận,")
+                                    .bill(pb.getBill())
+                                    .status(BillStatus.DA_XAC_NHAN)
+                                    .build());
+//                             Tạo thông báo cho customer
+                            Announcement announcement = new Announcement();
+                            announcement.setCustomer(pb.getBill().getCustomer());
+                            announcement.setAnnouncementContent("Thanh toán của bạn đã hoàn thành thành công! Mã giao dịch: " + pb.getTransactionCode());
+                            announcementRepository.save(announcement);
 
-                            // Tạo thông báo cho customer
-//                            Announcement announcement = new Announcement();
-//                            announcement.setCustomer(pb.getBill().getCustomer());
-//                            announcement.setAnnouncementContent("Thanh toán của bạn đã hoàn thành thành công! Mã giao dịch: " + pb.getTransactionCode());
-//                            announcementRepository.save(announcement);
-//
-//                            // Gửi thông báo qua WebSocket đến customer
-//                            messagingTemplate.convertAndSendToUser(
-//                                    String.valueOf(pb.getBill().getCustomer().getId()),
-//                                    "/queue/notifications",
-//                                    new NotificationResponse(
-//                                            Long.valueOf(announcement.getId()),
-//                                            announcement.getAnnouncementContent(),
-//                                            announcement.getCreatedAt()
-//                                    )
-//                            );
+                            try {
+                                messagingTemplate.convertAndSend(
+
+                                        "/topic/global-notifications/" + pb.getBill().getCustomer().getId(),
+                                        new NotificationResponse(
+                                                Long.valueOf(announcement.getId()), // Chắc chắn ID không null sau khi đã save
+                                                announcement.getAnnouncementContent(),
+                                                new Date(announcement.getCreatedAt()),
+                                                false
+                                        )
+                                );
+
+
+                                System.out.println("Đã gửi thông báo WebSocket tới user: ");
+                            } catch (Exception e) {
+                                System.err.println("Lỗi khi gửi thông báo WebSocket: " + e.getMessage());
+                                e.printStackTrace();
+                            }
                             System.out.println("Hoàn thành giao dịch: " + pb.getTransactionCode());
                         } else {
                             System.out.println("Giao dịch chưa hoàn thành: " + pb.getTransactionCode() + " - returncode: " + res.get("returncode"));

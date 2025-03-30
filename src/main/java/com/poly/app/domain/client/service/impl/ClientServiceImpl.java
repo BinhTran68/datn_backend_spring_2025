@@ -62,8 +62,7 @@ public class ClientServiceImpl implements ClientService {
     CartRepository cartRepository;
     EmailSender emailSender;
     SimpMessagingTemplate messagingTemplate;
-     AnnouncementRepository announcementRepository;
-
+    AnnouncementRepository announcementRepository;
 
 
     @Override
@@ -95,7 +94,12 @@ public class ClientServiceImpl implements ClientService {
         try {
             ProductDetailResponse productDetail = productViewRepository.findByProductAndColorAndSize(productId, colorId, sizeId);
             List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
+            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+            PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue))
+                    .orElse(null); // Hoặc có thể trả về một đối tượng mặc định
+
             productDetail.setImage(images);
+            productDetail.setPromotion(maxPromotion);
             return productDetail;
 
         } catch (Exception e) {
@@ -638,7 +642,7 @@ public class ClientServiceImpl implements ClientService {
             try {
                 messagingTemplate.convertAndSend(
 
-                        "/topic/global-notifications/"+bill.getCustomer().getId(),
+                        "/topic/global-notifications/" + bill.getCustomer().getId(),
                         new NotificationResponse(
                                 Long.valueOf(announcement.getId()), // Chắc chắn ID không null sau khi đã save
                                 announcement.getAnnouncementContent(),

@@ -98,7 +98,7 @@ public class ClientController {
     ) {
 
         return ApiResponse.<ProductDetailResponse>builder()
-                .message("danh sách các sản phẩm view cao nhất")
+                .message("lấy sản phẩm")
                 .data(clientService.findProductDetailbyProductIdAndColorIdAndSizeId(productId, colorId, sizeId))
                 .build();
     }

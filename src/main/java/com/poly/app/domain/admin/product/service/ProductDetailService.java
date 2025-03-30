@@ -25,6 +25,8 @@ public interface ProductDetailService {
     ProductDetailResponse getProductDetail(int id);
 
     Page<ProductDetailResponse> getAllProductDetailPage(int page, int size);
+    Page<ProductDetailResponse> findByName(int page, int size,String productName);
+
 
     //emtu
         List<ProductDetailResponse> getAllProductDetailName(String productName);

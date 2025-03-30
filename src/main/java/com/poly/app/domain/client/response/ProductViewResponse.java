@@ -7,7 +7,7 @@ public interface ProductViewResponse {
     Long getProductId();
     String getProductName();
     Long getProductDetailId();
-    BigDecimal getPrice();
+    String getPrice();
     Integer getSold();
     Integer getTag();
     Integer getColorId();
