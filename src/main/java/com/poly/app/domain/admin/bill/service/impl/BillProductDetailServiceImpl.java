@@ -77,9 +77,9 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
                                         .productName(billDetail.getProductDetail().getProduct().getProductName())
                                         .color(billDetail.getProductDetail().getColor().getColorName())
                                         .size(billDetail.getProductDetail().getSize().getSizeName())
-                                        .price(billDetail.getProductDetail().getPrice())
+                                        .price(billDetail.getPrice())
                                         .quantity(billDetail.getQuantity())
-                                        .totalPrice(billDetail.getPrice())
+                                        .totalPrice(billDetail.getTotalMoney())
                                         .createdAt(billDetail.getCreatedAt())
                                         .urlImage(
                                                 Optional.ofNullable(
@@ -125,7 +125,7 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
         Optional<BillDetail> existingBillDetail = billDetailRepository.findByBillAndProductDetail(bill, productDetail);
         BillDetail billProductDetail;
 
-        if (existingBillDetail.isPresent() && 
+        if (existingBillDetail.isPresent() &&
             existingBillDetail.get().getPrice().equals(productDetail.getPrice())) {
             // Nếu sản phẩm đã tồn tại và có cùng giá -> cập nhật số lượng
             billProductDetail = existingBillDetail.get();
@@ -139,7 +139,7 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
         }
 
         billProductDetail.setPrice(productDetail.getPrice());
-        
+
         // Tính tổng tiền cho sản phẩm này
         Double totalAmount = productDetail.getPrice() * request.getQuantity();
         billProductDetail.setTotalMoney(totalAmount);
@@ -149,6 +149,7 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
 
         // Cập nhật tổng tiền của hóa đơn
         updateBillTotalAmount(bill);
+
     }
 
     private void updateBillTotalAmount(Bill bill) {
