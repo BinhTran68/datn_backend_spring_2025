@@ -66,9 +66,9 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 
 
 
-    List<Voucher> findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThan(
-            LocalDateTime today, LocalDateTime todayAgain, Integer quantity
-    );
+    List<Voucher> findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThanAndVoucherType
+            (LocalDateTime startDate, LocalDateTime endDate, Integer quantity, VoucherType voucherType);
+
 
         List<Voucher> findByVoucherNameContainingIgnoreCase(String voucherName);
     // 🔍 Tìm voucher theo trạng thái

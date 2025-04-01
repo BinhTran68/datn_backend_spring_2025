@@ -160,8 +160,8 @@ public class BillController {
 
 
     @GetMapping("/vouchers/{customerId}")
-    public ResponseEntity<?> getAllVoucherByCustomerId(@PathVariable String customerId) {
-        return ResponseEntity.ok(billService.getAllVoucherResponse());
+    public ResponseEntity<?> getAllVoucherByCustomerId(@PathVariable Integer customerId) {
+        return ResponseEntity.ok(billService.getAllVoucherResponseByCustomerId(customerId));
     }
 
     @GetMapping("/quantity-vouchers")

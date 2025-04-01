@@ -217,5 +217,12 @@ public class CustomerController {
         return new ResponseEntity<>(response, status);
     }
 
+    @GetMapping("search")
+    public ResponseEntity<List<CustomerResponse>> getCustomers(
+            @RequestParam String query
+    ) {
+      return ResponseEntity.ok(customerService.findCustomerByQuery(query));
+    }
+
 
 }

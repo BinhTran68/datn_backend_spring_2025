@@ -26,6 +26,7 @@ import com.poly.app.domain.model.PaymentBill;
 import com.poly.app.domain.model.PaymentMethods;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.model.Staff;
+import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.domain.repository.AddressRepository;
 import com.poly.app.domain.repository.BillDetailRepository;
@@ -72,6 +73,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -203,12 +205,12 @@ public class BillServiceImpl implements BillService {
         }
         bill.setStatus(request.getStatus());
 
-        if(bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+        if (bill.getStatus() == BillStatus.DA_XAC_NHAN) {
             sendMailUpdateSanPhamAsync(bill.getEmail(), bill,
                     "Trạng thái đơn hàng",
                     "Đơn hàng của bạn đã được xác nhận");
         }
-        if(bill.getStatus() == BillStatus.DANG_VAN_CHUYEN) {
+        if (bill.getStatus() == BillStatus.DANG_VAN_CHUYEN) {
             sendMailUpdateSanPhamAsync(bill.getEmail(), bill,
                     "Trạng thái đơn hàng",
                     "Đơn hàng của bạn đã được giao cho đơn vị vận chuyển");
@@ -473,17 +475,38 @@ public class BillServiceImpl implements BillService {
     public List<VoucherReponse> getAllVoucherResponse() {
         LocalDateTime now = LocalDateTime.now();
         List<Voucher> vouchers = voucherRepository
-                .findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThan(now, now, 0);
+                .findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThanAndVoucherType(now, now, 0, VoucherType.PUBLIC);
         List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
         return voucherReponses;
     }
 
     @Override
     public List<VoucherReponse> getAllVoucherResponseByCustomerId(Integer customerId) {
-        List<CustomerVoucher> customerVouchers = customerVoucherRepository.findCustomerVouchersByCustomerId(customerId);
-        List<Voucher> vouchers = customerVouchers.stream().map(customerVoucher -> customerVoucher.getVoucher()).toList();
-        List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
-        return voucherReponses;
+        List<CustomerVoucher> customerVouchers = Optional.ofNullable(
+                customerVoucherRepository.findCustomerVouchersByCustomerId(customerId)
+        ).orElse(List.of()); // Nếu null thì trả về danh sách rỗng tránh NullPointerException
+
+        List<Voucher> validVouchers = customerVouchers.stream()
+                .map(CustomerVoucher::getVoucher)
+                .filter(voucher -> voucher.getQuantity() > 0)
+                .filter(voucher -> voucher.getStartDate().isBefore(LocalDateTime.now()) || voucher.getStartDate().isEqual(LocalDateTime.now()))
+                .filter(voucher -> voucher.getEndDate().isAfter(LocalDateTime.now()) || voucher.getEndDate().isEqual(LocalDateTime.now()))
+                .filter(voucher -> voucher.getStatusVoucher() == StatusEnum.dang_kich_hoat)
+                .collect(Collectors.toList());
+
+        List<VoucherReponse> voucherReponses = validVouchers.stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+
+        List<VoucherReponse> voucherReponsePublic = Optional.ofNullable(
+                getAllVoucherResponse()
+        ).orElse(List.of()); // Xử lý trường hợp billService trả về null
+
+        // Hợp hai danh sách
+        List<VoucherReponse> mergedVouchers = new ArrayList<>(voucherReponses);
+        mergedVouchers.addAll(voucherReponsePublic);
+
+        return mergedVouchers;
     }
 
     @Override
@@ -716,7 +739,6 @@ public class BillServiceImpl implements BillService {
 
         emailSender.sendEmail(email);
     }
-
 
 
 }

@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.voucher.service.impl;
 
+import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.admin.voucher.service.VoucherService;
@@ -36,17 +37,18 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-
 public class VoucherServiceImpl implements VoucherService {
     @Autowired
     CustomerService customerService;
     VoucherRepository voucherRepository;
     private CustomerVoucherRepository customerVoucherRepository;
+    private final BillService billService;
 
     @Override
     public List<VoucherReponse> getAllVoucher() {
@@ -356,9 +358,6 @@ public class VoucherServiceImpl implements VoucherService {
                 "\n" +
                 "</body>\n" +
                 "</html>\n");
-
-
-
         emailSender.sendEmail(email);
         return true;
     }
@@ -386,7 +385,31 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public List<VoucherReponse> getAllVouchersWithCustomer(Integer customerId) {
-        return List.of();
+        List<CustomerVoucher> customerVouchers = Optional.ofNullable(
+                customerVoucherRepository.findCustomerVouchersByCustomerId(customerId)
+        ).orElse(List.of()); // Nếu null thì trả về danh sách rỗng tránh NullPointerException
+
+        List<Voucher> validVouchers = customerVouchers.stream()
+                .map(CustomerVoucher::getVoucher)
+                .filter(voucher -> voucher.getQuantity() > 0)
+                .filter(voucher -> voucher.getStartDate().isBefore(LocalDateTime.now()) || voucher.getStartDate().isEqual(LocalDateTime.now()))
+                .filter(voucher -> voucher.getEndDate().isAfter(LocalDateTime.now()) || voucher.getEndDate().isEqual(LocalDateTime.now()))
+                .filter(voucher -> voucher.getStatusVoucher() == StatusEnum.dang_kich_hoat)
+                .collect(Collectors.toList());
+
+        List<VoucherReponse> voucherReponses = validVouchers.stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+
+        List<VoucherReponse> voucherReponsePublic = Optional.ofNullable(
+                billService.getAllVoucherResponse()
+        ).orElse(List.of()); // Xử lý trường hợp billService trả về null
+
+        // Hợp hai danh sách
+        List<VoucherReponse> mergedVouchers = new ArrayList<>(voucherReponses);
+        mergedVouchers.addAll(voucherReponsePublic);
+
+        return mergedVouchers;
     }
 
     // Tìm voucher theo tên
