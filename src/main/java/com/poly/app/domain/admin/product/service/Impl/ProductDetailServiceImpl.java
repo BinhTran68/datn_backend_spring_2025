@@ -67,7 +67,6 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     private SimpMessagingTemplate messagingTemplate;
 
 
-
     @Override
     public ProductDetail createProductDetail(ProductDetailRequest request) {
         Product product = productRepository.findById(request.getProductId()).orElseThrow(() -> new IllegalArgumentException("id khong ton tai"));
@@ -240,7 +239,6 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetailRepository.save(productDetail);
 
 
-
         //  Tìm danh sách tất cả ProductDetail có cùng productId và colorId
         List<ProductDetail> relatedProductDetails = productDetailRepository
                 .findByProductIdAndColorId(request.getProductId(), request.getColorId());
@@ -313,7 +311,14 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Override
     public List<ProductDetailResponse> getAllProductDetail() {
-        return productDetailRepository.getAllProductDetail();
+
+
+        List<ProductDetailResponse> productDetails = productDetailRepository.getAllProductDetail();
+        productDetails.forEach(pd -> {
+            List<ImgResponse> images = imageRepository.findByProductDetailId(pd.getId());
+            pd.setImage(images);
+        });
+        return productDetails;
     }
 
 
@@ -354,6 +359,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .image(images)
                 .build();
     }
+
     //detail theo tên
     @Override
     public List<ProductDetailResponse> getAllProductDetailName(String productName) {
@@ -397,6 +403,21 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             pd.setImage(images);
         });
 
+        return productDetails;
+    }
+
+
+
+    @Override
+    public Page<ProductDetailResponse> findByName(int page, int size, String productName) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDetailResponse> productDetails = productDetailRepository.findByName(String.format("%%%s%%", productName), pageable);
+        // Gán danh sách ảnh cho từng sản phẩm
+        productDetails.forEach(pd -> {
+            List<ImgResponse> images = imageRepository.findByProductDetailId(pd.getId());
+            pd.setImage(images);
+        });
+log.info(productDetails.toString());
         return productDetails;
     }
 
@@ -660,6 +681,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 //        log.warn(existingProductDetail.toString());
         return existingProductDetail != null ? true : false;
     }
+
     @Override
     public String switchStatus(Integer id, Status status) {
         ProductDetail brand = productDetailRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko tồn tại"));
@@ -675,6 +697,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         }
 
     }
+
     //Phầm em tú làm
     public List<ProductDetailResponse> getProductDetailsByProductId(Integer productId) {
         return productDetailRepository.findByProductId(productId);

@@ -155,4 +155,131 @@ public class ZaloPayService {
         kq.put("zptransid", result.get("zptransid"));
         return kq;
     }
+
+
+    // Phương thức refund
+    public Map<String, Object> refund(Long zptransid, int amount, String description) throws Exception {
+        // Kiểm tra đầu vào
+        if (zptransid == null || amount <= 0 || description == null || description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Invalid refund parameters");
+        }
+
+        // Tạo mrefundid
+        long timestamp = System.currentTimeMillis();
+        Random rand = new Random();
+        String uid = timestamp + "" + (111 + rand.nextInt(888)); // Tạo chuỗi ngẫu nhiên để đảm bảo tính duy nhất
+        String mrefundid = getCurrentTimeString("yyMMdd") + "_" + zaloPayConfig.APP_ID + "_" + uid;
+
+        // Tạo dữ liệu cho request
+        Map<String, Object> order = new HashMap<>();
+        order.put("appid", zaloPayConfig.APP_ID);
+        order.put("zptransid", zptransid);
+        order.put("mrefundid", mrefundid);
+        order.put("timestamp", timestamp);
+        order.put("amount", amount);
+        order.put("description", description);
+
+        // Tạo chuỗi dữ liệu để mã hóa HMAC
+        String data = order.get("appid") + "|" + order.get("zptransid") + "|" + order.get("amount")
+                      + "|" + order.get("description") + "|" + order.get("timestamp");
+        String mac = HMACUtil.HMacHexStringEncode(HMACUtil.HMACSHA256, zaloPayConfig.KEY1, data);
+        order.put("mac", mac);
+
+        // Gửi yêu cầu HTTP POST
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost post = new HttpPost("https://sandbox.zalopay.com.vn/v001/tpe/partialrefund"); // ENDPOINT là URL refund từ ZaloPayConfig
+
+        List<NameValuePair> params = new ArrayList<>();
+        for (Map.Entry<String, Object> e : order.entrySet()) {
+            params.add(new BasicNameValuePair(e.getKey(), e.getValue().toString()));
+        }
+        post.setEntity(new UrlEncodedFormEntity(params));
+
+        // Log request
+        log.info("Refund request params: {}", params);
+
+        // Thực hiện yêu cầu và nhận phản hồi
+        CloseableHttpResponse res = client.execute(post);
+        BufferedReader rd = new BufferedReader(new InputStreamReader(res.getEntity().getContent()));
+        StringBuilder resultJsonStr = new StringBuilder();
+        String line;
+
+        while ((line = rd.readLine()) != null) {
+            resultJsonStr.append(line);
+        }
+
+        // Parse JSON phản hồi
+        JSONObject result = new JSONObject(resultJsonStr.toString());
+        log.info("Refund response co ca mrefundid: {}", result.toString());
+
+        // Tạo Map kết quả trả về
+        Map<String, Object> response = new HashMap<>();
+        for (String key : result.keySet()) {
+            response.put(key, result.get(key));
+        }
+
+        // Kiểm tra trạng thái hoàn tiền
+        int returnCode = result.getInt("returncode");
+//        if (returnCode != 1) {
+//            log.warn("Refund failed with return_code: {}, message: {}", returnCode, result.get("returnmessage"));
+//            throw new Exception("Refund failed: " + result.get("returnmessage"));
+//        }
+response.put("mrefundid",order.get("mrefundid"));
+        return response;
+    }
+    public Map<String, Object> getRefundStatus(String mrefundid) throws Exception {
+        if (mrefundid == null || mrefundid.trim().isEmpty()) {
+            throw new IllegalArgumentException("Invalid mrefundid");
+        }
+
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String data = zaloPayConfig.APP_ID + "|" + mrefundid + "|" + timestamp;
+        String mac = HMACUtil.HMacHexStringEncode(HMACUtil.HMACSHA256, zaloPayConfig.KEY1, data);
+
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("appid", zaloPayConfig.APP_ID));
+        params.add(new BasicNameValuePair("mrefundid", mrefundid));
+        params.add(new BasicNameValuePair("timestamp", timestamp));
+        params.add(new BasicNameValuePair("mac", mac));
+
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            URIBuilder uri = new URIBuilder("https://sandbox.zalopay.com.vn/v001/tpe/getpartialrefundstatus");
+            uri.addParameters(params);
+            HttpGet get = new HttpGet(uri.build());
+
+            log.info("Get refund status request params: {}", params);
+            try (CloseableHttpResponse res = client.execute(get)) {
+                BufferedReader rd = new BufferedReader(new InputStreamReader(res.getEntity().getContent()));
+                StringBuilder resultJsonStr = new StringBuilder();
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    resultJsonStr.append(line);
+                }
+
+                String responseBody = resultJsonStr.toString();
+                log.info("Get refund status response: {}", responseBody);
+                JSONObject result = new JSONObject(responseBody);
+                Map<String, Object> response = new HashMap<>();
+                for (String key : result.keySet()) {
+                    response.put(key, result.get(key));
+                }
+
+                if (!result.has("returncode")) {
+                    log.error("Get refund status response does not contain 'return_code': {}", responseBody);
+                    throw new Exception("Invalid response from ZaloPay: 'return_code' not found");
+                }
+
+                int returnCode = result.getInt("returncode");
+//                if (returnCode != 1) {
+//                    String returnMessage = result.has("returnmessage") ? result.getString("returnmessage") : "Unknown error";
+//                    log.warn("Get refund status failed with return_code: {}, message: {}", returnCode, returnMessage);
+//                    throw new Exception("Get refund status failed: " + returnMessage);
+//                }
+                return response;
+            }
+        } catch (Exception e) {
+            log.error("Error getting refund status: {}", e.getMessage(), e);
+            throw new Exception("Error getting refund status: " + e.getMessage(), e);
+        }
+    }
 }

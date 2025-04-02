@@ -40,6 +40,9 @@ public interface FilterProductDetailResponse {
     String getUpdatedAt();
 
     String getUpdatedBy();
+    String getImage();
+
+
 
     default String getStatus() {
         return "0".equals(getStatusRoot()) ? "HOAT_DONG" : "NGUNG_HOAT_DONG";

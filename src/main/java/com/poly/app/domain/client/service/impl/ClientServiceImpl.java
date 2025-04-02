@@ -24,9 +24,7 @@ import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.util.VoucherBest;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -62,8 +60,7 @@ public class ClientServiceImpl implements ClientService {
     CartRepository cartRepository;
     EmailSender emailSender;
     SimpMessagingTemplate messagingTemplate;
-     AnnouncementRepository announcementRepository;
-
+    AnnouncementRepository announcementRepository;
 
 
     @Override
@@ -95,7 +92,11 @@ public class ClientServiceImpl implements ClientService {
         try {
             ProductDetailResponse productDetail = productViewRepository.findByProductAndColorAndSize(productId, colorId, sizeId);
             List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
+            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+            PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue))
+                    .orElse(null);
             productDetail.setImage(images);
+            productDetail.setPromotion(maxPromotion);
             return productDetail;
 
         } catch (Exception e) {
@@ -435,15 +436,20 @@ public class ClientServiceImpl implements ClientService {
         for (AddCart i : addCartList) {
             ProductDetail productDetail = productDetailRepository.findById(i.getProductDetailId())
                     .orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
-
+//            tìm promotion
+            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+            PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue))
+                    .orElse(null);
             if (productDetail != null) {
                 RealPriceResponse response = RealPriceResponse.builder()
                         .cartDetailId(null)
                         .quantity(productDetail.getQuantity())
                         .productDetailId(i.getProductDetailId())
                         .productName(productDetail.getProduct().getProductName())
-                        .price(productDetail.getPrice())
+                        .price(maxPromotion != null ? productDetail.getPrice() - (productDetail.getPrice() * maxPromotion.getDiscountValue() / 100)
+                                : productDetail.getPrice())
                         .quantityAddCart(i.getQuantityAddCart())
+                        .status(productDetail.getStatus())
                         .note(null)
                         .build();
 
@@ -638,7 +644,7 @@ public class ClientServiceImpl implements ClientService {
             try {
                 messagingTemplate.convertAndSend(
 
-                        "/topic/global-notifications/"+bill.getCustomer().getId(),
+                        "/topic/global-notifications/" + bill.getCustomer().getId(),
                         new NotificationResponse(
                                 Long.valueOf(announcement.getId()), // Chắc chắn ID không null sau khi đã save
                                 announcement.getAnnouncementContent(),
@@ -693,6 +699,13 @@ public class ClientServiceImpl implements ClientService {
         }
 
         return "thêm vào giỏ hàng thành coong";
+    }
+
+    @Override
+    public Page<ProductViewResponse> findFilteredProducts(Long productId, Long brandId, Long genderId, Long typeId, Long colorId,
+                                                          Long materialId, Double minPrice, Double maxPrice, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productViewRepository.findFilteredProducts(productId, brandId, genderId, typeId, colorId, materialId, minPrice, maxPrice, pageable);
     }
 
     private void sendMail(String sendToMail, Bill billCode) {

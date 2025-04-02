@@ -82,6 +82,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
                     "    so.sole_name,\n" +
                     "    g.gender_name,\n" +
                     "    pd.quantity,\n" +
+            "(select img.url from image img where product_detail_id = pd.id limit 1 )as image,"+
                     "    pd.price,\n" +
                     "    pd.weight,\n" +
                     "    pd.descrition,\n" +
@@ -185,6 +186,13 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
 
 
     List<ProductDetail> findByProductIdAndColorId(int productId, int colorId);
+
+    @Query(value = "select  new com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse" +
+                   "(pd.id,pd.code,pd.product.productName,pd.brand.brandName,pd.type.typeName,pd.color.colorName" +
+                   ",pd.material.materialName,pd.size.sizeName,pd.sole.soleName,pd.gender.genderName,pd.quantity" +
+                   ",pd.price,pd.weight,pd.descrition,pd.status,pd.updatedAt,pd.updatedBy) from ProductDetail pd" +
+                   " where pd.product.productName LIKE :productDetailName order by pd.updatedAt desc ")
+    Page<ProductDetailResponse> findByName( String productDetailName,Pageable pageable );
 
     @Modifying
     @Query(value = "UPDATE product_detail SET status = :status WHERE product_id = :id", nativeQuery = true)

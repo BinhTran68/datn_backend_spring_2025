@@ -53,13 +53,13 @@ public interface ClientService {
 
     Integer subtract(Integer id);
 
-    Integer setQuantityCart(Integer id,Integer quantity);
+    Integer setQuantityCart(Integer id, Integer quantity);
 
-    List <RealPriceResponse> getRealPrice(List<AddCart> addCartList);
+    List<RealPriceResponse> getRealPrice(List<AddCart> addCartList);
 
     Optional<Object> findAdressDefaulCustomerId(Integer customerId);
 
-    SearchStatusBillResponse searchBill (String billCode);
+    SearchStatusBillResponse searchBill(String billCode);
 
     String veritifyBill(String billCode);
 
@@ -68,5 +68,10 @@ public interface ClientService {
     String cancelBill(Integer id, String description);
 
     String buyBack(Integer billId, Integer customerId);
+
+    Page<ProductViewResponse> findFilteredProducts(Long productId,Long brandId, Long genderId, Long typeId, Long colorId, Long materialId,
+                                             Double minPrice,
+                                             Double maxPrice,
+                                             int page, int size);
 
 }

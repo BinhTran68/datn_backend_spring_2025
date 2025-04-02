@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.response.productdetail;
 
 import com.poly.app.domain.admin.product.response.img.ImgResponse;
+import com.poly.app.domain.client.response.PromotionResponse;
 import com.poly.app.domain.model.Image;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.infrastructure.constant.Status;
@@ -50,6 +51,8 @@ public class ProductDetailResponse {
     long updateAt;
 
     String updateBy;
+
+    PromotionResponse promotion;
 
     List<ImgResponse> image;
 

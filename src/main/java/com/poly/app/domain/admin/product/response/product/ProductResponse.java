@@ -21,6 +21,7 @@ public class ProductResponse {
     Integer totalQuantity;
     Long updateAt;
     Status status;
+    String image;
 
 
 

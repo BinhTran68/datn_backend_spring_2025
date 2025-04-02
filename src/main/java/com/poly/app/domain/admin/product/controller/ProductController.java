@@ -1,15 +1,19 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.img.ImgResponse;
 import com.poly.app.domain.admin.product.response.product.IProductResponse;
+import com.poly.app.domain.admin.product.response.product.ProductResponse2;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.admin.product.service.ProductListService;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.common.Meta;
+import com.poly.app.domain.model.Image;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponse;
 import com.poly.app.domain.admin.product.service.ProductService;
+import com.poly.app.domain.repository.ImageRepository;
 import com.poly.app.infrastructure.constant.Status;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -33,6 +37,7 @@ import java.util.List;
 public class ProductController {
     ProductService productService;
     ProductListService productListService;
+    ImageRepository imageRepository;
 
     @PostMapping("/add")
     public ApiResponse<Product> create(@RequestBody @Valid ProductRequest request) {
@@ -51,14 +56,27 @@ public class ProductController {
     }
 
     @GetMapping()
-    public ApiResponse<List<IProductResponse>> getAllProduct(@RequestParam(value = "page", defaultValue = "1") int page,
-                                                      @RequestParam(value = "size", defaultValue = "5") int product
+    public ApiResponse<List<ProductResponse2>> getAllProduct(@RequestParam(value = "page", defaultValue = "1") int page,
+                                                             @RequestParam(value = "size", defaultValue = "5") int product
     ) {
 
         Page<IProductResponse> page1 = productService.getAllProduct(page - 1, product);
-        return ApiResponse.<List<IProductResponse>>builder()
+        Page<ProductResponse2> productPage = page1.map(i -> ProductResponse2.builder()
+                .id(i.getId())
+                .code(i.getCode())
+                .productName(i.getProductName())
+                .totalQuantity(i.getTotalQuantity())
+                .updateAt(i.getUpdatedAt())
+                .status(i.getStatus())
+                .image(imageRepository.findByProductId(i.getId())
+                        .stream().map(ImgResponse::getUrl) // Nếu có ảnh, lấy URL
+                        .findAny().orElse("https://placehold.co/100")) // Nếu không có, trả về ảnh mặc định
+                .build()
+        );
+
+        return ApiResponse.<List<ProductResponse2>>builder()
                 .message("list product")
-                .data(page1.getContent())
+                .data(productPage.getContent())
                 .meta(Meta.builder()
                         .totalElement(page1.getTotalElements())
                         .currentPage(page1.getNumber() + 1)
@@ -66,6 +84,7 @@ public class ProductController {
                         .build())
                 .build();
     }
+
     @GetMapping("{id}")
     public ApiResponse<ProductResponse> getProduct(@PathVariable int id) {
         return ApiResponse.<ProductResponse>builder()
@@ -75,14 +94,26 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ApiResponse<List<IProductResponse>> getProduct(@RequestParam("name") String name,
-                                                   @RequestParam(value = "page", defaultValue = "1") int page,
-                                                   @RequestParam(value = "size", defaultValue = "5") int product) {
+    public ApiResponse<List<ProductResponse2>> getProduct(@RequestParam("name") String name,
+                                                          @RequestParam(value = "page", defaultValue = "1") int page,
+                                                          @RequestParam(value = "size", defaultValue = "5") int product) {
 
         Page<IProductResponse> page1 = productService.fillbyProductName(page - 1, product, name);
-        return ApiResponse.<List<IProductResponse>>builder()
+        Page<ProductResponse2> productPage = page1.map(i -> ProductResponse2.builder()
+                .id(i.getId())
+                .code(i.getCode())
+                .productName(i.getProductName())
+                .totalQuantity(i.getTotalQuantity())
+                .updateAt(i.getUpdatedAt())
+                .status(i.getStatus())
+                .image(imageRepository.findByProductId(i.getId())
+                        .stream().map(ImgResponse::getUrl) // Nếu có ảnh, lấy URL
+                        .findAny().orElse("https://placehold.co/100")) // Nếu không có, trả về ảnh mặc định
+                .build()
+        );
+        return ApiResponse.<List<ProductResponse2>>builder()
                 .message("get product by id")
-                .data(page1.getContent())
+                .data(productPage.getContent())
                 .meta(Meta.builder()
                         .totalElement(page1.getTotalElements())
                         .currentPage(page1.getNumber() + 1)
@@ -114,6 +145,7 @@ public class ProductController {
                 .data(productService.existsByProductNameAndIdNot(productName, id))
                 .build();
     }
+
     @GetMapping("/getallselect")
     public ApiResponse<List<ProductResponseSelect>> getAllSelect() {
         return ApiResponse.<List<ProductResponseSelect>>builder()
@@ -121,6 +153,7 @@ public class ProductController {
                 .data(productService.getAll())
                 .build();
     }
+
     @GetMapping("/getallselecthd")
     public ApiResponse<List<ProductResponseSelect>> getAllSelecthd() {
         return ApiResponse.<List<ProductResponseSelect>>builder()
@@ -128,13 +161,14 @@ public class ProductController {
                 .data(productService.getAllhd())
                 .build();
     }
+
     @GetMapping("/switchstatus")
     public ApiResponse<?> getAllSelect(@RequestParam("status") Status status,
                                        @RequestParam("id") int id
     ) {
         return ApiResponse.<String>builder()
                 .message("get all selected")
-                .data(productService.switchStatus(id,status))
+                .data(productService.switchStatus(id, status))
                 .build();
     }
 
@@ -148,6 +182,7 @@ public class ProductController {
                 .data(productListService.getAllIn())
                 .build();
     }
+
     @GetMapping("/page")
     public ApiResponse<Page<ProductResponse>> phanTrang(@RequestParam(value = "page") Integer page,
                                                         @RequestParam(value = "size") Integer size

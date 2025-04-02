@@ -82,6 +82,23 @@ public class ProductDetailController {
                 .build();
     }
 
+    @GetMapping("/search")
+    public ApiResponse<List<ProductDetailResponse>> findName(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                             @RequestParam(value = "size", defaultValue = "1") int size,
+                                                             @RequestParam(value = "name", defaultValue = "") String productDetailName) {
+
+        Page<ProductDetailResponse> page1 = productDetailService.findByName(page - 1, size, productDetailName);
+        return ApiResponse.<List<ProductDetailResponse>>builder()
+                .message("find product detail page")
+                .data(page1.getContent())
+                .meta(Meta.builder()
+                        .currentPage(page1.getNumber())
+                        .totalPages(page1.getTotalPages())
+                        .totalElement(page1.getTotalElements())
+                        .build())
+                .build();
+    }
+
     @PostMapping("/filter")
     public ApiResponse<List<FilterProductDetailResponse>> getFilterPD(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                       @RequestParam(value = "size", defaultValue = "5") int size,
@@ -139,8 +156,6 @@ public class ProductDetailController {
     }
 
 
-
-
     //
 
     @DeleteMapping("{id}")
@@ -166,6 +181,7 @@ public class ProductDetailController {
                 .data(productDetailService.getAllProductDetailExportData())
                 .build();
     }
+
     @GetMapping("/full")
     public ApiResponse<List<ProductDetailResponse>> getAllSelectDetail() {
         return ApiResponse.<List<ProductDetailResponse>>builder()
@@ -180,9 +196,10 @@ public class ProductDetailController {
     ) {
         return ApiResponse.<String>builder()
                 .message("get all selected")
-                .data(productDetailService.switchStatus(id,status))
+                .data(productDetailService.switchStatus(id, status))
                 .build();
     }
+
     //em tú làm
     @GetMapping("/product/{productId}")
     public ApiResponse<List<ProductDetailResponse>> getProductDetailsByProductId(@PathVariable Integer productId) {
