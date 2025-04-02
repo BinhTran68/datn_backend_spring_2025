@@ -99,15 +99,6 @@ public class ZaloPayStatusChecker {
                                     .status(BillStatus.DA_THANH_TOAN)
                                     .build());
                             Bill bill = billRepository.findById(pb.getBill().getId()).get();
-                            bill.setStatus(BillStatus.DA_XAC_NHAN);
-                            billRepository.save(bill);
-                            billHistoryRepository.save(BillHistory
-                                    .builder()
-                                    .customer(pb.getBill().getCustomer())
-                                    .description("Cập nhận trạng thái đơn hàng đã xác nhận,")
-                                    .bill(pb.getBill())
-                                    .status(BillStatus.DA_XAC_NHAN)
-                                    .build());
 //                             Tạo thông báo cho customer
                             Announcement announcement = new Announcement();
                             announcement.setCustomer(pb.getBill().getCustomer());

@@ -235,72 +235,71 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                    "AND FUNCTION('NOW') BETWEEN pd.promotion.startDate AND pd.promotion.endDate")
     List<PromotionResponse> findPromotionByProductDetailId(@Param("productDetailId") Integer productDetailId);
 
-//    lọc
-@Query(
-        value = "SELECT " +
-                "p.id AS product_id, " +
-                "CONCAT(p.product_name, ' [', c.color_name, '-', g.gender_name, ']') AS product_name, " +
-                "MAX(pd.id) AS product_detail_id, " +
-                "(CONCAT(MIN(pd.price),' - ',MAX(pd.price))) AS price, " +
-                "MAX(pd.sold) AS sold, " +
-                "MAX(pd.color_id) AS color_id," +
-                "MAX(pd.size_id) AS size_id," +
-                "MAX(pd.tag) AS tag, " +
-                "COALESCE((" +
-                "SELECT i.url " +
-                "FROM image i " +
-                "WHERE i.product_detail_id = MAX(pd.id) " +
-                "ORDER BY i.is_default DESC " +
-                "LIMIT 1" +
-                "), '') AS image_url, " +
-                "p.views, " +
-                "COALESCE(MAX(pr.promotion_name), 'Không có khuyến mãi') AS promotion_name, " +
-                "COALESCE(MAX(pr.discount_value), 0) AS discount_value, " +
-                "COALESCE(MAX(pr.promotion_type), 'none') AS promotion_type " +
-                "FROM product p " +
-                "JOIN product_detail pd ON p.id = pd.product_id " +
-                "LEFT JOIN color c ON pd.color_id = c.id " +
-                "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
-                "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
-                "WHERE p.status = 0 AND pd.status = 0 " +
-                "AND (:typeId IS NULL OR p.type_id = :typeId) " +
-                "AND (:genderId IS NULL OR pd.gender_id = :genderId) " +
-                "AND (:material IS NULL OR p.material = :material) " +
-                "AND (:colorId IS NULL OR pd.color_id = :colorId) " +
-                "AND (:brand IS NULL OR p.brand = :brand) " +
-                "AND (:minPrice IS NULL OR pd.price >= :minPrice) " +
-                "AND (:maxPrice IS NULL OR pd.price <= :maxPrice) " +
-                "GROUP BY p.id, p.product_name, c.color_name, g.gender_name " +
-                "ORDER BY sold DESC ",
-        countQuery = "SELECT COUNT(*) FROM ( " +
-                     "SELECT p.id " +
-                     "FROM product p " +
-                     "JOIN product_detail pd ON p.id = pd.product_id " +
-                     "LEFT JOIN color c ON pd.color_id = c.id " +
-                     "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                     "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
-                     "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
-                     "WHERE p.status = 0 AND pd.status = 0 " +
-                     "AND (:type IS NULL OR p.type = :type) " +
-                     "AND (:genderId IS NULL OR pd.gender_id = :genderId) " +
-                     "AND (:material IS NULL OR p.material = :material) " +
-                     "AND (:colorId IS NULL OR pd.color_id = :colorId) " +
-                     "AND (:brand IS NULL OR p.brand = :brand) " +
-                     "AND (:minPrice IS NULL OR pd.price >= :minPrice) " +
-                     "AND (:maxPrice IS NULL OR pd.price <= :maxPrice) " +
-                     "GROUP BY p.id, p.product_name, c.color_name, g.gender_name " +
-                     ") AS tmp",
-        nativeQuery = true
-)
-Page<ProductViewResponse> getAllProductHadSoleDesc(
-        @Param("typeId") String typeId,
-        @Param("genderId") Integer genderId,
-        @Param("material") String material,
-        @Param("colorId") Integer colorId,
-        @Param("brand") String brand,
-        @Param("minPrice") Double minPrice,
-        @Param("maxPrice") Double maxPrice,
-        Pageable pageable
-);
+//lọc
+
+        @Query(value = "SELECT pd.product_id AS productId, " +
+                       "CONCAT(p.product_name, ' [', c.color_name, '-', g.gender_name, ']') AS productName, " +
+                       "MAX(pd.id) AS productDetailId, " +
+                       "CONCAT(MIN(pd.price), ' - ', MAX(pd.price)) AS price, " +
+                       "MAX(pd.sold) AS sold, " +
+                       "MAX(pd.color_id) AS colorId, " +
+                       "MAX(pd.size_id) AS sizeId, " +
+                       "MAX(pd.tag) AS tag, " +
+                       "p.views,"+
+                       "COALESCE((SELECT i.url " +
+                       "          FROM image i " +
+                       "          INNER JOIN product_detail pd_sub " +
+                       "          ON i.product_detail_id = pd_sub.id " +
+                       "          AND pd_sub.color_id = MAX(pd.color_id) " +
+                       "          WHERE pd_sub.product_id = pd.product_id " +
+                       "          AND pd_sub.status = 0 " +
+                       "          ORDER BY i.is_default DESC " +
+                       "          LIMIT 1), '') AS imageUrl " +
+                       "FROM product_detail pd " +
+                       "LEFT JOIN product p ON pd.product_id = p.id " +
+                       "LEFT JOIN color c ON pd.color_id = c.id " +
+                       "LEFT JOIN gender g ON pd.gender_id = g.id " +
+                       "LEFT JOIN type t ON pd.type_id = t.id " +
+                       "LEFT JOIN material m ON pd.material_id = m.id " +
+                       "WHERE pd.status = 0 " +
+                       "AND (:productId IS NULL OR pd.product_id = :productId) " +
+                       "AND (:brandId IS NULL OR pd.brand_id = :brandId) " +
+                       "AND (:genderId IS NULL OR pd.gender_id = :genderId) " +
+                       "AND (:typeId IS NULL OR pd.type_id = :typeId) " +
+                       "AND (:colorId IS NULL OR pd.color_id = :colorId) " +
+                       "AND (:materialId IS NULL OR pd.material_id = :materialId) " +
+                       "AND (:minPrice IS NULL OR pd.price >= :minPrice) " +
+                       "AND (:maxPrice IS NULL OR pd.price <= :maxPrice) " +
+                       "GROUP BY pd.product_id, c.color_name, g.gender_name " +
+                       "ORDER BY sold DESC",
+                countQuery = "SELECT COUNT(DISTINCT CONCAT(pd.product_id, c.color_name, g.gender_name)) " +
+                             "FROM product_detail pd " +
+                             "LEFT JOIN product p ON pd.product_id = p.id " +
+                             "LEFT JOIN color c ON pd.color_id = c.id " +
+                             "LEFT JOIN gender g ON pd.gender_id = g.id " +
+                             "LEFT JOIN type t ON pd.type_id = t.id " +
+                             "LEFT JOIN material m ON pd.material_id = m.id " +
+                             "WHERE pd.status = 0 " +
+                             "AND (:productId IS NULL OR pd.product_id = :productId) " +
+                             "AND (:brandId IS NULL OR pd.brand_id = :brandId) " +
+
+                             "AND (:genderId IS NULL OR pd.gender_id = :genderId) " +
+                             "AND (:typeId IS NULL OR pd.type_id = :typeId) " +
+                             "AND (:colorId IS NULL OR pd.color_id = :colorId) " +
+                             "AND (:materialId IS NULL OR pd.material_id = :materialId) " +
+                             "AND (:minPrice IS NULL OR pd.price >= :minPrice) " +
+                             "AND (:maxPrice IS NULL OR pd.price <= :maxPrice)",
+                nativeQuery = true)
+        Page<ProductViewResponse> findFilteredProducts(
+                @Param("productId") Long productId,
+                @Param("brandId") Long brandId,
+                @Param("genderId") Long genderId,
+                @Param("typeId") Long typeId,
+                @Param("colorId") Long colorId,
+                @Param("materialId") Long materialId,
+                @Param("minPrice") Double minPrice,
+                @Param("maxPrice") Double maxPrice,
+                Pageable pageable
+        );
+
 }

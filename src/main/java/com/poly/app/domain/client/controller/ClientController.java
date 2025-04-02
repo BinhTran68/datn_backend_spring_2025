@@ -326,4 +326,35 @@ public class ClientController {
                 .data(clientService.buyBack(billId,customerId))
                 .build();
     }
+    @GetMapping("/filter")
+    public ApiResponse<List<ProductViewResponse>> filterProducts(
+            @RequestParam(required = false) Long brandId,
+            @RequestParam(required = false) Long productId,
+            @RequestParam(required = false) Long genderId,
+            @RequestParam(required = false) Long typeId,
+            @RequestParam(required = false) Long colorId,
+            @RequestParam(required = false) Long materialId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        // Kiểm tra tham số phân trang
+
+
+        // Kiểm tra khoảng giá
+
+
+        Page<ProductViewResponse> result = clientService.findFilteredProducts(
+                productId,brandId , genderId, typeId, colorId, materialId, minPrice, maxPrice, page - 1, size);
+
+        return ApiResponse.<List<ProductViewResponse>>builder()
+                .message("lọc")
+                .data(result.getContent())
+                .meta(Meta.builder()
+                        .totalElement(result.getTotalElements())
+                        .currentPage(result.getNumber() + 1)
+                        .totalPages(result.getTotalPages()).build())
+                .build();
+    }
 }

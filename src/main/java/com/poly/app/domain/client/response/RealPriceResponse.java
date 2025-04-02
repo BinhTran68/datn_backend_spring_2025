@@ -1,5 +1,6 @@
 package com.poly.app.domain.client.response;
 
+import com.poly.app.infrastructure.constant.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -17,4 +18,5 @@ public class RealPriceResponse {
     Integer quantity;
     String image;
     String note;
+    Status status;
 }
