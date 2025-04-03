@@ -4,7 +4,10 @@ import com.poly.app.domain.admin.bill.service.WebSocketService;
 import com.poly.app.domain.admin.product.request.img.ImgRequest;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.response.img.ImgResponse;
+import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailWithPromotionDTO;
 import com.poly.app.domain.admin.product.service.CloundinaryService;
+import com.poly.app.domain.admin.promotion.response.PromotionResponse;
+import com.poly.app.domain.client.repository.ProductViewRepository;
 import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.*;
 import com.poly.app.domain.admin.product.request.productdetail.FilterRequest;
@@ -29,8 +32,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -62,6 +67,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     CloundinaryService cloundinaryService;
 
     WebSocketService webSocketService;
+
+    ProductViewRepository productViewRepository;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -462,6 +469,39 @@ log.info(productDetails.toString());
 //                );
 
         return list;
+    }
+
+    @Override
+    public List<FilterProductDetailWithPromotionDTO>  filterDetailProductWithPromotion(int page, int size, FilterRequest request) {
+
+        List<FilterProductDetailResponse> list = productDetailRepository.getFilterProductDetail(
+                request.getProductName(),
+                request.getBrandName(),
+                request.getTypeName(),
+                request.getColorName(),
+                request.getMaterialName(),
+                request.getSizeName(),
+                request.getSoleName(),
+                request.getGenderName(),
+                request.getStatus(),
+                request.getSortByQuantity(),
+                request.getSortByPrice(),
+                (page - 1) * size, size);
+
+
+
+        List<FilterProductDetailWithPromotionDTO> filterProductDetailWithPromotionDTOS =
+                list.stream().map(filterProductDetailResponse -> {
+
+                            List<com.poly.app.domain.client.response.PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(filterProductDetailResponse.getId());
+                            com.poly.app.domain.client.response.PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(com.poly.app.domain.client.response.PromotionResponse::getDiscountValue))
+                                    .orElse(null);
+                            return     FilterProductDetailWithPromotionDTO.fromEntity(filterProductDetailResponse, maxPromotion);
+                        }
+
+                    ).collect(Collectors.toList());
+
+        return filterProductDetailWithPromotionDTOS;
     }
 
     @Override

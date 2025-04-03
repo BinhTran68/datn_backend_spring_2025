@@ -15,6 +15,8 @@ import com.poly.app.domain.admin.product.response.img.ImgResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
+import com.poly.app.domain.client.repository.ProductViewRepository;
+import com.poly.app.domain.client.response.PromotionResponse;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Bill;
@@ -42,8 +44,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/bill")
@@ -127,6 +131,8 @@ public class BillController {
 
     @Autowired
     private ImageRepository imageRepository;
+    @Autowired
+    ProductViewRepository productViewRepository;
 
     @PostMapping("/restore-quantity")
     public ResponseEntity<?> restoreQuantity(
@@ -144,6 +150,9 @@ public class BillController {
                 ProductDetailResponse productDetailResponse = ProductDetailResponse.fromEntity(productDetail);
                 List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
                 productDetailResponse.setImage(images);
+                List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+                Optional<PromotionResponse> maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue));
+                productDetailResponse.setPromotionResponse(maxPromotion.orElse(null));
                 webSocketService.sendProductUpdate(productDetailResponse);
             }
             return ResponseEntity.ok().build();

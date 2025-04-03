@@ -465,6 +465,7 @@ public class BillServiceImpl implements BillService {
             if (productDetail != null) {
                 productDetail.setQuantity(request.getQuantity());
                 ProductDetail productDetailSave = productDetailRepository.save(productDetail);
+
                 webSocketService.sendProductUpdate(ProductDetailResponse.fromEntity(productDetailSave));
             }
         });

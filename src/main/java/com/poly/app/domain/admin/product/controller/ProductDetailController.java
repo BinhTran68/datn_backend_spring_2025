@@ -1,7 +1,6 @@
 package com.poly.app.domain.admin.product.controller;
 
-import com.poly.app.domain.admin.product.response.product.ProductResponse;
-import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
+import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailWithPromotionDTO;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.repository.ProductDetailRepository;
@@ -119,6 +118,26 @@ public class ProductDetailController {
                 .build();
 
     }
+
+
+    @PostMapping("/filter-with-promotion")
+    public ApiResponse<List<FilterProductDetailWithPromotionDTO>> getFilterWithPromotionPD(@RequestParam(value = "page", defaultValue = "1") int page,
+                                                                                           @RequestParam(value = "size", defaultValue = "5") int size,
+                                                                                           @RequestBody FilterRequest request
+    ) {
+        Integer totalElement = productDetailService.getFillterElement(request);
+        return ApiResponse.<List<FilterProductDetailWithPromotionDTO>>builder()
+                .message("fillter")
+                .data(productDetailService.filterDetailProductWithPromotion(page, size, request))
+                .meta(Meta.builder()
+                        .currentPage(page)
+                        .totalPages((int) Math.ceil(Double.valueOf(totalElement) / size))
+                        .totalElement((long) totalElement)
+                        .build())
+                .build();
+
+    }
+
 
 //    @GetMapping("/test")
 //    public ApiResponse<List<ProductDetailRepositoryDTO>> test(@RequestParam(value = "page", defaultValue = "1") int page,
