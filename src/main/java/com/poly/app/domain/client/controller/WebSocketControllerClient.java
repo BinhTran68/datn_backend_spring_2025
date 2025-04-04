@@ -1,5 +1,6 @@
 package com.poly.app.domain.client.controller;
 
+import com.poly.app.domain.admin.promotion.response.ApiResponse;
 import com.poly.app.domain.client.repository.CommentDTO;
 
 
@@ -61,13 +62,29 @@ public class WebSocketControllerClient {
 
     @MessageMapping("/comment/{productId}")
     public void handleComment(@DestinationVariable Integer productId, CommentMessage message) {
-        commentService.saveComment(productId, message.getCustomerId(), message.getComment());
+        commentService.saveComment(productId, message.getCustomerId(), message.getComment(), message.getRate(), message.getParentId());
+    }
+    @MessageMapping("/comment/update/{productId}")
+    public void handleUpdateComment(@DestinationVariable Integer productId, CommentMessage message) {
+        // Log dữ liệu nhận được từ WebSocket
+        System.out.println("Received update request for product " + productId + ": " + message);
+
+        // Kiểm tra nếu dữ liệu bị null
+        if (message == null || message.getComment() == null || message.getParentId() == null) {
+            System.err.println("Dữ liệu nhận được không hợp lệ: " + message);
+            return;
+        }
+
+        // Gọi service để cập nhật bình luận
+        commentService.updateComment(
+                productId,
+                message.getCustomerId(),
+                message.getParentId(),
+                message.getComment(),
+                message.getRate()
+        );
     }
 
-    @GetMapping("/comments/{productId}")
-    public List<CommentDTO> getComments(@PathVariable Integer productId) {
-        return commentService.getCommentsByProductId(productId);
-    }
 
     @MessageMapping("/message/{conversationId}")
     @SendTo("/topic/messages/{conversationId}")
@@ -90,4 +107,7 @@ public class WebSocketControllerClient {
         // Trả về tin nhắn đã lưu để gửi qua WebSocket
         return savedMessage;
     }
+
+
+
 }

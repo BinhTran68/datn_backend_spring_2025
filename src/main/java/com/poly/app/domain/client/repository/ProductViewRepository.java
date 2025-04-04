@@ -41,7 +41,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "JOIN product_detail pd ON p.id = pd.product_id " +
                     "LEFT JOIN color c ON pd.color_id = c.id " +
                     "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                    "LEFT JOIN promotion_detail prd ON pd.id = prd.product_detail_id " +
+                    "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
                     "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                     "WHERE p.status = 0 " +
                     "AND pd.status = 0 " +
@@ -56,7 +56,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                          "JOIN product_detail pd ON p.id = pd.product_id " +
                          "LEFT JOIN color c ON pd.color_id = c.id " +
                          "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                         "LEFT JOIN promotion_detail prd ON pd.id = prd.product_detail_id " +
+                         "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
                          "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                          "WHERE p.status = 0 " +
                          "AND pd.status = 0 " +
@@ -96,7 +96,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "JOIN product_detail pd ON p.id = pd.product_id " +
                     "LEFT JOIN color c ON pd.color_id = c.id " +
                     "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                    "LEFT JOIN promotion_detail prd ON pd.id = prd.product_detail_id " +
+                    "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
                     "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                     "WHERE p.status = 0 AND pd.status = 0 " +
                     "GROUP BY p.id, p.product_name, c.color_name, g.gender_name " +
@@ -107,7 +107,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                          "JOIN product_detail pd ON p.id = pd.product_id " +
                          "LEFT JOIN color c ON pd.color_id = c.id " +
                          "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                         "LEFT JOIN promotion_detail prd ON pd.id = prd.product_detail_id " +
+                         "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
                          "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                          "WHERE p.status = 0 AND pd.status = 0 " +
                          "GROUP BY p.id, p.product_name, c.color_name, g.gender_name " +
@@ -144,7 +144,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "JOIN product_detail pd ON p.id = pd.product_id " +
                     "LEFT JOIN color c ON pd.color_id = c.id " +
                     "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                    "LEFT JOIN promotion_detail prd ON pd.id = prd.product_detail_id " +
+                    "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
                     "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                     "WHERE p.status = 0 AND pd.status = 0 " +
                     "GROUP BY p.id, p.product_name, c.color_name, g.gender_name " +
@@ -155,7 +155,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                          "JOIN product_detail pd ON p.id = pd.product_id " +
                          "LEFT JOIN color c ON pd.color_id = c.id " +
                          "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                         "LEFT JOIN promotion_detail prd ON pd.id = prd.product_detail_id " +
+                         "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
                          "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                          "WHERE p.status = 0 AND pd.status = 0 " +
                          "GROUP BY p.id, p.product_name, c.color_name, g.gender_name " +
@@ -195,7 +195,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "JOIN product_detail pd ON p.id = pd.product_id\n" +
                     "LEFT JOIN color c ON pd.color_id = c.id  -- Lấy tên màu từ bảng color\n" +
                     "LEFT JOIN gender g ON pd.gender_id = g.id  -- Lấy tên giới tính\n" +
-                    "LEFT JOIN promotion_detail prd ON pd.id = prd.product_detail_id\n" +
+                    "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id\n" +
                     "LEFT JOIN promotion pr ON prd.promotion_id = pr.id\n" +
                     "\n" +
                     "WHERE p.status = 0 AND pd.status = 0\n" +
@@ -208,7 +208,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                          "JOIN product_detail pd ON p.id = pd.product_id " +
                          "LEFT JOIN color c ON pd.color_id = c.id " +
                          "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                         "LEFT JOIN promotion_detail prd ON pd.id = prd.product_detail_id " +
+                         "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
                          "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                          "WHERE p.status = 0 AND pd.status = 0 " +
                          "GROUP BY p.id, p.product_name, c.color_name, g.gender_name " +
