@@ -323,6 +323,33 @@ public class ClientServiceImpl implements ClientService {
                     return "đang xác minh đơn hàng";
                 }
                 sendMail(request.getEmail(), billSave);
+                if (billSave.getCustomer() != null) {
+
+                    try {
+                        // Gửi thông báo qua WebSocket đến customer
+                        // Tạo thông báo với nội dung phù hợp về việc hủy đơn hàng
+                        Announcement announcement = new Announcement();
+                        announcement.setCustomer(billSave.getCustomer());
+                        announcement.setAnnouncementContent("Đơn hàng #" + billSave.getBillCode() + "đã được tạo thành công");
+                        announcementRepository.save(announcement);
+
+                        messagingTemplate.convertAndSend(
+
+                                "/topic/global-notifications/" + billSave.getCustomer().getId(),
+                                new NotificationResponse(
+                                        Long.valueOf(announcement.getId()),
+                                        announcement.getAnnouncementContent(),
+                                        new Date(announcement.getCreatedAt()),
+                                        false
+                                )
+                        );
+                        System.out.println("Đã gửi thông báo WebSocket tới user: " + bill.getCustomer().getId());
+                    } catch (Exception e) {
+                        System.err.println("Lỗi khi gửi thông báo WebSocket: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+
                 return "tạo hóa đơn thành công";
             }
         }
@@ -580,7 +607,11 @@ public class ClientServiceImpl implements ClientService {
                             .map(item -> new BillDetailResponse(item.getId(), item.getQuantity(), item.getPrice(), item.getImage()))
                             .collect(Collectors.toList());
             PaymentBill paymentBill = paymentBillRepository.findByBillId(b.getId());
-            PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
+            PaymentMethods paymentMethods = null;
+            if (paymentBill != null) {
+                paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
+
+            }
             String voucherCode = "";
             if (b.getVoucher() != null) voucherCode = b.getBillCode();
             SearchStatusBillResponse searchStatusBillResponse = SearchStatusBillResponse.builder()
@@ -597,7 +628,7 @@ public class ClientServiceImpl implements ClientService {
                     .typeBill(b.getTypeBill())
                     .notes(b.getNotes())
                     .status(b.getStatus())
-                    .payment(paymentMethods.getPaymentMethodsType().name())
+                    .payment(paymentMethods != null ? paymentMethods.getPaymentMethodsType().name() : "")
                     .voucher(voucherCode)
                     .addressRequest(AddressRequest.builder()
                             .provinceId(b.getShippingAddress().getProvinceId())
@@ -621,52 +652,115 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public String cancelBill(Integer id, String description) {
+    public String cancelBill(Integer id, String description) throws Exception {
         Bill bill = billRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
-        bill.setStatus(BillStatus.DA_HUY);
-        billRepository.save(bill);
-        billHistoryRepository.save(BillHistory
-                .builder()
-                .customer(bill.getCustomer())
-                .description("Hủy đơn hàng\n Lý do: " + description)
-                .bill(bill)
-                .status(BillStatus.DA_HUY)
-                .build());
-
-        // Tạo thông báo với nội dung phù hợp về việc hủy đơn hàng
-        Announcement announcement = new Announcement();
-        announcement.setCustomer(bill.getCustomer());
-        announcement.setAnnouncementContent("Đơn hàng #" + bill.getId() + " đã bị hủy. Lý do: " + description);
-        announcementRepository.save(announcement);
-
-        // Gửi thông báo qua WebSocket đến customer
-        if (bill.getCustomer() != null) {
-            try {
-                messagingTemplate.convertAndSend(
-
-                        "/topic/global-notifications/" + bill.getCustomer().getId(),
-                        new NotificationResponse(
-                                Long.valueOf(announcement.getId()), // Chắc chắn ID không null sau khi đã save
-                                announcement.getAnnouncementContent(),
-                                new Date(announcement.getCreatedAt()),
-                                false
-                        )
-                );
-                System.out.println("Đã gửi thông báo WebSocket tới user: " + bill.getCustomer().getId());
-            } catch (Exception e) {
-                System.err.println("Lỗi khi gửi thông báo WebSocket: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
         PaymentBill paymentBill = paymentBillRepository.findByBillId(bill.getId());
         if (paymentBill != null) {
             PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
             // Xử lý logic hoàn tiền nếu cần
+            switch (paymentMethods.getPaymentMethodsType()) {
+                case COD -> {
+
+                    bill.setStatus(BillStatus.DA_HUY);
+                    billRepository.save(bill);
+                    billHistoryRepository.save(BillHistory
+                            .builder()
+                            .customer(bill.getCustomer())
+                            .description("Hủy đơn hàng: " + bill.getBillCode() + " Lý do: " + description)
+                            .bill(bill)
+                            .status(BillStatus.DA_HUY)
+                            .build());
+
+                    if (bill.getCustomer() != null) {
+
+                        try {
+                            // Gửi thông báo qua WebSocket đến customer
+                            // Tạo thông báo với nội dung phù hợp về việc hủy đơn hàng
+                            Announcement announcement = new Announcement();
+                            announcement.setCustomer(bill.getCustomer());
+                            announcement.setAnnouncementContent("Đơn hàng #" + bill.getBillCode() + " đã bị hủy. Lý do: " + description);
+                            announcementRepository.save(announcement);
+
+                            messagingTemplate.convertAndSend(
+
+                                    "/topic/global-notifications/" + bill.getCustomer().getId(),
+                                    new NotificationResponse(
+                                            Long.valueOf(announcement.getId()), // Chắc chắn ID không null sau khi đã save
+                                            announcement.getAnnouncementContent(),
+                                            new Date(announcement.getCreatedAt()),
+                                            false
+                                    )
+                            );
+                            System.out.println("Đã gửi thông báo WebSocket tới user: " + bill.getCustomer().getId());
+                        } catch (Exception e) {
+                            System.err.println("Lỗi khi gửi thông báo WebSocket: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                    // Gửi email thông báo hủy đơn hàng
+                    cancelBill(bill.getEmail(), bill);
+
+                }
+                case ZALO_PAY -> {
+                    try {
+                        log.warn("chạy vao đây----------------------");
+                        log.info("" + id);
+                        log.info("" + bill.getMoneyAfter());
+                        log.info("" + description);
+                        String refund = refundBill(bill.getId(), bill.getMoneyAfter().intValue(), "Hoan tien ");
+                        bill.setStatus(BillStatus.DA_HUY);
+                        billRepository.save(bill);
+                        paymentBill.setPayMentBillStatus(PayMentBillStatus.CHUA_THANH_TOAN);
+                        paymentBillRepository.save(paymentBill);
+                        billHistoryRepository.save(BillHistory
+                                .builder()
+                                .customer(bill.getCustomer())
+                                .description("Hủy đơn hàng: " + bill.getBillCode() + "  Lý do: " + description + " mã truy vấn hoàn tiền: " + refund)
+                                .bill(bill)
+                                .status(BillStatus.DA_HUY)
+                                .build());
+//                        nhảy tb
+                        if (bill.getCustomer() != null) {
+
+                            try {
+                                // Gửi thông báo qua WebSocket đến customer
+                                // Tạo thông báo với nội dung phù hợp về việc hủy đơn hàng
+                                Announcement announcement = new Announcement();
+                                announcement.setCustomer(bill.getCustomer());
+                                announcement.setAnnouncementContent("Đơn hàng #" + bill.getBillCode() + " đã bị hủy. Lý do: "
+                                                                    + description + " mã truy vấn hoàn tiền: " + refund);
+                                announcementRepository.save(announcement);
+
+                                messagingTemplate.convertAndSend(
+
+                                        "/topic/global-notifications/" + bill.getCustomer().getId(),
+                                        new NotificationResponse(
+                                                Long.valueOf(announcement.getId()), // Chắc chắn ID không null sau khi đã save
+                                                announcement.getAnnouncementContent(),
+                                                new Date(announcement.getCreatedAt()),
+                                                false
+                                        )
+                                );
+                                System.out.println("Đã gửi thông báo WebSocket tới user: " + bill.getCustomer().getId());
+                            } catch (Exception e) {
+                                System.err.println("Lỗi khi gửi thông báo WebSocket: " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("lỗi hoàn tiền");
+                    }
+
+                    cancelBillRefund(bill.getEmail(), bill);
+
+                    return "hủy và hoàn tiền zalo pay";
+                }
+                default -> {
+                    return "lỗi";
+                }
+            }
         }
 
-        // Gửi email thông báo hủy đơn hàng
-        cancelBill(bill.getEmail(), bill);
 
         return "Hủy đơn hàng thành công. Lý do: " + description;
     }
@@ -706,6 +800,11 @@ public class ClientServiceImpl implements ClientService {
                                                           Long materialId, Double minPrice, Double maxPrice, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return productViewRepository.findFilteredProducts(productId, brandId, genderId, typeId, colorId, materialId, minPrice, maxPrice, pageable);
+    }
+
+    @Override
+    public String refund(Integer billId, Integer MoneyRefund, String description) throws Exception {
+        return refundBill(billId, MoneyRefund, description);
     }
 
     private void sendMail(String sendToMail, Bill billCode) {
@@ -816,5 +915,143 @@ public class ClientServiceImpl implements ClientService {
         );
 
         emailSender.sendEmail(email);
+    }
+
+    private void cancelBillRefund(String sendToMail, Bill billCode) {
+        Email email = new Email();
+        String[] emailSend = {sendToMail};
+        email.setToEmail(emailSend);
+        email.setSubject("TheHands-Thông Báo Hủy Đơn Hàng-Hoàn tiền giao dịch");
+        email.setTitleEmail("");
+        email.setBody(
+                """
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Hủy Đơn Hàng Thành Công - TheHands</title>
+                        </head>
+                        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px;">
+                            <div style="max-width: 600px; background-color: #ffffff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: auto;">
+                                <h2 style="color: #333; font-size: 24px; margin-bottom: 10px;">❌ Hủy Đơn Hàng Thành Công</h2>
+                                <p style="color: #666; font-size: 16px; line-height: 1.5;">Chúng tôi xin thông báo rằng đơn hàng của bạn tại <strong>TheHands</strong> đã được hủy thành công theo yêu cầu với số tiền: <strong>%s</strong>. tiền khi đã giao dịch của bạn sẽ được hoàn vào tài khoản, nếu trong vòng 24h tiền chưa được về tài khoản bạn có thể liên hệ tới cửa hàng theo số: 18008080 để được hỗ trợ</p>
+                                <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
+                                <p style="color: #555; font-size: 16px;"><strong>📧 Email:</strong> %s</p>
+                                <p style="color: #555; font-size: 16px;"><strong>🧾 Mã đơn hàng:</strong> <span style="color: #e74c3c; font-weight: bold;">%s</span></p>
+                                <hr style="border: none; border-top: 1px dashed #ddd; margin: 25px 0;">
+                                <p style="color: #666; font-size: 16px; line-height: 1.5;">Nếu bạn cần hỗ trợ hoặc muốn đặt lại đơn hàng, vui lòng liên hệ với chúng tôi.</p>
+                                <a href="mailto:support@thehands.com" 
+                                   style="display: inline-block; background-color: #28a745; color: #ffffff; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; transition: background-color 0.3s;">
+                                   📩 Liên Hệ Hỗ Trợ
+                                </a>
+                                <p style="margin-top: 25px; font-size: 12px; color: #999; line-height: 1.4;">Cảm ơn bạn đã tin tưởng <strong>TheHands</strong>. Hy vọng sẽ được phục vụ bạn trong tương lai!</p>
+                            </div>
+                        </body>
+                        </html>
+                        """.formatted(billCode.getMoneyAfter(), sendToMail, billCode.getBillCode())
+        );
+
+        emailSender.sendEmail(email);
+    }
+
+    private String refundBill(Integer billId, Integer moneyRefund, String description) throws Exception {
+        Bill bill = billRepository.findById(billId).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
+        PaymentBill paymentBill = paymentBillRepository.findByBillId(billId);
+//        /lấy status
+        Map<String, Object> mapStatus = zaloPayService.getStatusByApptransid(paymentBill.getTransactionCode());
+        log.info("1" + mapStatus.toString());
+        Object zptransid = mapStatus.get("zptransid");
+        if (!(Integer.valueOf(mapStatus.get("returncode").toString()) >= 1 && zptransid != null))
+            return mapStatus.get("returnmessage").toString();
+
+//        hoàn tiền
+        Map<String, Object> mapRefund = zaloPayService.refund
+                (Long.valueOf(zptransid.toString()), moneyRefund.intValue(), description);
+        Object refund = mapRefund.get("mrefundid");
+        log.info("2" + mapRefund.toString());
+        if (!(Integer.valueOf(mapStatus.get("returncode").toString()) >= 1 && refund != null)) {
+            return mapRefund.get("returnmessage").toString();
+
+        } else {
+            return mapRefund.get("mrefundid").toString();
+
+        }
+
+//        Map<String, Object> mapStatusReFund = zaloPayService.getRefundStatus(refund.toString());
+//        if (!(Integer.valueOf(mapStatusReFund.get("returncode").toString()) >= 1 && mapStatusReFund != null))
+//            return mapStatusReFund.get("returnmessage").toString();
+//
+//        return mapStatusReFund.get("returnmessage").toString();
+
+    }
+    public List<ProductDetailDiscountDTO> getDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId) {
+        List<Object[]> results = productViewRepository.findDiscountedProductDetails(productId, colorId, genderId);
+
+        // Ánh xạ và lọc
+        return results.stream()
+                .map(row -> new ProductDetailDiscountDTO(
+                        (Integer) row[0],     // productId
+                        (Integer) row[1],     // productDetailId
+                        (Integer) row[2],     // colorId
+                        (Integer) row[3],     // genderId
+                        (Double) row[4],      // price
+                        (Double) row[5],      // maxDiscount
+                        (String) row[6]       // discountedPrice
+                ))
+                .filter(dto -> dto.getMaxDiscount() != null && dto.getMaxDiscount() > 0) // Lọc các bản ghi có giảm giá
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Chuyển đổi danh sách ProductDetailDiscountDTO thành PromotionView
+     */
+    public PromotionView getPromotionView(Integer productId, Integer colorId, Integer genderId) {
+        List<ProductDetailDiscountDTO> discountedDetails = getDiscountedProductDetails(productId, colorId, genderId);
+
+        if (discountedDetails.isEmpty()) {
+            return PromotionView.builder()
+                    .rangePriceRoot("0")
+                    .rangePriceAfterPromotion("0")
+                    .maxDiscount("0")
+                    .build();
+        }
+
+        // Tính khoảng giá gốc
+        Double minPrice = discountedDetails.stream()
+                .map(ProductDetailDiscountDTO::getPrice)
+                .min(Comparator.naturalOrder())
+                .orElse(0.0);
+        Double maxPrice = discountedDetails.stream()
+                .map(ProductDetailDiscountDTO::getPrice)
+                .max(Comparator.naturalOrder())
+                .orElse(0.0);
+        String rangePriceRoot = minPrice.equals(maxPrice) ? String.valueOf(minPrice) : minPrice + " - " + maxPrice;
+
+        // Tính khoảng giá sau giảm
+        Double minDiscountedPrice = discountedDetails.stream()
+                .map(dto -> Double.parseDouble(dto.getDiscountedPrice()))
+                .min(Comparator.naturalOrder())
+                .orElse(0.0);
+        Double maxDiscountedPrice = discountedDetails.stream()
+                .map(dto -> Double.parseDouble(dto.getDiscountedPrice()))
+                .max(Comparator.naturalOrder())
+                .orElse(0.0);
+        String rangePriceAfterPromotion = minDiscountedPrice.equals(maxDiscountedPrice)
+                ? String.valueOf(minDiscountedPrice)
+                : minDiscountedPrice + " - " + maxDiscountedPrice;
+
+        // Tìm giá trị giảm cao nhất
+        Double maxDiscount = discountedDetails.stream()
+                .map(ProductDetailDiscountDTO::getMaxDiscount)
+                .max(Comparator.naturalOrder())
+                .orElse(0.0);
+        String maxDiscountStr = String.valueOf(maxDiscount.intValue());
+
+        return PromotionView.builder()
+                .rangePriceRoot(rangePriceRoot)
+                .rangePriceAfterPromotion(rangePriceAfterPromotion)
+                .maxDiscount(maxDiscountStr)
+                .build();
     }
 }
