@@ -2,6 +2,7 @@ package com.poly.app.domain.client.repository;
 
 
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
+import com.poly.app.domain.client.response.ProductDetailDiscountDTO;
 import com.poly.app.domain.client.response.ProductViewResponse;
 import com.poly.app.domain.client.response.PromotionResponse;
 import com.poly.app.domain.model.ProductDetail;
@@ -241,8 +242,10 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                        "CONCAT(p.product_name, ' [', c.color_name, '-', g.gender_name, ']') AS productName, " +
                        "MAX(pd.id) AS productDetailId, " +
                        "CONCAT(MIN(pd.price), ' - ', MAX(pd.price)) AS price, " +
+                       "CONCAT(MIN(pr.discount_value), ' - ', MAX(pr.discount_value)) AS discountValue, " +
                        "MAX(pd.sold) AS sold, " +
                        "MAX(pd.color_id) AS colorId, " +
+                       "MAX(pd.gender_id) AS genderId, " +
                        "MAX(pd.size_id) AS sizeId, " +
                        "MAX(pd.tag) AS tag, " +
                        "p.views,"+
@@ -261,6 +264,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                        "LEFT JOIN gender g ON pd.gender_id = g.id " +
                        "LEFT JOIN type t ON pd.type_id = t.id " +
                        "LEFT JOIN material m ON pd.material_id = m.id " +
+                       "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
+                       "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                        "WHERE pd.status = 0 " +
                        "AND (:productId IS NULL OR pd.product_id = :productId) " +
                        "AND (:brandId IS NULL OR pd.brand_id = :brandId) " +
@@ -279,6 +284,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                              "LEFT JOIN gender g ON pd.gender_id = g.id " +
                              "LEFT JOIN type t ON pd.type_id = t.id " +
                              "LEFT JOIN material m ON pd.material_id = m.id " +
+                             "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
+                             "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                              "WHERE pd.status = 0 " +
                              "AND (:productId IS NULL OR pd.product_id = :productId) " +
                              "AND (:brandId IS NULL OR pd.brand_id = :brandId) " +
@@ -301,5 +308,24 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                 @Param("maxPrice") Double maxPrice,
                 Pageable pageable
         );
-
+    @Query(value = "SELECT " +
+                   "prd.id AS productId, " +
+                   "pd.id AS productDetailId, " +
+                   "pd.color_id AS colorId, " +
+                   "pd.gender_id AS genderId, " +
+                   "pd.price, " +
+                   "MAX(p.discount_value) AS max, " +
+                   "CONCAT(pd.price - (pd.price * MAX(p.discount_value) / 100)) AS giasaugiam " +
+                   "FROM product_detail pd " +
+                   "LEFT JOIN product_promotion pp ON pd.id = pp.product_detail_id " +
+                   "LEFT JOIN promotion p ON pp.promotion_id = p.id " +
+                   "LEFT JOIN product prd ON prd.id = pd.product_id " +
+                   "WHERE pd.status = 0 " +
+                   "AND prd.id = :productId " +
+                   "AND pd.color_id = :colorId " +
+                   "AND pd.gender_id = :genderId " +
+                   "AND NOW() BETWEEN p.start_date AND p.end_date " +
+                   "GROUP BY pd.id, pd.price, pd.color_id, pd.gender_id",
+            nativeQuery = true)
+    List<Object[]> findDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId);
 }

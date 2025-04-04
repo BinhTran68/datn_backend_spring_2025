@@ -17,9 +17,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +87,7 @@ public class ZaloPayStatusChecker {
                     try {
                         Map<String, Object> res = zaloPayService.getStatusByApptransid(pb.getTransactionCode().toString());
                         if (res != null && "1".equals(String.valueOf(res.get("returncode")))) {
-                            pb.setPayMentBillStatus(PayMentBillStatus.DA_HOAN_THANH);
+                            pb.setPayMentBillStatus(PayMentBillStatus.DA_THANH_TOAN);
                             paymentBillRepository.save(pb);
                             billHistoryRepository.save(BillHistory
                                     .builder()
@@ -102,7 +100,7 @@ public class ZaloPayStatusChecker {
 //                             Tạo thông báo cho customer
                             Announcement announcement = new Announcement();
                             announcement.setCustomer(pb.getBill().getCustomer());
-                            announcement.setAnnouncementContent("Thanh toán của bạn đã hoàn thành thành công! Mã giao dịch: " + pb.getTransactionCode());
+                            announcement.setAnnouncementContent("Đã thanh toán thành công! Mã giao dịch: " + pb.getTransactionCode());
                             announcementRepository.save(announcement);
 
                             try {

@@ -65,7 +65,7 @@ public interface ClientService {
 
     ApiResponse<List<SearchStatusBillResponse>> getAllBillOfCustomerid(Integer customerId, Integer page, Integer size);
 
-    String cancelBill(Integer id, String description);
+    String cancelBill(Integer id, String description) throws Exception;
 
     String buyBack(Integer billId, Integer customerId);
 
@@ -74,4 +74,7 @@ public interface ClientService {
                                              Double maxPrice,
                                              int page, int size);
 
+    String  refund(Integer billId,Integer MoneyRefund, String description) throws Exception;
+     List<ProductDetailDiscountDTO> getDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId);
+     PromotionView getPromotionView(Integer productId, Integer colorId, Integer genderId);
 }
