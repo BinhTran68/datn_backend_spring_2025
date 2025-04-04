@@ -81,6 +81,11 @@ public class    Bill extends PrimaryEntity implements Serializable {
 
     String notes;
 
+    // Phụ phí
+    String surcharge;
+    // Phụ phí notes
+    String surchargeNotes;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
     BillStatus status;
@@ -91,6 +96,6 @@ public class    Bill extends PrimaryEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "voucher_id", referencedColumnName = "id")
-    private Voucher voucher;
+    private Voucher voucher;  //
 
 }

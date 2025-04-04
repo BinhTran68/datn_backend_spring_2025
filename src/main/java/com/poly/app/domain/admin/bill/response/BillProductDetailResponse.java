@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class BillProductDetailResponse  {
-
+    Integer ProductDetailId;
     String urlImage;
     Integer quantity;
     String productName;
@@ -23,5 +23,11 @@ public class BillProductDetailResponse  {
     String color;
     Double totalPrice;
     Long createdAt;
+
+    String sizeName;
+    String colorName;
+    String materialName;
+    String soleName;
+
 
 }

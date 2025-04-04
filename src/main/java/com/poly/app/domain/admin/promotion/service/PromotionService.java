@@ -4,6 +4,7 @@ import com.poly.app.domain.admin.promotion.request.PromotionRequest;
 import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.model.Promotion;
 import com.poly.app.domain.model.StatusEnum;
+import com.poly.app.infrastructure.constant.DiscountType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,15 +22,12 @@ public interface PromotionService {
 
     Page<PromotionResponse> getAllPromotion(Pageable pageable);
 
-    PromotionResponse getPromotionDetail(int id);
+    public PromotionResponse getPromotionDetail(int id);
+
     String switchStatus(Integer id, StatusEnum status);
     List<PromotionResponse> getAllPromotionsWithCustomer(Integer productIds);
-    List<PromotionResponse> searchPromotionByName(String promotionName);
+ Page<PromotionResponse> getPagePromotion(int size, int page, StatusEnum statusPromotion, String search, String startDate, String endDate,Double discountValue);
 
-    List<PromotionResponse> searchPromotionByDiscountRange(Double minDiscount, Double maxDiscount);
 
-    List<PromotionResponse> searchPromotionByStatus(StatusEnum statusPromotion);
-
-    List<PromotionResponse> searchPromotionByEndDateRange(LocalDateTime startDate, LocalDateTime endDate);
 }
 

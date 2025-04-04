@@ -4,6 +4,7 @@ package com.poly.app.domain.admin.bill.controller;
 import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
 import com.poly.app.domain.admin.bill.request.RestoreQuantityRequest;
+import com.poly.app.domain.admin.bill.request.UpdateProductBillRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityProductRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityVoucherRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
@@ -14,6 +15,8 @@ import com.poly.app.domain.admin.product.response.img.ImgResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
+import com.poly.app.domain.client.repository.ProductViewRepository;
+import com.poly.app.domain.client.response.PromotionResponse;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Bill;
@@ -41,8 +44,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/bill")
@@ -75,6 +80,12 @@ public class BillController {
         return ApiResponse.builder().data(billService.getBillResponseByBillCode(billCode)).build();
     }
 
+
+    @PutMapping("/update-product-bill/{billCode}")
+    public ResponseEntity<?> updateProductBill(@PathVariable String billCode, @RequestBody UpdateProductBillRequest request) {
+        billService.updateProductBill(billCode, request);
+        return ResponseEntity.ok().build();
+    }
 
     @PutMapping("/{code}/update")
     public ApiResponse<?> updateBillStatus(@PathVariable String code, @RequestBody UpdateStatusBillRequest request) {
@@ -120,6 +131,8 @@ public class BillController {
 
     @Autowired
     private ImageRepository imageRepository;
+    @Autowired
+    ProductViewRepository productViewRepository;
 
     @PostMapping("/restore-quantity")
     public ResponseEntity<?> restoreQuantity(
@@ -137,6 +150,9 @@ public class BillController {
                 ProductDetailResponse productDetailResponse = ProductDetailResponse.fromEntity(productDetail);
                 List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
                 productDetailResponse.setImage(images);
+                List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+                Optional<PromotionResponse> maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue));
+                productDetailResponse.setPromotionResponse(maxPromotion.orElse(null));
                 webSocketService.sendProductUpdate(productDetailResponse);
             }
             return ResponseEntity.ok().build();
@@ -153,8 +169,8 @@ public class BillController {
 
 
     @GetMapping("/vouchers/{customerId}")
-    public ResponseEntity<?> getAllVoucherByCustomerId(@PathVariable String customerId) {
-        return ResponseEntity.ok(billService.getAllVoucherResponse());
+    public ResponseEntity<?> getAllVoucherByCustomerId(@PathVariable Integer customerId) {
+        return ResponseEntity.ok(billService.getAllVoucherResponseByCustomerId(customerId));
     }
 
     @GetMapping("/quantity-vouchers")

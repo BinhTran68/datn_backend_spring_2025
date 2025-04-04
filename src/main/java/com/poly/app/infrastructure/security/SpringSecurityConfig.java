@@ -34,6 +34,7 @@ public class SpringSecurityConfig {
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers("/api/admin/*")
                             .hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MANAGER");
+                    req.requestMatchers("/api/user/*");
                     req.anyRequest().permitAll();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))

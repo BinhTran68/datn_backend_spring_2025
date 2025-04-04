@@ -90,13 +90,6 @@ public class VoucherController {
                 .data(voucherService.updateVoucher(request, id))
                 .build();
     }
-//    @PutMapping("/update_tt/{id}")
-//    public ApiResponse<VoucherReponse> updateTt(@RequestBody VoucherRequest request, @PathVariable int id) {
-//        return ApiResponse.<VoucherReponse>builder()
-//                .message("Cập nhật trạng thái voucher")
-//                .data(voucherService.updateVoucher(request, id))
-//                .build();
-//    }
 
 
     @DeleteMapping("/delete/{id}")
@@ -144,75 +137,6 @@ public class VoucherController {
     }
 
 
-//     🔍 Tìm kiếm voucher theo tên
-    @GetMapping("/search/byName")
-    public ApiResponse<List<VoucherReponse>> searchVoucherByName(@RequestParam String voucherName) {
-        return ApiResponse.<List<VoucherReponse>>builder()
-                .message("Search results by name")
-                .data(voucherService.searchVoucherByName(voucherName))
-                .build();
-    }
-
-    // 🔍 Tìm kiếm voucher theo trạng thái
-    @GetMapping("/search/status")
-    public ApiResponse<List<VoucherReponse>> searchByStatus(@RequestParam StatusEnum statusVoucher) {
-        return ApiResponse.<List<VoucherReponse>>builder()
-                .message("Search results by status")
-                .data(voucherService.searchVoucherByStatus(statusVoucher))
-                .build();
-    }
 
 
-
-    // 🔍 Tìm kiếm voucher theo số lượng
-    @GetMapping("/search/byQuantity")
-    public ApiResponse<List<VoucherReponse>> searchVoucherByQuantity(@RequestParam Integer quantity) {
-        return ApiResponse.<List<VoucherReponse>>builder()
-                .message("Search results by quantity")
-                .data(voucherService.searchVoucherByQuantity(quantity))
-                .build();
-    }
-
-    // 🔍 Tìm kiếm voucher theo loại
-    @GetMapping("/search/byType")
-    public ApiResponse<List<VoucherReponse>> searchVoucherByType(@RequestParam VoucherType voucherType) {
-        return ApiResponse.<List<VoucherReponse>>builder()
-                .message("Search results by voucher type")
-                .data(voucherService.searchVoucherByType(voucherType))
-                .build();
-    }
-
-    // 🔍 Tìm kiếm voucher theo khoảng giá trị giảm tối đa
-    @GetMapping("/search/byDiscountMaxRange")
-    public ApiResponse<List<VoucherReponse>> searchVoucherByDiscountMaxRange(
-            @RequestParam Double minDiscount,
-            @RequestParam Double maxDiscount) {
-        return ApiResponse.<List<VoucherReponse>>builder()
-                .message("Search results by discount max value range")
-                .data(voucherService.searchVoucherByDiscountMaxRange(minDiscount, maxDiscount))
-                .build();
-    }
-
-    // 🔍 Tìm kiếm voucher theo khoảng giá trị hóa đơn tối thiểu
-    @GetMapping("/search/byBillMinRange")
-    public ApiResponse<List<VoucherReponse>> searchVoucherByBillMinRange(
-            @RequestParam Double minBill,
-            @RequestParam Double maxBill) {
-        return ApiResponse.<List<VoucherReponse>>builder()
-                .message("Search results by bill min value range")
-                .data(voucherService.searchVoucherByBillMinRange(minBill, maxBill))
-                .build();
-    }
-
-
-    // 🔍 Tìm kiếm voucher theo khoảng thời gian bắt đầu và kết thúc
-    @GetMapping("/search/byDateRange")
-    public ApiResponse<List<VoucherReponse>> searchVoucherByDateRange(
-            @RequestParam LocalDateTime startDate,
-            @RequestParam LocalDateTime endDate) {
-        return ApiResponse.<List<VoucherReponse>>builder()
-                .message("Search results by start date range")
-                .data(voucherService.searchVoucherByStartDateRange(startDate, endDate))
-                .build();
-    }
 }

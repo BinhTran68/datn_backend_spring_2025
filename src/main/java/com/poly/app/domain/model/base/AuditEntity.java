@@ -23,7 +23,7 @@ public abstract class AuditEntity {
     private String createdBy;
 
     @Column(name = "updated_by")
-    private String updatedBy;
+    private String updatedBy; // Email của người tạo comment
 
     private String code;
 

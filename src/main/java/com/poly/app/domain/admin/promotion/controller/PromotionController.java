@@ -4,8 +4,11 @@ import com.poly.app.domain.admin.promotion.request.PromotionRequest;
 import com.poly.app.domain.admin.promotion.response.ApiResponse;
 import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.admin.promotion.service.PromotionService;
+import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Promotion;
 import com.poly.app.domain.model.StatusEnum;
+import com.poly.app.infrastructure.constant.DiscountType;
+import com.poly.app.infrastructure.constant.VoucherType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -81,56 +84,31 @@ public class PromotionController {
     }
 
     @GetMapping("/switchStatus")
-    public com.poly.app.domain.admin.voucher.response.ApiResponse<String> switchStatus(@RequestParam(value = "id") Integer id,
+    public ApiResponse<String> switchStatus(@RequestParam(value = "id") Integer id,
                                                                                        @RequestParam(value = "status")
                                                                                                StatusEnum status
     ) {
         promotionService.switchStatus(id, status);
 
-        return com.poly.app.domain.admin.voucher.response.ApiResponse.<String>builder()
+        return ApiResponse.<String>builder()
                 .message("")
                 .data(promotionService.switchStatus(id, status))
                 .build();
     }
 
-
-    // 🔍 Tìm kiếm theo tên chương trình khuyến mãi
-    @GetMapping("/search/byName")
-    public ApiResponse<List<PromotionResponse>> searchPromotionByName(@RequestParam String promotionName) {
-        return ApiResponse.<List<PromotionResponse>>builder()
-                .message("Search results by promotion name")
-                .data(promotionService.searchPromotionByName(promotionName))
-                .build();
+    @GetMapping("/index")
+    public PageReponse index(@RequestParam(defaultValue = "10") Integer size,
+                             @RequestParam(defaultValue = "0") Integer page,
+                             @RequestParam(required = false) StatusEnum statusPromotion,
+                             @RequestParam(required = false) String search,
+                             @RequestParam(required = false) Double discountValue,
+                             @RequestParam(required = false) String startDate,
+                             @RequestParam(required = false) String endDate
+    )
+    {
+        log.info("startDate {}, endDate {}, discountValue {}", startDate, endDate, discountValue);
+        return new PageReponse(promotionService.getPagePromotion(
+                size, page, statusPromotion, search, startDate, endDate, discountValue));
     }
 
-    // 🔍 Tìm kiếm theo khoảng giá trị giảm giá
-    @GetMapping("/search/byDiscountRange")
-    public ApiResponse<List<PromotionResponse>> searchPromotionByDiscountRange(
-            @RequestParam Double minDiscount,
-            @RequestParam Double maxDiscount) {
-        return ApiResponse.<List<PromotionResponse>>builder()
-                .message("Search results by discount value range")
-                .data(promotionService.searchPromotionByDiscountRange(minDiscount, maxDiscount))
-                .build();
-    }
-
-    // 🔍 Tìm kiếm theo trạng thái khuyến mãi
-    @GetMapping("/search/byStatus")
-    public ApiResponse<List<PromotionResponse>> searchPromotionByStatus(@RequestParam StatusEnum statusPromotion) {
-        return ApiResponse.<List<PromotionResponse>>builder()
-                .message("Search results by status")
-                .data(promotionService.searchPromotionByStatus(statusPromotion))
-                .build();
-    }
-
-    // 🔍 Tìm kiếm theo khoảng thời gian bắt đầu và kết thúc
-    @GetMapping("/search/byEndDateRange")
-    public ApiResponse<List<PromotionResponse>> searchPromotionByEndDateRange(
-            @RequestParam LocalDateTime startDate,
-            @RequestParam LocalDateTime endDate) {
-        return ApiResponse.<List<PromotionResponse>>builder()
-                .message("Search results by end date range")
-                .data(promotionService.searchPromotionByEndDateRange(startDate, endDate))
-                .build();
-    }
 }

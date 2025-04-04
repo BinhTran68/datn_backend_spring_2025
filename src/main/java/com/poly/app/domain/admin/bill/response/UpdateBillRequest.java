@@ -20,6 +20,7 @@ public class UpdateBillRequest {
     private String status;
     private String type;
     private String customerName;
+    private String email;
     private String customerPhone;
     private String shippingAddress;
     private String note;

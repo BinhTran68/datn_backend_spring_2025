@@ -53,6 +53,7 @@ public class ProductDetailResponse {
     String updateBy;
 
     PromotionResponse promotion;
+    PromotionResponse promotionResponse;
 
     List<ImgResponse> image;
 

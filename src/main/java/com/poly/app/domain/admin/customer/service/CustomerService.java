@@ -42,4 +42,5 @@ public interface CustomerService {
     boolean checkEmailExists(String email);
     boolean checkPhoneExists(String phoneNumber);
 
+    List<CustomerResponse> findCustomerByQuery(String query);
 }

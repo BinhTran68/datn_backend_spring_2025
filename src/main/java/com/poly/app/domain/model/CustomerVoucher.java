@@ -20,17 +20,11 @@ import java.io.Serializable;
 @Table(name = "customer_voucher")
 //khách hàng phiếu giảm giá
 public class CustomerVoucher extends PrimaryEntity implements Serializable {
-
     @ManyToOne
     @JoinColumn
     Customer customer;
-
     @ManyToOne
     @JoinColumn
     Voucher voucher;
-
     Integer quantity;
-
-
-
 }

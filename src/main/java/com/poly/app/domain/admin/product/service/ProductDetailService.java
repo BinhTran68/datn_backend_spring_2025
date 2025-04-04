@@ -1,6 +1,8 @@
 package com.poly.app.domain.admin.product.service;
 
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
+import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailDTO;
+import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailWithPromotionDTO;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.admin.product.request.productdetail.FilterRequest;
 import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequest;
@@ -33,14 +35,11 @@ public interface ProductDetailService {
     List<ProductDetailResponse> getProductDetailsByProductId(Integer productId);
 
 
-
-
-
-
     //     getall
     List<ProductDetailResponse> getAllProductDetailExportData();
 
     List<FilterProductDetailResponse> filterProductDetail(int page, int size, FilterRequest request);
+    List<FilterProductDetailWithPromotionDTO> filterDetailProductWithPromotion(int page, int size, FilterRequest request);
 
     Integer getFillterElement(FilterRequest request);
 

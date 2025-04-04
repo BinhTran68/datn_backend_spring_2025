@@ -3,6 +3,7 @@ package com.poly.app.domain.admin.bill.service.impl;
 import com.poly.app.domain.admin.bill.request.BillDetailRequest;
 import com.poly.app.domain.admin.bill.request.BillProductDetailRequest;
 import com.poly.app.domain.admin.bill.request.CreateBillRequest;
+import com.poly.app.domain.admin.bill.request.UpdateProductBillRequest;
 import com.poly.app.domain.admin.bill.request.UpdateQuantityVoucherRequest;
 import com.poly.app.domain.admin.bill.request.UpdateStatusBillRequest;
 import com.poly.app.domain.admin.bill.response.BillResponse;
@@ -10,9 +11,11 @@ import com.poly.app.domain.admin.bill.response.UpdateBillRequest;
 import com.poly.app.domain.admin.bill.service.BillHistoryService;
 import com.poly.app.domain.admin.bill.service.BillService;
 import com.poly.app.domain.admin.bill.service.WebSocketService;
+import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequest;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.staff.response.AddressReponse;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
+import com.poly.app.domain.auth.service.AuthenticationService;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillDetail;
@@ -23,6 +26,7 @@ import com.poly.app.domain.model.PaymentBill;
 import com.poly.app.domain.model.PaymentMethods;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.model.Staff;
+import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.domain.repository.AddressRepository;
 import com.poly.app.domain.repository.BillDetailRepository;
@@ -40,8 +44,11 @@ import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.TypeBill;
 import com.poly.app.infrastructure.constant.VoucherType;
+import com.poly.app.infrastructure.email.Email;
+import com.poly.app.infrastructure.email.EmailSender;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
+import com.poly.app.infrastructure.exception.RestApiException;
 import com.poly.app.infrastructure.security.Auth;
 import com.poly.app.infrastructure.util.DateUtil;
 import com.poly.app.infrastructure.util.GenHoaDon;
@@ -50,12 +57,14 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.embedded.netty.NettyWebServer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -64,6 +73,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -110,6 +122,12 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     private WebSocketService webSocketService;
+
+    @Autowired
+    private AuthenticationService authenticationService;
+
+    @Autowired
+    EmailSender emailSender;
 
     @Override
     public Page<BillResponse> getPageBill(Integer size, Integer page,
@@ -179,8 +197,6 @@ public class BillServiceImpl implements BillService {
     @Override
     public Map<String, ?> updateStatusBill(String billCode, UpdateStatusBillRequest request) {
 
-        System.out.println(request);
-
         Bill bill = billRepository.findByBillCode(billCode);
 
         Staff staff = staffRepository.findById(1).orElse(null);
@@ -188,6 +204,18 @@ public class BillServiceImpl implements BillService {
             throw new ApiException(ErrorCode.HOA_DON_NOT_FOUND);
         }
         bill.setStatus(request.getStatus());
+
+        if (bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+            sendMailUpdateSanPhamAsync(bill.getEmail(), bill,
+                    "Trạng thái đơn hàng",
+                    "Đơn hàng của bạn đã được xác nhận");
+        }
+        if (bill.getStatus() == BillStatus.DANG_VAN_CHUYEN) {
+            sendMailUpdateSanPhamAsync(bill.getEmail(), bill,
+                    "Trạng thái đơn hàng",
+                    "Đơn hàng của bạn đã được giao cho đơn vị vận chuyển");
+        }
+
         Bill billUpdate = billRepository.save(bill);
 
         BillHistory billHistory = BillHistory.builder()
@@ -204,12 +232,14 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
+    @Transactional // Bên admin
     public BillResponse updateBillInfo(String billCode, UpdateBillRequest request) {
-        System.out.println(request.toString());
         Bill bill = billRepository.findByBillCode(billCode);
         bill.setNumberPhone(request.getCustomerPhone());
         bill.setNotes(request.getNote());
-
+        bill.setCustomerName(request.getCustomerName());
+        bill.setEmail(request.getEmail());
+        sendMailUpdateSanPhamAsync(bill.getEmail(), bill, "Cập nhật thông tin đơn hàng", "Cập nhật thông tin đơn hàng thành công");
         Address newAddress = bill.getShippingAddress();
         if (newAddress == null) {
             newAddress = new Address();
@@ -223,13 +253,28 @@ public class BillServiceImpl implements BillService {
         if (newAddress.getId() == null) {
             addressRepository.save(newAddress);  // Lưu mới nếu chưa có ID
         }
-
+        Staff staff = authenticationService.getStaffAuth();
+        BillHistory billHistory = BillHistory
+                .builder()
+                .staff(staff)
+                .bill(bill)
+                .status(bill.getStatus())
+                .description("Cập nhật thông tin khách hàng")
+                .build();
+        billHistoryRepository.save(billHistory);
         billRepository.save(bill);
         return convertBillToBillResponse(bill);
     }
 
     @Override
     public File printBillById(String billCode) {
+//        Bill bill = billRepository.findByBillCode(billCode);
+//        BillHistory billHistory = billHistoryRepository.findDistinctFirstByBillOrderByCreatedAtDesc(bill);
+//        List<BillDetail> lstBillDetail = billDetailRepository.findByBill(bill);
+        return genPdf(billCode);
+    }
+
+    private File genPdf(String billCode) {
         Bill bill = billRepository.findByBillCode(billCode);
         BillHistory billHistory = billHistoryRepository.findDistinctFirstByBillOrderByCreatedAtDesc(bill);
         List<BillDetail> lstBillDetail = billDetailRepository.findByBill(bill);
@@ -297,9 +342,9 @@ public class BillServiceImpl implements BillService {
 
         // Trường hợp người dùng ship
         if (request.getIsShipping()) {
-            if(request.getIsCOD()) {
+            if (request.getIsCOD()) {
                 bill.setStatus(BillStatus.DA_XAC_NHAN);
-            }else {
+            } else {
                 bill.setStatus(BillStatus.CHO_VAN_CHUYEN);
             }
         } else {
@@ -342,7 +387,7 @@ public class BillServiceImpl implements BillService {
                     request.getNotes());
         } else if (request.getCashCustomerMoney() != null) {
             PaymentMethods cashPaymentMethods =
-                    createAndSavePaymentMethod( PaymentMethodEnum.TIEN_MAT);
+                    createAndSavePaymentMethod(PaymentMethodEnum.TIEN_MAT);
             savePaymentBill(
                     billSave,
                     cashPaymentMethods,
@@ -414,14 +459,14 @@ public class BillServiceImpl implements BillService {
     @Override
     @Transactional
     public void updateProductQuantity(List<BillProductDetailRequest> requests) {
-        log.info("updateProductQuantity {}", requests.toString());
         requests.forEach(request -> {
             ProductDetail productDetail = productDetailRepository.
                     findById(request.getId()).orElse(null);
             if (productDetail != null) {
                 productDetail.setQuantity(request.getQuantity());
-              ProductDetail productDetailSave =  productDetailRepository.save(productDetail);
-              webSocketService.sendProductUpdate(ProductDetailResponse.fromEntity(productDetailSave));
+                ProductDetail productDetailSave = productDetailRepository.save(productDetail);
+
+                webSocketService.sendProductUpdate(ProductDetailResponse.fromEntity(productDetailSave));
             }
         });
 
@@ -431,17 +476,38 @@ public class BillServiceImpl implements BillService {
     public List<VoucherReponse> getAllVoucherResponse() {
         LocalDateTime now = LocalDateTime.now();
         List<Voucher> vouchers = voucherRepository
-                .findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThan(now, now, 0);
+                .findByStartDateBeforeAndEndDateAfterAndQuantityGreaterThanAndVoucherType(now, now, 0, VoucherType.PUBLIC);
         List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
         return voucherReponses;
     }
 
     @Override
     public List<VoucherReponse> getAllVoucherResponseByCustomerId(Integer customerId) {
-        List<CustomerVoucher> customerVouchers = customerVoucherRepository.findCustomerVouchersByCustomerId(customerId);
-        List<Voucher> vouchers = customerVouchers.stream().map(customerVoucher -> customerVoucher.getVoucher()).toList();
-        List<VoucherReponse> voucherReponses = vouchers.stream().map(voucher -> VoucherReponse.formEntity(voucher)).toList();
-        return voucherReponses;
+        List<CustomerVoucher> customerVouchers = Optional.ofNullable(
+                customerVoucherRepository.findCustomerVouchersByCustomerId(customerId)
+        ).orElse(List.of()); // Nếu null thì trả về danh sách rỗng tránh NullPointerException
+
+        List<Voucher> validVouchers = customerVouchers.stream()
+                .map(CustomerVoucher::getVoucher)
+                .filter(voucher -> voucher.getQuantity() > 0)
+                .filter(voucher -> voucher.getStartDate().isBefore(LocalDateTime.now()) || voucher.getStartDate().isEqual(LocalDateTime.now()))
+                .filter(voucher -> voucher.getEndDate().isAfter(LocalDateTime.now()) || voucher.getEndDate().isEqual(LocalDateTime.now()))
+                .filter(voucher -> voucher.getStatusVoucher() == StatusEnum.dang_kich_hoat)
+                .collect(Collectors.toList());
+
+        List<VoucherReponse> voucherReponses = validVouchers.stream()
+                .map(VoucherReponse::formEntity)
+                .collect(Collectors.toList());
+
+        List<VoucherReponse> voucherReponsePublic = Optional.ofNullable(
+                getAllVoucherResponse()
+        ).orElse(List.of()); // Xử lý trường hợp billService trả về null
+
+        // Hợp hai danh sách
+        List<VoucherReponse> mergedVouchers = new ArrayList<>(voucherReponses);
+        mergedVouchers.addAll(voucherReponsePublic);
+
+        return mergedVouchers;
     }
 
     @Override
@@ -484,10 +550,14 @@ public class BillServiceImpl implements BillService {
 
     private BillResponse convertBillToBillResponse(Bill bill) {
         AddressReponse addressReponse;
-        if(bill.getShippingAddress() == null) {
+        if (bill.getShippingAddress() == null) {
             addressReponse = null;
-        }else {
-             addressReponse   = new AddressReponse(bill.getShippingAddress());
+        } else {
+            addressReponse = new AddressReponse(bill.getShippingAddress());
+        }
+        VoucherReponse voucher = null;
+        if (bill.getVoucher() != null) {
+            voucher = VoucherReponse.formEntity(bill.getVoucher());
         }
 
         return BillResponse.builder()
@@ -498,6 +568,7 @@ public class BillServiceImpl implements BillService {
                 .discountMoney(bill.getDiscountMoney())
                 .shipMoney(bill.getShipMoney())
                 .totalMoney(bill.getTotalMoney())
+                .moneyBeforeDiscount(bill.getMoneyBeforeDiscount())
                 .billType(bill.getTypeBill().toString())
                 .notes(bill.getNotes())
                 .completeDate(bill.getCompleteDate())
@@ -507,6 +578,7 @@ public class BillServiceImpl implements BillService {
                 .address(bill.getShippingAddress())
                 .addressReponse(addressReponse)
                 .email(bill.getEmail())
+                .voucherReponse(voucher)
                 .status(bill.getStatus() != null ? bill.getStatus().toString() : null)
                 .createAt(bill.getCreatedAt())
                 .build();
@@ -529,5 +601,145 @@ public class BillServiceImpl implements BillService {
         response.add(Map.of("name", "all", "value", countAll));
         return response;
     }
+
+    @Transactional
+    @Override
+    public void updateProductBill(String billCode, UpdateProductBillRequest request) {
+        try {
+            // 1️⃣ Lấy thông tin hóa đơn và cập nhật các thông tin cơ bản
+            Bill bill = billRepository.findByBillCode(billCode);
+            Voucher voucher = voucherRepository.findVoucherByVoucherCode(request.getVoucherCode());
+            bill.setTotalMoney(request.getTotalMoney());
+            bill.setMoneyBeforeDiscount(request.getMoneyBeforeDiscount());
+            bill.setDiscountMoney(request.getDiscountMoney());
+            bill.setShipMoney(request.getShipMoney());
+            bill.setVoucher(voucher);
+
+            // 2️⃣ Ghi lịch sử cập nhật đơn hàng
+            BillHistory billHistory = BillHistory
+                    .builder()
+                    .bill(bill)
+                    .status(bill.getStatus())
+                    .staff(authenticationService.getStaffAuth())
+                    .description("Thay đổi sản phẩm trong đơn hàng")
+                    .build();
+            billHistoryRepository.save(billHistory);
+
+            // 3️⃣ Lấy danh sách sản phẩm trong hóa đơn
+            List<BillDetail> billDetails = billDetailRepository.findByBillId(bill.getId());
+            List<BillProductDetailRequest> productDetailRequestList = request.getProductDetailRequestList();
+
+            // 🔹 Chuyển danh sách sản phẩm hiện tại thành Map có key là "productDetailId-price"
+            Map<String, BillDetail> billDetailMap = billDetails.stream()
+                    .collect(Collectors.toMap(
+                            billDetail -> billDetail.getProductDetail().getId() + "-" + billDetail.getPrice(),
+                            Function.identity()
+                    ));
+
+            // 🔹 Chuyển danh sách sản phẩm trong request thành Map có key là "productDetailId-price"
+            Map<String, BillProductDetailRequest> requestMap = productDetailRequestList.stream()
+                    .collect(Collectors.toMap(
+                            requestDetail -> requestDetail.getProductDetailId() + "-" + requestDetail.getPrice(),
+                            Function.identity()
+                    ));
+
+            List<BillDetail> toUpdate = new ArrayList<>();
+            List<BillDetail> toDelete = new ArrayList<>();
+            List<BillDetail> toInsert = new ArrayList<>();
+
+            // 4️⃣ Kiểm tra sản phẩm có trong DB nhưng không có trong request → XÓA
+            for (BillDetail billDetail : billDetails) {
+                String key = billDetail.getProductDetail().getId() + "-" + billDetail.getPrice();
+                if (!requestMap.containsKey(key)) {
+                    toDelete.add(billDetail);
+                }
+            }
+
+            // 5️⃣ Kiểm tra sản phẩm có trong cả hai danh sách → CẬP NHẬT hoặc THÊM MỚI
+            for (BillProductDetailRequest requestDetail : productDetailRequestList) {
+                String key = requestDetail.getProductDetailId() + "-" + requestDetail.getPrice();
+                BillDetail existingBillDetail = billDetailMap.get(key);
+                ProductDetail productDetail = productDetailRepository.findById(requestDetail.getProductDetailId())
+                        .orElseThrow(() -> new RestApiException("Product detail not found", HttpStatus.NOT_FOUND));
+
+                if (existingBillDetail != null) {
+                    // Nếu có thay đổi về số lượng, cập nhật
+                    if (!existingBillDetail.getQuantity().equals(requestDetail.getQuantity())) {
+                        existingBillDetail.setQuantity(requestDetail.getQuantity());
+                        existingBillDetail.setTotalMoney(requestDetail.getPrice() * requestDetail.getQuantity());
+                        toUpdate.add(existingBillDetail);
+                    }
+                } else {
+                    // Nếu sản phẩm chưa tồn tại, thêm mới
+                    BillDetail newBillDetail = new BillDetail();
+                    newBillDetail.setBill(bill);
+                    newBillDetail.setProductDetail(productDetail);
+                    newBillDetail.setQuantity(requestDetail.getQuantity());
+                    newBillDetail.setPrice(requestDetail.getPrice());
+                    newBillDetail.setTotalMoney(requestDetail.getPrice() * requestDetail.getQuantity());
+                    toInsert.add(newBillDetail);
+                }
+            }
+
+            // 6️⃣ Thực hiện thao tác với repository
+            billDetailRepository.deleteAll(toDelete);
+            billDetailRepository.saveAll(toUpdate);
+            billDetailRepository.saveAll(toInsert);
+
+            // 7️⃣ Gửi email thông báo cập nhật hóa đơn
+            sendMailUpdateSanPhamAsync(bill.getEmail(), bill, "Cập nhật hóa đơn",
+                    "Thay đổi số lượng sản phẩm thành công");
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RestApiException("Update product failed", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    public CompletableFuture<Void> sendMailUpdateSanPhamAsync(String sendToMail, Bill bill,
+                                                              String title, String subTitle) {
+        return CompletableFuture.runAsync(() -> sendMail(sendToMail, bill, title, subTitle));
+    }
+
+
+    private void sendMail(String sendToMail, Bill bill,
+                          String title, String subTitle) {
+//        File pdfFile = genPdf(bill.getBillCode());
+        Email email = new Email();
+        String[] emailSend = {sendToMail};
+        email.setToEmail(emailSend);
+        email.setSubject("TheHands-" + title);
+        email.setTitleEmail("");
+//        email.setPdfFile(pdfFile);
+//        email.setFileName(bill.getBillCode());
+        // Tạo nội dung email
+        email.setBody("<!DOCTYPE html>\n" +
+                "<html lang=\"en\">\n" +
+                "<head>\n" +
+                "    <meta charset=\"UTF-8\">\n" +
+                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                "    <title>Hóa đơn TheHands</title>\n" +
+                "</head>\n" +
+                "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px;\">\n" +
+                "    <div style=\"max-width: 600px; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin: auto;\">\n" +
+                "        <h2 style=\"color: #333;\">🎉 " + subTitle + " 🎉</h2>\n" +
+                "        <p style=\"color: #555;\">Cảm ơn bạn đã mua hàng tại <strong>TheHands</strong>. Dưới đây là thông tin đơn hàng của bạn:</p>\n" +
+                "        <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\">\n" +
+                "        <p><strong>📧 Email:</strong> " + sendToMail + "</p>\n" +
+                "        <p><strong>🧾 Mã hóa đơn:</strong> <span style=\"color: #007bff; font-weight: bold;\">" + bill.getBillCode() + "</span></p>\n" +
+                "        <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\">\n" +
+                "        <h3 style=\"color: #007bff;\">Danh sách sản phẩm</h3>\n" +
+                "        <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\">\n" +
+                "        <p style=\"color: #555;\">Bạn có thể kiểm tra hóa đơn của mình bằng cách nhấn vào nút bên dưới:</p>\n" +
+                "        <a href=\"http://localhost:5173/searchbill?billcode=" + bill.getBillCode() + "\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;\">🔍 Xem hóa đơn</a>\n" +
+                "        <p style=\"margin-top: 20px; font-size: 12px; color: #999;\">Nếu bạn không thực hiện giao dịch này, vui lòng bỏ qua email này.</p>\n" +
+                "    </div>\n" +
+                "</body>\n" +
+                "</html>");
+
+        emailSender.sendEmail(email);
+    }
+
 
 }
