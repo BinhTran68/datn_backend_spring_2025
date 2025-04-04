@@ -24,4 +24,10 @@ public class BillProductDetailResponse  {
     Double totalPrice;
     Long createdAt;
 
+    String sizeName;
+    String colorName;
+    String materialName;
+    String soleName;
+
+
 }

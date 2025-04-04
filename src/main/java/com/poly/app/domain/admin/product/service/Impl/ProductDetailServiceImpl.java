@@ -6,8 +6,8 @@ import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.response.img.ImgResponse;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailWithPromotionDTO;
 import com.poly.app.domain.admin.product.service.CloundinaryService;
-import com.poly.app.domain.admin.promotion.response.PromotionResponse;
 import com.poly.app.domain.client.repository.ProductViewRepository;
+import com.poly.app.domain.client.response.PromotionResponse;
 import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.*;
 import com.poly.app.domain.admin.product.request.productdetail.FilterRequest;
@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -293,6 +294,9 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .updateAt(productDetail.getUpdatedAt())
                 .updateBy(productDetail.getUpdatedBy())
                 .build();
+        List<com.poly.app.domain.client.response.PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+        Optional<com.poly.app.domain.client.response.PromotionResponse> maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue));
+        productDetailResponse.setPromotionResponse(maxPromotion.orElse(null));
         webSocketService.sendProductUpdate(productDetailResponse);
         return productDetailResponse;
     }
