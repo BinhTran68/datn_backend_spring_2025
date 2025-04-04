@@ -184,9 +184,11 @@ public class ClientServiceImpl implements ClientService {
                 .customerMoney(request.getCustomerMoney())
                 .discountMoney(request.getDiscountMoney())
                 .moneyAfter(request.getMoneyAfter())
+                .totalMoney(request.getMoneyAfter())
+                .moneyBeforeDiscount(request.getMoneyBeforeDiscount())
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
-                .totalMoney(request.getTotalMoney())
+
                 .shippingAddress(address)
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
@@ -271,7 +273,8 @@ public class ClientServiceImpl implements ClientService {
                     PaymentMethods paymentMethods = paymentMethodsRepository
                             .findByPaymentMethodsType(PaymentMethodsType.ZALO_PAY)
                             .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
-                                    .paymentMethodsType(PaymentMethodsType.ZALO_PAY)
+                                    .paymentMethod(PaymentMethodEnum.ZALO_PAY)
+                                    .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
                                     .status(Status.HOAT_DONG)
                                     .build()));
 //và lưu pttt
@@ -295,9 +298,9 @@ public class ClientServiceImpl implements ClientService {
                     if (zaloPayResponse == null || !zaloPayResponse.containsKey("orderurl")) {
                         throw new ApiException(ErrorCode.INVALID_KEY);
                     }
-
                     paymentBill.setTransactionCode(zaloPayResponse.get("apptransid").toString());
                     paymentBill.setTotalMoney(Double.valueOf(zaloPayResponse.get("amount").toString()));
+//                    paymentBillRepository.save(paymentBill);
                     return (String) zaloPayResponse.get("orderurl"); // Trả về URL thanh toán ngay lập tức
                 } catch (Exception e) {
                     log.error("Lỗi khi tạo đơn hàng ZaloPay", e);
@@ -309,6 +312,7 @@ public class ClientServiceImpl implements ClientService {
                 PaymentMethods paymentMethods = paymentMethodsRepository
                         .findByPaymentMethodsType(PaymentMethodsType.COD)
                         .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
+                                .paymentMethod(PaymentMethodEnum.COD)
                                 .paymentMethodsType(PaymentMethodsType.COD)
                                 .status(Status.HOAT_DONG)
                                 .build()));
@@ -523,7 +527,7 @@ public class ClientServiceImpl implements ClientService {
                 .typeBill(bill.getTypeBill())
                 .notes(bill.getNotes())
                 .status(bill.getStatus())
-                .payment(paymentMethods.getPaymentMethodsType().name())
+                .payment(paymentMethods.getPaymentMethod().name())
                 .voucher(voucherCode)
                 .addressRequest(AddressRequest.builder()
                         .provinceId(bill.getShippingAddress().getProvinceId())
@@ -547,7 +551,7 @@ public class ClientServiceImpl implements ClientService {
         PaymentBill paymentBill = paymentBillRepository.findByBillId(bill.getId());
         PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
 
-        if (paymentMethods.getPaymentMethodsType().equals(PaymentMethodsType.COD)) {
+        if (paymentMethods.getPaymentMethod().equals(PaymentMethodsType.COD)) {
             bill.setStatus(BillStatus.CHO_XAC_NHAN);
             billRepository.save(bill);
             sendMail(bill.getEmail(), bill);
@@ -559,7 +563,7 @@ public class ClientServiceImpl implements ClientService {
                     .status(BillStatus.CHO_XAC_NHAN)
                     .build());
             return "xác minh thành công";
-        } else if (paymentMethods.getPaymentMethodsType().equals(PaymentMethodsType.ZALO_PAY)) {
+        } else if (paymentMethods.getPaymentMethod().equals(PaymentMethodsType.ZALO_PAY)) {
             bill.setStatus(BillStatus.CHO_XAC_NHAN);
             billRepository.save(bill);
             sendMail(bill.getEmail(), bill);
@@ -628,7 +632,7 @@ public class ClientServiceImpl implements ClientService {
                     .typeBill(b.getTypeBill())
                     .notes(b.getNotes())
                     .status(b.getStatus())
-                    .payment(paymentMethods != null ? paymentMethods.getPaymentMethodsType().name() : "")
+                    .payment(paymentMethods.getPaymentMethod() != null ? paymentMethods.getPaymentMethod().name() : "")
                     .voucher(voucherCode)
                     .addressRequest(b.getShippingAddress() !=null? AddressRequest.builder()
                             .provinceId(b.getShippingAddress().getProvinceId())
@@ -658,7 +662,7 @@ public class ClientServiceImpl implements ClientService {
         if (paymentBill != null) {
             PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
             // Xử lý logic hoàn tiền nếu cần
-            switch (paymentMethods.getPaymentMethodsType()) {
+            switch (paymentMethods.getPaymentMethod()) {
                 case COD -> {
 
                     bill.setStatus(BillStatus.DA_HUY);
@@ -710,7 +714,7 @@ public class ClientServiceImpl implements ClientService {
                         String refund = refundBill(bill.getId(), bill.getMoneyAfter().intValue(), "Hoan tien ");
                         bill.setStatus(BillStatus.DA_HUY);
                         billRepository.save(bill);
-                        paymentBill.setPayMentBillStatus(PayMentBillStatus.CHUA_THANH_TOAN);
+                        paymentBill.setPayMentBillStatus(PayMentBillStatus.DA_HOAN_TIEN);
                         paymentBillRepository.save(paymentBill);
                         billHistoryRepository.save(BillHistory
                                 .builder()

@@ -1,16 +1,14 @@
 package com.poly.app.domain.client.service;
 
 import com.poly.app.domain.client.response.NotificationResponse;
-import com.poly.app.domain.model.Announcement;
-import com.poly.app.domain.model.Bill;
-import com.poly.app.domain.model.BillHistory;
-import com.poly.app.domain.model.PaymentBill;
+import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.AnnouncementRepository;
 import com.poly.app.domain.repository.BillHistoryRepository;
 import com.poly.app.domain.repository.BillRepository;
 import com.poly.app.domain.repository.PaymentBillRepository;
 import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.PayMentBillStatus;
+import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -77,7 +75,7 @@ public class ZaloPayStatusChecker {
         long timeLimit = currentTimeMillis - (20 * 60 * 1000);
         List<PaymentBill> paymentBills = paymentBillRepository.getAllPaymentBillCTT(
                 PayMentBillStatus.CHUA_THANH_TOAN,
-                PaymentMethodsType.ZALO_PAY, timeLimit
+                PaymentMethodEnum.ZALO_PAY, timeLimit
         );
 
         System.out.println("✅ Đang kiểm tra trạng thái đơn hàng... (Số lượng: " + paymentBills.size() + ")");
@@ -85,7 +83,7 @@ public class ZaloPayStatusChecker {
         List<CompletableFuture<Void>> futures = paymentBills.stream()
                 .map(pb -> CompletableFuture.runAsync(() -> {
                     try {
-                        Map<String, Object> res = zaloPayService.getStatusByApptransid(pb.getTransactionCode().toString());
+                        Map<String, Object> res = zaloPayService.getStatusByApptransid(pb.getTransactionCode());
                         if (res != null && "1".equals(String.valueOf(res.get("returncode")))) {
                             pb.setPayMentBillStatus(PayMentBillStatus.DA_THANH_TOAN);
                             paymentBillRepository.save(pb);
