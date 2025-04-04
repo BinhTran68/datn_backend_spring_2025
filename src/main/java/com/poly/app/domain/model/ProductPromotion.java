@@ -19,17 +19,13 @@ import java.io.Serializable;
 @Entity
 @Table(name = "product_promotion")
 public class ProductPromotion extends PrimaryEntity implements Serializable {
-    @ManyToOne
-    @JoinColumn
-    Product product;
 
+    Integer product;
     @ManyToOne
     @JoinColumn
     ProductDetail productDetail;
-
     @ManyToOne
     @JoinColumn
     Promotion promotion;
-
     Integer quantity;
 }

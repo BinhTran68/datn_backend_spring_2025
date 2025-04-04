@@ -9,5 +9,9 @@ import java.util.List;
 
 @Repository
 public interface CommentsRepository extends JpaRepository<Comments,Integer> {
-List<Comments> findByProductIdOrderByCreatedAtAsc(Integer productId);
+    List<Comments> findByProductIdOrderByCreatedAtAsc(Integer productId);
+    List<Comments> findAllByOrderByCreatedAtAsc();
+    List<Comments> findAllByParentId(Integer parentId); // Tìm tất cả các câu trả lời
+    boolean existsByProductIdAndCustomerId(Integer productId, Integer customerId);
+
 }

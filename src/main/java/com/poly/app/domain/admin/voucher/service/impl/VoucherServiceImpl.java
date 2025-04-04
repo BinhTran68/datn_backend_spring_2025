@@ -114,7 +114,7 @@ public class VoucherServiceImpl implements VoucherService {
                             "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
                             "        <p style=\"color: #555;\">Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của TheHands. Chúng tôi dành tặng bạn một mã giảm giá đặc biệt!</p>\n" +
                             "        <p><strong>Mã voucher:</strong> " + generatedVoucherCode + "</p>\n" +
-                            "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+                            "<p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + (request.getDiscountType().equals(DiscountType.MONEY.name()) ? "Tiền" : "%") + "</p>\n" +
                             "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "Đ</p>\n" +
                             "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " Đ</p>\n" +
                             "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
@@ -198,7 +198,7 @@ public class VoucherServiceImpl implements VoucherService {
                         "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
                         "        <p style=\"color: #555;\">Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của TheHands. Chúng tôi dành tặng bạn một mã giảm giá đặc biệt!</p>\n" +
                         "        <p><strong>Mã voucher:</strong> " + generatedVoucherCode + "</p>\n" +
-                        "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+                        "<p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + (request.getDiscountType().equals(DiscountType.MONEY.name()) ? "Tiền" : "%") + "</p>\n" +
                         "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "Đ</p>\n" +
                         "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " Đ</p>\n" +
                         "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
@@ -227,7 +227,7 @@ public class VoucherServiceImpl implements VoucherService {
                                 "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
                                 "        <p style=\"color: #555;\"> Chúng tôi có thay đổi về mã giảm giá của bạn!</p>\n" +
                                 "        <p><strong>Mã voucher:</strong> " + existingVoucherCode + "</p>\n" +
-                                "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+                                "<p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + (request.getDiscountType().equals(DiscountType.MONEY.name()) ? "Tiền" : "%") + "</p>\n" +
                                 "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "</p>\n" +
                                 "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " VNĐ</p>\n" +
                                 "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
@@ -257,7 +257,8 @@ public class VoucherServiceImpl implements VoucherService {
                                 "        <h2 style=\"color: #333;\">Xin chào, " + customer.getFullName() + "!</h2>\n" +
                                 "        <p style=\"color: #555;\"> Chúng tôi rất tiếc phải hủy phiếu giảm giá của bạn!</p>\n" +
                                 "        <p><strong>Mã voucher:</strong> " + existingVoucherCode + "</p>\n" +
-                                "        <p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + request.getDiscountType() + "</p>\n" +
+
+                                "<p><strong>Giá trị giảm:</strong> " + request.getDiscountValue() + " " + (request.getDiscountType().equals(DiscountType.MONEY.name()) ? "Tiền" : "%") + "</p>\n" +
                                 "        <p><strong>Giá trị giảm tối đa:</strong> " + request.getDiscountMaxValue() + "</p>\n" +
                                 "        <p><strong>Áp dụng cho đơn hàng từ:</strong> " + request.getBillMinValue() + " VNĐ</p>\n" +
                                 "        <p><strong>Thời gian sử dụng:</strong> " + request.getStartDate() + " - " + request.getEndDate() + "</p>\n" +
@@ -412,68 +413,9 @@ public class VoucherServiceImpl implements VoucherService {
         return mergedVouchers;
     }
 
-    // Tìm voucher theo tên
-    @Override
-    public List<VoucherReponse> searchVoucherByName(String voucherName) {
-        return voucherRepository.findByVoucherNameContainingIgnoreCase(voucherName)
-                .stream()
-                .map(VoucherReponse::formEntity)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<VoucherReponse> searchVoucherByStatus(StatusEnum statusVoucher) {
-        return voucherRepository.findByStatusVoucher(statusVoucher)
-                .stream()
-                .map(VoucherReponse::formEntity)
-                .collect(Collectors.toList());
-    }
-
-    // 🔍 Tìm voucher theo số lượng
-    @Override
-    public List<VoucherReponse> searchVoucherByQuantity(Integer quantity) {
-        return voucherRepository.findByQuantity(quantity)
-                .stream()
-                .map(VoucherReponse::formEntity)
-                .collect(Collectors.toList());
-    }
-
-    // 🔍 Tìm voucher theo loại
-    @Override
-    public List<VoucherReponse> searchVoucherByType(VoucherType voucherType) {
-        return voucherRepository.findByVoucherType(voucherType)
-                .stream()
-                .map(VoucherReponse::formEntity)
-                .collect(Collectors.toList());
-    }
-
-    // 🔍 Tìm voucher theo khoảng giá trị giảm tối đa
-    @Override
-    public List<VoucherReponse> searchVoucherByDiscountMaxRange(Double minDiscount, Double maxDiscount) {
-        return voucherRepository.findByDiscountMaxValueBetween(minDiscount, maxDiscount)
-                .stream()
-                .map(VoucherReponse::formEntity)
-                .collect(Collectors.toList());
-    }
-
-    // 🔍 Tìm voucher theo khoảng giá trị hóa đơn tối thiểu
-    @Override
-    public List<VoucherReponse> searchVoucherByBillMinRange(Double minBill, Double maxBill) {
-        return voucherRepository.findByBillMinValueBetween(minBill, maxBill)
-                .stream()
-                .map(VoucherReponse::formEntity)
-                .collect(Collectors.toList());
-    }
 
 
-    // 🔍 Tìm voucher theo khoảng ngày bắt đầu và kết thúc
-    @Override
-    public List<VoucherReponse> searchVoucherByStartDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return voucherRepository.findByStartDateBetween(startDate, endDate)
-                .stream()
-                .map(VoucherReponse::formEntity)
-                .collect(Collectors.toList());
-    }
+
 
     @Override
     public Page<VoucherReponse> getPageVoucher(int size, int page, StatusEnum statusVoucher, String search, String startDate, String endDate, VoucherType voucherType, DiscountType discountType) {
