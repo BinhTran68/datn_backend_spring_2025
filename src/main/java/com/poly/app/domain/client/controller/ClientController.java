@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/client")
@@ -309,7 +310,7 @@ public class ClientController {
             @RequestParam(required = false) Integer billId,
             @RequestParam(required = false) String description
 
-            ) {
+            ) throws Exception {
         return ApiResponse.<String>builder()
                 .message("Hủy đơn hàng")
                 .data(clientService.cancelBill(billId,description))
@@ -326,8 +327,20 @@ public class ClientController {
                 .data(clientService.buyBack(billId,customerId))
                 .build();
     }
+    @GetMapping("/refund")
+    ApiResponse<String> refund(
+            @RequestParam Integer billId,
+            @RequestParam Integer moneyRefund,
+            @RequestParam String depcription
+
+    ) throws Exception {
+        return ApiResponse.<String>builder()
+                .message("Hủy đơn hàng")
+                .data(clientService.refund(billId,moneyRefund,depcription))
+                .build();
+    }
     @GetMapping("/filter")
-    public ApiResponse<List<ProductViewResponse>> filterProducts(
+    public ApiResponse<List<ProductViewResponseClass>> filterProducts(
             @RequestParam(required = false) Long brandId,
             @RequestParam(required = false) Long productId,
             @RequestParam(required = false) Long genderId,
@@ -347,14 +360,37 @@ public class ClientController {
 
         Page<ProductViewResponse> result = clientService.findFilteredProducts(
                 productId,brandId , genderId, typeId, colorId, materialId, minPrice, maxPrice, page - 1, size);
-
-        return ApiResponse.<List<ProductViewResponse>>builder()
+// Ánh xạ thủ công từ Page<ProductViewResponse> sang List<ProductViewResponseClass>
+        List<ProductViewResponseClass> list = result.getContent().stream()
+                .map(i -> ProductViewResponseClass.builder()
+                        .productId(i.getProductId())
+                        .productName(i.getProductName())
+                        .productDetailId(i.getProductDetailId())
+                        .price(i.getPrice())
+                        .sold(i.getSold())
+                        .tag(i.getTag())
+                        .colorId(i.getColorId())
+                        .sizeId(i.getSizeId())
+                        .imageUrl(i.getImageUrl())
+                        .createdAt(i.getCreatedAt())
+                        .views(i.getViews())
+                        .promotionView(clientService.getPromotionView(i.getProductId(), i.getColorId(), i.getGenderId()))
+                        .build())
+                .collect(Collectors.toList());
+        return ApiResponse.<List<ProductViewResponseClass>>builder()
                 .message("lọc")
-                .data(result.getContent())
+                .data(list)
                 .meta(Meta.builder()
                         .totalElement(result.getTotalElements())
                         .currentPage(result.getNumber() + 1)
                         .totalPages(result.getTotalPages()).build())
                 .build();
+    }
+    @GetMapping("/product-details/discount")
+    public List<ProductDetailDiscountDTO> getDiscountedProductDetails(
+            @RequestParam Integer productId,
+            @RequestParam Integer colorId,
+            @RequestParam Integer genderId) {
+        return clientService.getDiscountedProductDetails(productId, colorId, genderId);
     }
 }

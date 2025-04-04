@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 
 public interface ProductViewResponse {
-    Long getProductId();
+    Integer getProductId();
     String getProductName();
     Long getProductDetailId();
     String getPrice();
@@ -13,8 +13,9 @@ public interface ProductViewResponse {
     Integer getColorId();
     Integer getSizeId();
     String getImageUrl();
+    Integer getGenderId();
     String getPromotionName();
-    BigDecimal getDiscountValue();
+    String getDiscountValue();
     String getPromotionType();
     Long getCreatedAt();
     Long getViews();

@@ -39,7 +39,6 @@ public class ZaloPayService {
     }
 
 
-
     public Map<String, Object> createPayment(String appuser, Long amount, Long order_id) throws Exception {
         List<Map<String, Object>> items = new ArrayList<>();
         Map<String, Object> item = new HashMap<>();
@@ -224,9 +223,10 @@ public class ZaloPayService {
 //            log.warn("Refund failed with return_code: {}, message: {}", returnCode, result.get("returnmessage"));
 //            throw new Exception("Refund failed: " + result.get("returnmessage"));
 //        }
-response.put("mrefundid",order.get("mrefundid"));
+        response.put("mrefundid", order.get("mrefundid"));
         return response;
     }
+
     public Map<String, Object> getRefundStatus(String mrefundid) throws Exception {
         if (mrefundid == null || mrefundid.trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid mrefundid");
