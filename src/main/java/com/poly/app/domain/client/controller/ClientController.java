@@ -29,34 +29,66 @@ public class ClientController {
     ClientService clientService;
 
     @GetMapping("/getallproducthadpromotion")
-    ApiResponse<List<ProductViewResponse>> getAllProductHadPromotion(@RequestParam(value = "page", defaultValue = "0") Integer page
+    ApiResponse<List<ProductViewResponseClass>> getAllProductHadPromotion(@RequestParam(value = "page", defaultValue = "0") Integer page
             , @RequestParam(value = "size", defaultValue = "5") Integer size
     ) {
-        Page<ProductViewResponse> page1 = clientService.getAllProductHadPromotion(page - 1, size);
+        Page<ProductViewResponse> result = clientService.getAllProductHadPromotion(page - 1, size);
 
-        return ApiResponse.<List<ProductViewResponse>>builder()
-                .message("danh sách các sản phẩm đang nằm trong đợt giảm giá")
-                .data(page1.getContent())
+        List<ProductViewResponseClass> list = result.getContent().stream()
+                .map(i -> ProductViewResponseClass.builder()
+                        .productId(i.getProductId())
+                        .productName(i.getProductName())
+                        .productDetailId(i.getProductDetailId())
+                        .price(i.getPrice())
+                        .sold(i.getSold())
+                        .tag(i.getTag())
+                        .colorId(i.getColorId())
+                        .sizeId(i.getSizeId())
+                        .imageUrl(i.getImageUrl())
+                        .createdAt(i.getCreatedAt())
+                        .views(i.getViews())
+                        .promotionView(clientService.getPromotionView(i.getProductId(), i.getColorId(), i.getGenderId()))
+                        .build())
+                .collect(Collectors.toList());
+        return ApiResponse.<List<ProductViewResponseClass>>builder()
+                .message("lọc")
+                .data(list)
                 .meta(Meta.builder()
-                        .totalElement(page1.getTotalElements())
-                        .currentPage(page1.getNumber() + 1)
-                        .totalPages(page1.getTotalPages()).build())
+                        .totalElement(result.getTotalElements())
+                        .currentPage(result.getNumber() + 1)
+                        .totalPages(result.getTotalPages()).build())
                 .build();
     }
 
     @GetMapping("/getallproducthadsoledesc")
-    ApiResponse<List<ProductViewResponse>> getAllProductHadSoleDesc(@RequestParam(value = "page", defaultValue = "0") Integer page
+    ApiResponse<List<ProductViewResponseClass>> getAllProductHadSoleDesc(@RequestParam(value = "page", defaultValue = "0") Integer page
             , @RequestParam(value = "size", defaultValue = "5") Integer size
     ) {
-        Page<ProductViewResponse> page1 = clientService.getAllProductHadSoleDesc(page - 1, size);
+        Page<ProductViewResponse> result = clientService.getAllProductHadSoleDesc(page - 1, size);
 
-        return ApiResponse.<List<ProductViewResponse>>builder()
-                .message("danh sách các sản phẩm có lượt bán từ nhiều tới ít")
-                .data(page1.getContent())
+        List<ProductViewResponseClass> list = result.getContent().stream()
+                .map(i -> ProductViewResponseClass.builder()
+                        .productId(i.getProductId())
+                        .productName(i.getProductName())
+                        .productDetailId(i.getProductDetailId())
+                        .price(i.getPrice())
+                        .sold(i.getSold())
+                        .tag(i.getTag())
+                        .colorId(i.getColorId())
+                        .sizeId(i.getSizeId())
+                        .imageUrl(i.getImageUrl())
+                        .createdAt(i.getCreatedAt())
+                        .views(i.getViews())
+                        .promotionView(clientService.getPromotionView(i.getProductId(), i.getColorId(), i.getGenderId()))
+                        .build())
+                .collect(Collectors.toList());
+        return ApiResponse.<List<ProductViewResponseClass>>builder()
+                .message("lọc")
+                .data(list)
                 .meta(Meta.builder()
-                        .totalElement(page1.getTotalElements())
-                        .currentPage(page1.getNumber() + 1)
-                        .totalPages(page1.getTotalPages()).build())
+                        .totalElement(result.getTotalElements())
+                        .currentPage(result.getNumber() + 1)
+                        .totalPages(result.getTotalPages()).build())
                 .build();
     }
 

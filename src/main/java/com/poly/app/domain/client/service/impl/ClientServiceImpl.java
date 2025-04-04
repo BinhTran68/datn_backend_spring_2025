@@ -621,7 +621,7 @@ public class ClientServiceImpl implements ClientService {
                     .shipMoney(b.getShipMoney())
                     .totalMoney(b.getTotalMoney())
                     .moneyAfter(b.getMoneyAfter())
-                    .shippingAddress(b.getShippingAddress().getId())
+                    .shippingAddress(b.getShippingAddress() !=null ?b.getShippingAddress().getId():null)
                     .customerName(b.getCustomerName())
                     .numberPhone(b.getNumberPhone())
                     .email(b.getEmail())
@@ -630,12 +630,12 @@ public class ClientServiceImpl implements ClientService {
                     .status(b.getStatus())
                     .payment(paymentMethods != null ? paymentMethods.getPaymentMethodsType().name() : "")
                     .voucher(voucherCode)
-                    .addressRequest(AddressRequest.builder()
+                    .addressRequest(b.getShippingAddress() !=null? AddressRequest.builder()
                             .provinceId(b.getShippingAddress().getProvinceId())
                             .districtId(b.getShippingAddress().getDistrictId())
                             .wardId(b.getShippingAddress().getWardId())
                             .specificAddress(b.getShippingAddress().getSpecificAddress())
-                            .build())
+                            .build():null)
                     .billDetailResponse(productDetails)
                     .build();
             searchStatusBillResponses.add(searchStatusBillResponse);
