@@ -30,7 +30,6 @@ public interface AuthenticationService {
 
     Boolean changePass(ChangeRequest request);
 
-    String loginGoogle(LoginGoogleRequest request);
 
 
     Customer getCustomerAuth();
@@ -39,4 +38,7 @@ public interface AuthenticationService {
     void activateAccount(String token);
 
     void changePassword(@Valid ChangeRequest request);
+
+    Map<String, Object> loginGoogle(String token);
+
 }

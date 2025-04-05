@@ -1,6 +1,8 @@
 package com.poly.app.domain.auth.service.impl;
 
 
+import com.nimbusds.jose.shaded.gson.JsonObject;
+import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.poly.app.domain.admin.customer.response.CustomerResponse;
 import com.poly.app.domain.admin.customer.service.CustomerService;
 import com.poly.app.domain.repository.CustomerRepository;
@@ -25,7 +27,9 @@ import com.poly.app.infrastructure.exception.RestApiException;
 import com.poly.app.infrastructure.security.JwtUtilities;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,6 +38,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 import java.util.Objects;
@@ -167,10 +172,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return null;
     }
 
-    @Override
-    public String loginGoogle(LoginGoogleRequest request) {
-        return null;
-    }
 
     @Override
     public Customer getCustomerAuth() {
@@ -215,6 +216,50 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void changePassword(ChangeRequest request) {
 
+    }
+
+    @Override
+    public Map<String, Object> loginGoogle(String token) {
+        // Kiểm tra token của người dùng với Google API
+        String url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + token;
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+
+        // Nếu Google trả về thông tin người dùng, tức là đăng nhập thành công
+        if (response.getStatusCode().is2xxSuccessful()) {
+            JsonObject jsonResponse = JsonParser.parseString(response.getBody()).getAsJsonObject();
+
+            // Lấy thông tin người dùng từ Google
+            String googleId = jsonResponse.get("sub").getAsString();
+            String name = jsonResponse.get("name").getAsString();
+            String email = jsonResponse.get("email").getAsString();
+            String picture = jsonResponse.get("picture").getAsString();
+            boolean emailVerified = jsonResponse.get("email_verified").getAsBoolean();
+
+            // Kiểm tra xem người dùng đăng nhập chưa
+            Customer customer = customerRepository.findByEmail(email);
+            if (customer == null) {
+                Customer newCustomer = Customer.builder()
+                        .email(email)
+                        .fullName(name)
+                        .avatar(picture)
+                        .status(AccountStatus.HOAT_DONG)
+                        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                        .build();
+                customer =  customerRepository.save(newCustomer);
+            }
+
+            // Nếu đã đăng nhập thì tạo token login như thường
+            TokenPayload tokenPayload = new TokenPayload();
+            tokenPayload.setEmail(customer.getEmail());
+            tokenPayload.setId(customer.getId());
+            tokenPayload.setRoleName("ROLE_USER");
+            UserLoginResponse userLoginResponse = UserLoginResponse.fromCustomerEntity(customer);
+            return Map.of("token", jwtUtilities.generateToken(tokenPayload), "customer", userLoginResponse);
+        } else {
+            throw new RestApiException("Google login failed", HttpStatus.UNAUTHORIZED);
+        }
     }
 
 

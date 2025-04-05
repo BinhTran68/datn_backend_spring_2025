@@ -1,6 +1,8 @@
 package com.poly.app.domain.auth.controller;
 
 
+import com.nimbusds.jose.shaded.gson.JsonObject;
+import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.poly.app.domain.auth.request.ChangeRequest;
 import com.poly.app.domain.auth.request.LoginRequest;
 import com.poly.app.domain.auth.request.RegisterRequest;
@@ -10,15 +12,20 @@ import com.poly.app.domain.model.Customer;
 import com.poly.app.infrastructure.security.Auth;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/authentication")
 public class AuthenticationController {
@@ -89,5 +96,12 @@ public class AuthenticationController {
     public ResponseEntity<String> activateAccount(@RequestParam String token) {
         authenticationService.activateAccount(token);
         return ResponseEntity.ok("Active account successfully");
+    }
+
+
+    // Endpoint để xử lý đăng nhập Google
+    @PostMapping("/google-login/{token}")
+    public ResponseEntity<?> googleLogin(@PathVariable String token) {
+        return ResponseEntity.ok(authenticationService.loginGoogle(token));
     }
 }
