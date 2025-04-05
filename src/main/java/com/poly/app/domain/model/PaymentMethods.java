@@ -20,6 +20,11 @@ import java.io.Serializable;
 @Table(name = "payment_methods")
 public class PaymentMethods extends PrimaryEntity implements Serializable {
 
+    // COD hay Thanh toán trước
+
+    // Đang thanh toán bằng chuyển khoản hay tiền mặt
+
+    // Thanh toán hay hoàn tiền
 
     @Enumerated(EnumType.STRING)
     PaymentMethodsType paymentMethodsType; // Loại thanh toán (enum)
@@ -29,4 +34,6 @@ public class PaymentMethods extends PrimaryEntity implements Serializable {
 
     @Enumerated(EnumType.STRING)
     Status status; // Trạng thái (enum)
+
+
 }

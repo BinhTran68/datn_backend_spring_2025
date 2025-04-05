@@ -4,7 +4,8 @@ public enum PaymentMethodsType {
     // Kieeur thanh toán
     THANH_TOAN_TRUOC,
     ZALO_PAY,
-    COD
+    COD,
+    HOAN_TIEN
 
 }
 

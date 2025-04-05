@@ -195,6 +195,7 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
+    @Transactional
     public Map<String, ?> updateStatusBill(String billCode, UpdateStatusBillRequest request) {
 
         Bill bill = billRepository.findByBillCode(billCode);
@@ -206,6 +207,30 @@ public class BillServiceImpl implements BillService {
         bill.setStatus(request.getStatus());
 
         if (bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+            // Trừ số lượng sản phẩm khi xác nhận
+            // Xử lí trừ số lượng san phẩm
+            List<BillDetail> billDetails = billDetailRepository.findByBill(bill);
+            for (BillDetail billDetail : billDetails) {
+                ProductDetail productDetail = billDetail.getProductDetail();
+                if(billDetail.getQuantity() > productDetail.getQuantity()) {
+                    throw new RestApiException("Số lượng sản phẩm "
+                            + productDetail.getProduct().getProductName()+"-"
+                            +productDetail.getColor().getColorName()+"- size: "+productDetail.getSize().getSizeName()+"-" + "không đủ!", HttpStatus.BAD_REQUEST);
+                }
+                productDetail.setQuantity(productDetail.getQuantity() - billDetail.getQuantity());
+                productDetailRepository.save(productDetail);
+            }
+
+            // Kiểm tra -> trừ số lượng voucher
+
+//            // Bởi vì có trường hợp voucher
+//            Voucher voucher = bill.getVoucher();
+//            if(voucher != null) {
+//                voucher.setQuantity(voucher.getQuantity() - 1);
+//            }
+
+
+
             sendMailUpdateSanPhamAsync(bill.getEmail(), bill,
                     "Trạng thái đơn hàng",
                     "Đơn hàng của bạn đã được xác nhận");
