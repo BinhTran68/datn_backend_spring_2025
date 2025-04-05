@@ -1,6 +1,7 @@
 package com.poly.app.domain.admin.product.service;
 
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
+import com.poly.app.domain.admin.product.response.product.AllNameProductDetailResponse;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailDTO;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailWithPromotionDTO;
 import com.poly.app.domain.model.ProductDetail;
@@ -33,7 +34,7 @@ public interface ProductDetailService {
     //emtu
         List<ProductDetailResponse> getAllProductDetailName(String productName);
     List<ProductDetailResponse> getProductDetailsByProductId(Integer productId);
-
+    AllNameProductDetailResponse getAllFilterOptions();
 
     //     getall
     List<ProductDetailResponse> getAllProductDetailExportData();

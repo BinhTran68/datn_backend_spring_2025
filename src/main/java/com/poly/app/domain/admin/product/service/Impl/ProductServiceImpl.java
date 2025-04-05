@@ -4,27 +4,32 @@ import com.poly.app.domain.admin.product.response.material.MaterialResponse;
 import com.poly.app.domain.admin.product.response.product.IProductResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.admin.promotion.response.PromotionResponse;
+import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.model.Product;
+import com.poly.app.domain.model.StatusEnum;
+import com.poly.app.domain.model.Voucher;
 import com.poly.app.domain.repository.ProductDetailRepository;
 import com.poly.app.domain.repository.ProductRepository;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
 import com.poly.app.domain.admin.product.response.product.ProductResponse;
 import com.poly.app.domain.admin.product.service.ProductService;
+import com.poly.app.infrastructure.constant.DiscountType;
 import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.constant.VoucherType;
 import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -152,6 +157,8 @@ public class ProductServiceImpl implements ProductService {
             return "ngung hoat dong";
 
         }
-
     }
+    //em tú làm
+
+    // em tú hết làm
 }
