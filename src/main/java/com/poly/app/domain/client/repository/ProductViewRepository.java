@@ -28,6 +28,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "MAX(pd.sold) AS sold, " +
                     "MAX(pd.color_id) AS color_id," +
                     "MAX(pd.size_id) AS size_id," +
+                    "MAX(pd.gender_id) AS genderId, " +
                     "MAX(pd.tag) AS tag, " +
                     "COALESCE((" +
                     "SELECT i.url " +
@@ -37,10 +38,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "LIMIT 1" +
                     "), '') AS image_url, " +
                     "p.views,\n" +
-
                     "COALESCE(MAX(pr.promotion_name), 'Không có khuyến mãi') AS promotion_name, " +
-                    "COALESCE(MAX(pr.discount_value), 0) AS discount_value, " +
-                    "COALESCE(MAX(pr.promotion_type), 'none') AS promotion_type, " +
                     "MAX(pd.created_at) AS created_at " +
                     "FROM product p " +
                     "JOIN product_detail pd ON p.id = pd.product_id " +
@@ -80,46 +78,43 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "p.id AS product_id, " +
                     "CONCAT(p.product_name, ' [', c.color_name, '-', g.gender_name, ']') AS product_name, " +
                     "MAX(pd.id) AS product_detail_id, " +
-                    "(CONCAT(MIN(pd.price),' - ',MAX(pd.price))) AS price, " +
+                    "CONCAT(MIN(pd.price), ' - ', MAX(pd.price)) AS price, " +
                     "MAX(pd.sold) AS sold, " +
-                    "MAX(pd.color_id) AS color_id," +
-                    "MAX(pd.size_id) AS size_id," +
-                    "MAX(pd.tag) AS tag, " +
-                    "COALESCE((" +
-                    "SELECT i.url " +
-                    "FROM image i " +
-                    "WHERE i.product_detail_id = MAX(pd.id) " +
-                    "ORDER BY i.is_default DESC " +
-                    "LIMIT 1" +
-                    "), '') AS image_url, " +
-                    "p.views,\n" +
+                    "MAX(pd.color_id) AS colorId, " +
+                    "MAX(pd.size_id) AS sizeId, " +
+                    "MAX(pd.gender_id) AS genderId, " +
 
-                    "COALESCE(MAX(pr.promotion_name), 'Không có khuyến mãi') AS promotion_name, " +
-                    "COALESCE(MAX(pr.discount_value), 0) AS discount_value, " +
-                    "COALESCE(MAX(pr.promotion_type), 'none') AS promotion_type " +
+                    "MAX(pd.tag) AS tag, " +
+                    "COALESCE(( " +
+                    "    SELECT i.url " +
+                    "    FROM image i " +
+                    "    WHERE i.product_detail_id = MAX(pd.id) " +
+                    "    ORDER BY i.is_default DESC " +
+                    "    LIMIT 1 " +
+                    "), '') AS image_url, " +
+                    "p.views " +
                     "FROM product p " +
                     "JOIN product_detail pd ON p.id = pd.product_id " +
                     "LEFT JOIN color c ON pd.color_id = c.id " +
                     "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                    "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
-                    "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                     "WHERE p.status = 0 AND pd.status = 0 " +
+                    "AND FROM_UNIXTIME(pd.updated_at / 1000) BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW() " +
                     "GROUP BY p.id, p.product_name, c.color_name, g.gender_name " +
-                    "ORDER BY sold DESC ",
+                    "ORDER BY sold DESC",
             countQuery = "SELECT COUNT(*) FROM ( " +
                          "SELECT p.id " +
                          "FROM product p " +
                          "JOIN product_detail pd ON p.id = pd.product_id " +
                          "LEFT JOIN color c ON pd.color_id = c.id " +
                          "LEFT JOIN gender g ON pd.gender_id = g.id " +
-                         "LEFT JOIN product_promotion prd ON pd.id = prd.product_detail_id " +
-                         "LEFT JOIN promotion pr ON prd.promotion_id = pr.id " +
                          "WHERE p.status = 0 AND pd.status = 0 " +
+                         "AND FROM_UNIXTIME(pd.updated_at / 1000) BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW() " +
                          "GROUP BY p.id, p.product_name, c.color_name, g.gender_name " +
                          ") AS tmp",
             nativeQuery = true
     )
     Page<ProductViewResponse> getAllProductHadSoleDesc(Pageable pageable);
+
 
     //lấy các sản phẩm mới theo ngày tạo
     @Query(

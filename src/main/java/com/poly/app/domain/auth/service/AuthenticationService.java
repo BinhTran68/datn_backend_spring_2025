@@ -9,6 +9,7 @@ import com.poly.app.domain.auth.request.RegisterRequest;
 import com.poly.app.domain.auth.response.UserLoginResponse;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Staff;
+import jakarta.validation.Valid;
 
 import java.util.Map;
 
@@ -34,4 +35,8 @@ public interface AuthenticationService {
 
     Customer getCustomerAuth();
     Staff getStaffAuth();
+
+    void activateAccount(String token);
+
+    void changePassword(@Valid ChangeRequest request);
 }

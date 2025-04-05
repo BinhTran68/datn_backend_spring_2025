@@ -385,8 +385,7 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
 
         // Tìm địa chỉ mặc định
-        Address defaultAddress = (Address) addressRepository.findByCustomerIdAndIsAddressDefault(id, true)
-                .orElse(null);
+        Address defaultAddress = addressRepository.findFirstByCustomerIdAndIsAddressDefault(id, true);
 
         // Cập nhật hoặc thêm địa chỉ mặc định
         if (defaultAddress != null) {

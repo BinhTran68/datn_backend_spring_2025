@@ -16,5 +16,8 @@ public interface PaymentBillResponse {
 
     Double getCreatedAt();
 
+    String getPaymentBillStatus();
+
+
 
 }

@@ -15,6 +15,7 @@ import com.poly.app.domain.auth.service.AuthenticationService;
 import com.poly.app.domain.repository.RoleRepository;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Staff;
+import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
 import com.poly.app.infrastructure.email.EmailService;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 
 @Service
@@ -92,8 +94,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public Map<String, Object> login(LoginRequest request) {
         Customer customer = customerRepository.findByEmail(request.getEmail());
         if (customer == null) {
-            throw new ApiException(ErrorCode.TAIKHOAN_NOT_FOUND);
+            throw  new RestApiException("Tài khoản không tồn tại", HttpStatus.BAD_REQUEST);
         }
+        if(customer.getStatus() == 1) {
+            throw  new RestApiException("Tài khoản của quý khách đã bị vô hiệu hóa! Vui lòng liên hệ với cửa hàng để kích họạt trở lại", HttpStatus.BAD_REQUEST);
+        }
+
+        if(customer.getStatus() == 2) {
+            throw  new RestApiException("Tài khoản của quý khách chưa được kích hooạt!", HttpStatus.BAD_REQUEST);
+        }
+
         if (passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
             TokenPayload tokenPayload = new TokenPayload();
             tokenPayload.setEmail(customer.getEmail());
@@ -116,14 +126,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (existsCustomerByEmail) {
             throw new ApiException(ErrorCode.ACCOUNT_EMAIL_EXISTED);
         }
+        String token = UUID.randomUUID().toString();
         Customer customer = new Customer();
         customer.setStatus(2);  // 2 là chưa kích hoạt
         customer.setEmail(request.getEmail());
         customer.setFullName(request.getFullName());
+        customer.setTokenActiveAccount(token);
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
         customerRepository.save(customer);
         // Gửi email ở luồng riêng biệt
-        emailService.sendRegistrationEmail(request.getEmail(), request.getPassword());
+        emailService.sendRegistrationEmail(request.getEmail(), token);
 
         return true;
     }
@@ -188,6 +200,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         throw new RestApiException("User is not a Staff", HttpStatus.FORBIDDEN);
+    }
+
+    @Override
+    public void activateAccount(String token) {
+        Customer customer = customerRepository.findByTokenActiveAccount(token);
+        if (customer == null) {
+            throw new RestApiException("Token không hợp lệ", HttpStatus.UNAUTHORIZED);
+        }
+        customer.setStatus(0); // Hoạt động
+        customerRepository.save(customer);
+    }
+
+    @Override
+    public void changePassword(ChangeRequest request) {
+
     }
 
 

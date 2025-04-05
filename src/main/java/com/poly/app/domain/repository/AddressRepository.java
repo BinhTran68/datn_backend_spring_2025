@@ -1,6 +1,7 @@
 package com.poly.app.domain.repository;
 
 import com.poly.app.domain.model.Address;
+import com.poly.app.domain.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,7 @@ public interface AddressRepository extends JpaRepository<Address,Integer> {
     List<Address> findByCustomerId(Integer id);
 
 
-    Optional<Object> findByCustomerIdAndIsAddressDefault(Integer id, boolean b);
+    Address findFirstByCustomerIdAndIsAddressDefault(Integer id, boolean b);
 
 
     Address findByCustomerIdAndProvinceIdAndDistrictIdAndWardIdAndSpecificAddress

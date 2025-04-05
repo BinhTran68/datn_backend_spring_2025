@@ -38,7 +38,7 @@ import com.poly.app.domain.repository.*;
 
 import java.time.LocalDateTime;
 
-//@Component
+@Component
 public class DatabaseSeeder implements CommandLineRunner {
 
     @Autowired
@@ -684,6 +684,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         PaymentMethods paymentMethod3 = PaymentMethods.builder()
                 .paymentMethodsType(PaymentMethodsType.COD)
+                .paymentMethod(PaymentMethodEnum.COD)
                 .status(Status.HOAT_DONG) // Trạng thái không hoạt động
                 .build();
         paymentMethodsRepository.save(paymentMethod3);

@@ -35,6 +35,7 @@ public class SpringSecurityConfig {
                     req.requestMatchers("/api/admin/*")
                             .hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MANAGER");
                     req.requestMatchers("/api/user/*");
+                    req.requestMatchers("/api/authentication/change-password");
                     req.anyRequest().permitAll();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))

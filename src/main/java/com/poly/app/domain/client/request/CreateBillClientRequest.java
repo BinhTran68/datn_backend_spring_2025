@@ -23,6 +23,7 @@ public class CreateBillClientRequest {
     Double shipMoney;
     Double totalMoney;
     Double moneyAfter;
+    Double moneyBeforeDiscount;
     LocalDateTime desiredDateOfReceipt;
     LocalDateTime shipDate;
     Integer shippingAddressId;
@@ -36,4 +37,5 @@ public class CreateBillClientRequest {
     //     pay
     PaymentMethodsType paymentMethodsType;
     String transactionCode;
+
 }
