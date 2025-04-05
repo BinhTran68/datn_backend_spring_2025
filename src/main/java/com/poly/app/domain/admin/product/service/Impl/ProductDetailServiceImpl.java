@@ -4,6 +4,7 @@ import com.poly.app.domain.admin.bill.service.WebSocketService;
 import com.poly.app.domain.admin.product.request.img.ImgRequest;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.response.img.ImgResponse;
+import com.poly.app.domain.admin.product.response.product.AllNameProductDetailResponse;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailWithPromotionDTO;
 import com.poly.app.domain.admin.product.service.CloundinaryService;
 import com.poly.app.domain.client.repository.ProductViewRepository;
@@ -24,6 +25,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.xmlbeans.impl.xb.xsdschema.All;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -746,6 +748,22 @@ log.info(productDetails.toString());
     public List<ProductDetailResponse> getProductDetailsByProductId(Integer productId) {
         return productDetailRepository.findByProductId(productId);
     }
+    @Override
+    public AllNameProductDetailResponse getAllFilterOptions() {
+        List<ProductDetail> details = productDetailRepository.findAll();
+
+        return AllNameProductDetailResponse.builder()
+                .brandNames(details.stream().map(d -> d.getBrand().getBrandName()).distinct().toList())
+                .typeNames(details.stream().map(d -> d.getType().getTypeName()).distinct().toList())
+                .colorNames(details.stream().map(d -> d.getColor().getColorName()).distinct().toList())
+                .materialNames(details.stream().map(d -> d.getMaterial().getMaterialName()).distinct().toList())
+                .sizeNames(details.stream().map(d -> d.getSize().getSizeName()).distinct().toList())
+                .soleNames(details.stream().map(d -> d.getSole().getSoleName()).distinct().toList())
+                .genderNames(details.stream().map(d -> d.getGender().getGenderName()).distinct().toList())
+                .weight(details.stream().map(d -> d.getWeight().toString()).distinct().toList())
+                .build();
+    }
+
 
     //Em tú hết làm
 }

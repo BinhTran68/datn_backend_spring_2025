@@ -7,14 +7,19 @@ import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
 import com.poly.app.domain.admin.product.service.ProductListService;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.common.Meta;
+import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Image;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.admin.product.request.product.ProductRequest;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponse;
 import com.poly.app.domain.admin.product.service.ProductService;
+import com.poly.app.domain.model.StatusEnum;
 import com.poly.app.domain.repository.ImageRepository;
+import com.poly.app.domain.repository.ProductRepository;
+import com.poly.app.infrastructure.constant.DiscountType;
 import com.poly.app.infrastructure.constant.Status;
+import com.poly.app.infrastructure.constant.VoucherType;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +32,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/admin/product")
@@ -38,6 +44,7 @@ public class ProductController {
     ProductService productService;
     ProductListService productListService;
     ImageRepository imageRepository;
+    ProductRepository productRepository;
 
     @PostMapping("/add")
     public ApiResponse<Product> create(@RequestBody @Valid ProductRequest request) {
@@ -192,6 +199,21 @@ public class ProductController {
         return ApiResponse.<Page<ProductResponse>>builder()
                 .message("list voucher")
                 .data(list)
+                .build();
+    }
+
+    @GetMapping("/searchNameProduct/{productName}")
+    public ApiResponse<List<Map<String, Object>>> getAllProductName(@PathVariable String productName) {
+        return ApiResponse.<List<Map<String, Object>>>builder()
+                .message("Lấy thông tin chi tiết sản phẩm theo tên")
+                .data(productListService.searchProduct(productName))
+                .build();
+    }
+    @GetMapping("/searchQuantityProduct/{minQuantity}")
+    public ApiResponse<List<Map<String, Object>>> searchProduct(@PathVariable String minQuantity) {
+        return ApiResponse.<List<Map<String, Object>>>builder()
+                .message("Tìm kiếm sản phẩm theo số lượng")
+                .data(productListService.searchProduct(minQuantity))
                 .build();
     }
 
