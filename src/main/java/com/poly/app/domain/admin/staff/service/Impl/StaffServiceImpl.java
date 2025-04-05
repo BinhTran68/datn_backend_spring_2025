@@ -101,7 +101,6 @@ public class StaffServiceImpl implements StaffService {
             staff.setEmail(staffRequest.getEmail());
             staff.setPhoneNumber(staffRequest.getPhoneNumber());
             staff.setDateBirth(staffRequest.getDateBirth());
-            staff.setPassword(staffRequest.getPassword());
             staff.setCitizenId(staffRequest.getCitizenId());
             staff.setGender(staffRequest.getGender());
             staff.setAvatar(staffRequest.getAvatar());
