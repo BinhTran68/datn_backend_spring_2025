@@ -184,11 +184,11 @@ public class ClientServiceImpl implements ClientService {
                 .customerMoney(request.getCustomerMoney())
                 .discountMoney(request.getDiscountMoney())
                 .moneyAfter(request.getMoneyAfter())
-                .totalMoney(request.getMoneyAfter())
+                .totalMoney(request.getTotalMoney())
                 .moneyBeforeDiscount(request.getMoneyBeforeDiscount())
+
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
-
                 .shippingAddress(address)
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
@@ -271,7 +271,7 @@ public class ClientServiceImpl implements ClientService {
 //                    tìm keiesm xem thấy phương thức thanh toán zalopay ko
 //
                     PaymentMethods paymentMethods = paymentMethodsRepository
-                            .findByPaymentMethodsType(PaymentMethodsType.ZALO_PAY)
+                            .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.THANH_TOAN_TRUOC,PaymentMethodEnum.ZALO_PAY)
                             .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
                                     .paymentMethod(PaymentMethodEnum.ZALO_PAY)
                                     .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
@@ -310,7 +310,7 @@ public class ClientServiceImpl implements ClientService {
             }
             case COD -> {
                 PaymentMethods paymentMethods = paymentMethodsRepository
-                        .findByPaymentMethodsType(PaymentMethodsType.COD)
+                        .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.COD,PaymentMethodEnum.COD)
                         .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
                                 .paymentMethod(PaymentMethodEnum.COD)
                                 .paymentMethodsType(PaymentMethodsType.COD)
@@ -551,7 +551,7 @@ public class ClientServiceImpl implements ClientService {
         PaymentBill paymentBill = paymentBillRepository.findByBillId(bill.getId());
         PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
 
-        if (paymentMethods.getPaymentMethod().equals(PaymentMethodsType.COD)) {
+        if (paymentMethods.getPaymentMethod().equals(PaymentMethodEnum.COD)) {
             bill.setStatus(BillStatus.CHO_XAC_NHAN);
             billRepository.save(bill);
             sendMail(bill.getEmail(), bill);
@@ -563,7 +563,7 @@ public class ClientServiceImpl implements ClientService {
                     .status(BillStatus.CHO_XAC_NHAN)
                     .build());
             return "xác minh thành công";
-        } else if (paymentMethods.getPaymentMethod().equals(PaymentMethodsType.ZALO_PAY)) {
+        } else if (paymentMethods.getPaymentMethod().equals(PaymentMethodEnum.ZALO_PAY)) {
             bill.setStatus(BillStatus.CHO_XAC_NHAN);
             billRepository.save(bill);
             sendMail(bill.getEmail(), bill);
@@ -573,7 +573,6 @@ public class ClientServiceImpl implements ClientService {
                         bill.getTotalMoney().longValue(),
                         bill.getId().longValue()
                 );
-
                 if (zaloPayResponse == null || !zaloPayResponse.containsKey("orderurl")) {
                     throw new ApiException(ErrorCode.INVALID_KEY);
                 }
@@ -584,6 +583,9 @@ public class ClientServiceImpl implements ClientService {
                         .bill(bill)
                         .status(BillStatus.CHO_XAC_NHAN)
                         .build());
+                paymentBill.setTransactionCode(zaloPayResponse.get("apptransid").toString());
+                paymentBill.setTotalMoney(Double.valueOf(zaloPayResponse.get("amount").toString()));
+                paymentBillRepository.save(paymentBill);
                 return (String) zaloPayResponse.get("orderurl"); // Trả về URL thanh toán ngay lập tức
             } catch (Exception e) {
                 log.error("Lỗi khi tạo đơn hàng ZaloPay", e);

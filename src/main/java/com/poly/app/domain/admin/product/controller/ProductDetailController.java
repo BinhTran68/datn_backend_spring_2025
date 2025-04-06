@@ -1,5 +1,6 @@
 package com.poly.app.domain.admin.product.controller;
 
+import com.poly.app.domain.admin.product.response.product.AllNameProductDetailResponse;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailWithPromotionDTO;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.ProductDetail;
@@ -227,6 +228,15 @@ public class ProductDetailController {
                 .data(productDetailService.getProductDetailsByProductId(productId)) // Trả về List<ProductDetailResponse>
                 .build();
     }
+    @GetMapping("/allName")
+    public ApiResponse<AllNameProductDetailResponse> getAllFilters() {
+        return ApiResponse.<AllNameProductDetailResponse>builder()
+                .message("Filter options fetched successfully")
+                .data(productDetailService.getAllFilterOptions())
+                .build();
+    }
+
+
     //em tú hết làm
 
 }
