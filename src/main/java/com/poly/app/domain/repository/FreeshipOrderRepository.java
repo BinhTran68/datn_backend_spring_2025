@@ -11,4 +11,6 @@ public interface FreeshipOrderRepository extends JpaRepository<FreeshipOrder, In
 
     // Tìm mức freeship phù hợp nhất theo tổng giá trị đơn hàng
     Optional<FreeshipOrder> findTopByMinOrderValueLessThanEqualOrderByMinOrderValueDesc(Double totalPrice);
+
+    FreeshipOrder findTopByOrderByIdDesc();
 }
