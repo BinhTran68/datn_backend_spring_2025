@@ -48,13 +48,13 @@ public class    Bill extends PrimaryEntity implements Serializable {
     // Tiền ship
     Double shipMoney;
 
-    // Tiền sau giảm giá
-    Double totalMoney; // Tiền cuối cùng mà khách hàng cần thanh toán //
+    // Tiền sau giảm giá đã trừ voucher
+    Double totalMoney;
 
-    // Tiền sau giảm giá
-    Double moneyAfter;
+    // Tiền sau giảm giá + tiêền ship
+    Double moneyAfter;// Tiền cuối cùng mà khách hàng cần thanh toán //
 
-    // Tiền trước áp phiếu giảm - Tổng tiền hàng
+    // Tiền trước áp phiếu giảm là : Tổng tiền hàng --- đã được
     Double moneyBeforeDiscount;
 
     //nagyf hoàn thành

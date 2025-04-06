@@ -35,6 +35,7 @@ public class PaymentBill extends PrimaryEntity implements Serializable {
     String transactionCode; // Mã giao dịch
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     PayMentBillStatus payMentBillStatus;
 
 }

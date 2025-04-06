@@ -27,9 +27,11 @@ public class PaymentMethods extends PrimaryEntity implements Serializable {
     // Thanh toán hay hoàn tiền
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     PaymentMethodsType paymentMethodsType; // Loại thanh toán (enum)
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     PaymentMethodEnum paymentMethod; // Phương thước thanh toán
 
     @Enumerated(EnumType.STRING)

@@ -40,6 +40,7 @@ import com.poly.app.domain.repository.ProductDetailRepository;
 import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.domain.repository.VoucherRepository;
 import com.poly.app.infrastructure.constant.BillStatus;
+import com.poly.app.infrastructure.constant.PayMentBillStatus;
 import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.TypeBill;
@@ -342,6 +343,7 @@ public class BillServiceImpl implements BillService {
                     .build();
             address = addressRepository.save(newAddress);
         }
+        log.info("Bill");
 
         Bill bill = Bill
                 .builder()
@@ -349,15 +351,13 @@ public class BillServiceImpl implements BillService {
                 .customer(customer) // Cũng có thể là khách hàng đang đăng nhập hoặc chưa đăng nhập
                 .customerMoney(request.getCustomerMoney()) // Tiền khách đưa cho cửa hàng => lấy ra tiền thừa = tiền khách đưa trừ cho tiền cần thanh toán
                 .discountMoney(request.getDiscountMoney())
-                .moneyAfter(request.getMoneyAfter())
-                .totalMoney(request.getTotalMoney() - request.getDiscountMoney()) // Sẽ là tổng tiền hàng trừ cho giảm giá
-                .moneyBeforeDiscount(request.getTotalMoney() + request.getDiscountMoney()) // Tiền trước khi được giảm giá
+                .moneyAfter(request.getMoneyBeforeDiscount() - request.getDiscountMoney() + (request.getShippingFee() != null ? request.getShippingFee() : 0))
+                .totalMoney(request.getMoneyBeforeDiscount() - request.getDiscountMoney()) // Sẽ là tổng tiền hàng trừ cho giảm giá
+                .moneyBeforeDiscount(request.getMoneyBeforeDiscount()) // Tiền trước khi được giảm giá
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
-                .totalMoney(request.getTotalMoney())
                 .completeDate(request.getCompleteDate())
                 .shippingAddress(address)
-                .shipDate(request.getShipDate())
                 .numberPhone(request.getNumberPhone())
                 .shipMoney(request.getShipMoney())
                 .voucher(voucher)
@@ -393,37 +393,51 @@ public class BillServiceImpl implements BillService {
             }
         }
 
-        if (request.getIsCashAndBank()) {
-            PaymentMethods cashPaymentMethods = createAndSavePaymentMethod(
-                    PaymentMethodEnum.TIEN_MAT
+        if(request.getIsCOD()) {
+            PaymentMethods cashPaymentMethods = createAndSavePaymentMethodCOD(
+                    PaymentMethodEnum.COD
             );
-            PaymentMethods bankPaymentMethods = createAndSavePaymentMethod(
-                    PaymentMethodEnum.CHUYEN_KHOAN);
-            savePaymentBill(
+            savePaymentBillCOD(
                     billSave,
                     cashPaymentMethods,
                     request.getCashCustomerMoney(),
                     "",
-                    request.getNotes());
-            savePaymentBill(billSave,
-                    bankPaymentMethods,
-                    request.getBankCustomerMoney(),
-                    request.getTransactionCode(),
-                    request.getNotes());
-        } else if (request.getCashCustomerMoney() != null) {
-            PaymentMethods cashPaymentMethods =
-                    createAndSavePaymentMethod(PaymentMethodEnum.TIEN_MAT);
-            savePaymentBill(
-                    billSave,
-                    cashPaymentMethods,
-                    request.getCashCustomerMoney(), "", request.getNotes()
+                    request.getNotes()
             );
-        } else if (request.getBankCustomerMoney() != null) {
-            PaymentMethods bankPayment =
-                    createAndSavePaymentMethod(PaymentMethodEnum.CHUYEN_KHOAN);
-            savePaymentBill(billSave, bankPayment,
-                    request.getCashCustomerMoney(), "",
-                    request.getNotes());
+        } else {
+            if (request.getIsCashAndBank()) {
+                PaymentMethods cashPaymentMethods = createAndSavePaymentMethod(
+                        PaymentMethodEnum.TIEN_MAT
+                );
+                PaymentMethods bankPaymentMethods = createAndSavePaymentMethod(
+                        PaymentMethodEnum.CHUYEN_KHOAN);
+                savePaymentBill(
+                        billSave,
+                        cashPaymentMethods,
+                        request.getCashCustomerMoney(),
+                        "",
+                        request.getNotes()
+                );
+                savePaymentBill(billSave,
+                        bankPaymentMethods,
+                        request.getBankCustomerMoney(),
+                        request.getTransactionCode(),
+                        request.getNotes());
+            } else if (request.getCashCustomerMoney() != null) {
+                PaymentMethods cashPaymentMethods =
+                        createAndSavePaymentMethod(PaymentMethodEnum.TIEN_MAT);
+                savePaymentBill(
+                        billSave,
+                        cashPaymentMethods,
+                        request.getCashCustomerMoney(), "", request.getNotes()
+                );
+            } else if (request.getBankCustomerMoney() != null) {
+                PaymentMethods bankPayment =
+                        createAndSavePaymentMethod(PaymentMethodEnum.CHUYEN_KHOAN);
+                savePaymentBill(billSave, bankPayment,
+                        request.getCashCustomerMoney(), request.getTransactionCode(),
+                        request.getNotes());
+            }
         }
         handleSaveBillHistory(billSave, customer, staffAuth, request, customerAuth);
 
@@ -445,7 +459,7 @@ public class BillServiceImpl implements BillService {
                     .customer(customer)
                     .staff(staff)
                     .bill(billSave)
-                    .status(BillStatus.CHO_XAC_NHAN)
+                    .status(BillStatus.DA_XAC_NHAN)
                     .build();
 
             billHistoryRepository.save(billHistory);
@@ -554,6 +568,14 @@ public class BillServiceImpl implements BillService {
         return paymentMethodsRepository.save(paymentMethods);
     }
 
+    private PaymentMethods createAndSavePaymentMethodCOD(PaymentMethodEnum methodEnum) {
+        PaymentMethods paymentMethods = PaymentMethods.builder()
+                .paymentMethodsType(PaymentMethodsType.COD)
+                .paymentMethod(methodEnum)
+                .build();
+        return paymentMethodsRepository.save(paymentMethods);
+    }
+
     private void savePaymentBill(Bill bill, PaymentMethods paymentMethods,
                                  Double totalMoney,
                                  String transactionCode,
@@ -567,10 +589,31 @@ public class BillServiceImpl implements BillService {
                 .transactionCode(transactionCode)
                 .notes(notesPayment)
                 .paymentMethods(paymentMethods)
+                .payMentBillStatus(PayMentBillStatus.DA_THANH_TOAN)
                 .build();
 
         paymentBillRepository.save(paymentBill);
     }
+
+    private void savePaymentBillCOD(Bill bill, PaymentMethods paymentMethods,
+                                 Double totalMoney,
+                                 String transactionCode,
+                                 String notesPayment
+    ) {
+        if (paymentMethods == null) return;
+
+        PaymentBill paymentBill = PaymentBill.builder()
+                .bill(bill)
+                .totalMoney(totalMoney)
+                .transactionCode(transactionCode)
+                .notes(notesPayment)
+                .paymentMethods(paymentMethods)
+                .payMentBillStatus(PayMentBillStatus.CHUA_THANH_TOAN)
+                .build();
+
+        paymentBillRepository.save(paymentBill);
+    }
+
 
 
     private BillResponse convertBillToBillResponse(Bill bill) {
@@ -606,6 +649,7 @@ public class BillServiceImpl implements BillService {
                 .voucherReponse(voucher)
                 .status(bill.getStatus() != null ? bill.getStatus().toString() : null)
                 .createAt(bill.getCreatedAt())
+                .moneyAfter(bill.getMoneyAfter())
                 .build();
     }
 
