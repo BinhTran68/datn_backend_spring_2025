@@ -184,11 +184,11 @@ public class ClientServiceImpl implements ClientService {
                 .customerMoney(request.getCustomerMoney())
                 .discountMoney(request.getDiscountMoney())
                 .moneyAfter(request.getMoneyAfter())
-                .totalMoney(request.getMoneyAfter())
+                .totalMoney(request.getTotalMoney())
                 .moneyBeforeDiscount(request.getMoneyBeforeDiscount())
+
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
-
                 .shippingAddress(address)
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
