@@ -6,6 +6,7 @@ import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.poly.app.domain.auth.request.ChangeRequest;
 import com.poly.app.domain.auth.request.LoginRequest;
 import com.poly.app.domain.auth.request.RegisterRequest;
+import com.poly.app.domain.auth.request.ResetPasswordRequest;
 import com.poly.app.domain.auth.service.AuthenticationService;
 import com.poly.app.domain.common.ObjectResponse;
 import com.poly.app.domain.model.Customer;
@@ -73,6 +74,18 @@ public class AuthenticationController {
         Customer customer = auth.getCustomerAuth();
 
         return ResponseEntity.ok(customer);
+    }
+
+    @GetMapping("/forgot-password/{email}")
+    public ResponseEntity<?> forgotPassword(@PathVariable String email) {
+        authenticationService.forgotPassword(email);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authenticationService.resetPassword(request);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/logout")

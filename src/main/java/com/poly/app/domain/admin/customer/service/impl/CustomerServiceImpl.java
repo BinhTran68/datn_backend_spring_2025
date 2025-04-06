@@ -340,32 +340,6 @@ public class CustomerServiceImpl implements CustomerService {
         return new CustomerResponse(customerFromDB);
     }
 
-//    @Override
-//    public CustomerResponse updateCustomer(Integer id, CustomerRequest customerRequest) {
-//        Optional<Customer> optionalCustomer = customerRepository.findById(id);
-//        if (optionalCustomer.isPresent()) {
-//            Customer customer = optionalCustomer.get();
-//            // Update fields
-//            customer.setFullName(customerRequest.getFullName());
-//            customer.setEmail(customerRequest.getEmail());
-//            customer.setPhoneNumber(customerRequest.getPhoneNumber());
-//            customer.setDateBirth(customerRequest.getDateBirth());
-//            customer.setPassword(customerRequest.getPassword());
-//            customer.setCitizenId(customerRequest.getCitizenId());
-//            customer.setGender(customerRequest.getGender());
-//            customer.setAvatar(customerRequest.getAvatar());
-//            customer.setStatus(customerRequest.getStatus());
-//
-//            // Clear existing addresses
-//            customer.getAddresses().clear();
-//
-//
-//            Customer updatedCustomer = customerRepository.save(customer);
-//            return new CustomerResponse(updatedCustomer);
-//        } else {
-//            throw new RuntimeException("Customer not found");
-//        }
-//    }
 
     @Override
     public CustomerResponse updateCustomer(Integer id, CustomerRequest customerRequest) {
@@ -514,7 +488,12 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     @Override
-    public List<CustomerResponse> filterCustomers(String searchText, String status, LocalDateTime startDate, LocalDateTime endDate, Integer minAge, Integer maxAge) {
+    public List<CustomerResponse> filterCustomers(String searchText,
+                                                  String status,
+                                                  LocalDateTime startDate,
+                                                  LocalDateTime endDate,
+                                                  Integer minAge,
+                                                  Integer maxAge) {
         List<Customer> customers = customerRepository.findAll();
         customers = customers.stream()
                 .filter(customer -> customer.getFullName().toLowerCase().contains(searchText.toLowerCase()) ||

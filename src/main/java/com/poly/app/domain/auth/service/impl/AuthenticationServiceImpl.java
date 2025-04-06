@@ -5,6 +5,7 @@ import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
 import com.poly.app.domain.admin.customer.response.CustomerResponse;
 import com.poly.app.domain.admin.customer.service.CustomerService;
+import com.poly.app.domain.auth.request.ResetPasswordRequest;
 import com.poly.app.domain.repository.CustomerRepository;
 import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.domain.auth.request.ChangeRequest;
@@ -125,6 +126,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return null;
     }
 
+    @Override
     @Transactional
     public Boolean register(RegisterRequest request) {
         boolean existsCustomerByEmail = customerRepository.existsCustomerByEmail(request.getEmail());
@@ -143,6 +145,33 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         emailService.sendRegistrationEmail(request.getEmail(), token);
 
         return true;
+    }
+
+    @Override
+    @Transactional
+    public Boolean forgotPassword(String email) {
+        boolean existsCustomerByEmail = customerRepository.existsCustomerByEmail(email);
+        if (!existsCustomerByEmail) {
+            throw new RestApiException("Email không tồn tại!", HttpStatus.BAD_REQUEST);
+        }
+        String token = UUID.randomUUID().toString();
+        Customer customer = customerRepository.findByEmail(email);
+        customer.setTokenActiveAccount(token);
+        customerRepository.save(customer);
+        emailService.sendForgotPasswordEmail(email, token);
+        return true;
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        Customer customer = customerRepository.findByTokenActiveAccount(request.getToken());
+        if (customer == null) {
+            throw new RestApiException("Token không hợp lệ", HttpStatus.UNAUTHORIZED);
+        }
+        customer.setPassword(passwordEncoder.encode(request.getPassword()));
+        String token = UUID.randomUUID().toString();
+        customer.setTokenActiveAccount(token);
+        customerRepository.save(customer);
     }
 
     @Override
