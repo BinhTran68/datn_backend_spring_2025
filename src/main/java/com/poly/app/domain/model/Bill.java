@@ -86,13 +86,11 @@ public class    Bill extends PrimaryEntity implements Serializable {
     // Phụ phí notes
     String surchargeNotes;
 
+    Boolean isFreeShip;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
     BillStatus status;
-
-    @ManyToOne
-    @JoinColumn(name = "freeship_order_id", referencedColumnName = "id")
-    private FreeshipOrder freeshipOrder;
 
     @ManyToOne
     @JoinColumn(name = "voucher_id", referencedColumnName = "id")

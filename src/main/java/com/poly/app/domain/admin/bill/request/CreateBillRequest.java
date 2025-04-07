@@ -44,6 +44,7 @@ public class CreateBillRequest {
     private String transactionCode;
     private Boolean isCOD;
     private Double moneyBeforeDiscount;
+    private Boolean isFreeShip;
 }
 
 

@@ -18,6 +18,9 @@ public class FreeshipOrderServiceImpl implements FreeshipOrderService {
         }
         // Giả sử chỉ có một bản ghi cấu hình freeship duy nhất
         FreeshipOrder freeshipOrder = freeshipOrderRepository.findTopByOrderByIdDesc();
+        if (freeshipOrder == null) {
+            freeshipOrder = new FreeshipOrder();
+        }
         freeshipOrder.setMinOrderValue(minOrderValue);
         freeshipOrderRepository.save(freeshipOrder);
     }

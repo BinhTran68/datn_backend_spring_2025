@@ -43,4 +43,5 @@ public class BillResponse {
     private VoucherReponse voucherReponse;
     private AddressReponse addressReponse;
     private Double moneyAfter;
+    private Boolean isFreeShip;
 }

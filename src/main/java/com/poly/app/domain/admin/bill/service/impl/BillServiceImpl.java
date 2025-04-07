@@ -201,9 +201,35 @@ public class BillServiceImpl implements BillService {
 
         Bill bill = billRepository.findByBillCode(billCode);
 
-        Staff staff = staffRepository.findById(1).orElse(null);
         if (bill == null) {
             throw new ApiException(ErrorCode.HOA_DON_NOT_FOUND);
+        }
+        if(request.getStatus() == BillStatus.DA_HUY) {
+            // Kiểm tra đã thanh toán chưa. Nếu đã thanh toán thì tạo ra 1 payment hoàn tiện
+            Boolean  isPayment = billHistoryRepository.existsByBillAndStatusDaThanhToan(bill);
+            log.info("isPayment = " + isPayment);
+            if(isPayment) {
+                // Nếu đã thanh toán thì tạo ra 1 hàm hoàn tiề
+                // n
+                PaymentMethods paymentMethods = PaymentMethods
+                        .builder()
+                        .paymentMethod(request.getPaymentMethodEnum())
+                        .paymentMethodsType(PaymentMethodsType.HOAN_TIEN)
+                        .build();
+                paymentMethodsRepository.save(paymentMethods);
+
+                PaymentBill paymentBill = PaymentBill
+                        .builder()
+                        .payMentBillStatus(PayMentBillStatus.DA_HOAN_TIEN)
+                        .paymentMethods(paymentMethods)
+                        .bill(bill)
+                        .notes(request.getNote())
+                        .totalMoney(bill.getTotalMoney())
+                        .transactionCode(request.getTransactionCode())
+                        .build();
+
+                paymentBillRepository.save(paymentBill);
+            }
         }
         bill.setStatus(request.getStatus());
 
@@ -221,6 +247,7 @@ public class BillServiceImpl implements BillService {
                 productDetail.setQuantity(productDetail.getQuantity() - billDetail.getQuantity());
                 productDetailRepository.save(productDetail);
             }
+
 
             // Kiểm tra -> trừ số lượng voucher
 
@@ -246,8 +273,7 @@ public class BillServiceImpl implements BillService {
 
         BillHistory billHistory = BillHistory.builder()
                 .status(billUpdate.getStatus()).
-                description(request.getNote()).
-                staff(staff)
+                description(request.getNote())
                 .bill(billUpdate).build();
         billHistoryRepository.save(billHistory);
 
@@ -332,6 +358,7 @@ public class BillServiceImpl implements BillService {
                     -> new ApiException(ErrorCode.HOA_DON_NOT_FOUND));
         }
 
+
         if (request.getAddress() != null) {
             Address newAddress = Address
                     .builder()
@@ -345,13 +372,25 @@ public class BillServiceImpl implements BillService {
         }
         log.info("Bill");
 
+        Double shippingFee = request.getShippingFee();
+        if(shippingFee != null) {
+            shippingFee = request.getShippingFee();
+            if (request.getIsFreeShip() != null && request.getIsFreeShip()) {
+                shippingFee = (double) 0;
+            }
+
+        }  else {
+            shippingFee = (double) 0;
+        }
+
+
         Bill bill = Bill
                 .builder()
                 .typeBill(request.getTypeBill())
                 .customer(customer) // Cũng có thể là khách hàng đang đăng nhập hoặc chưa đăng nhập
                 .customerMoney(request.getCustomerMoney()) // Tiền khách đưa cho cửa hàng => lấy ra tiền thừa = tiền khách đưa trừ cho tiền cần thanh toán
                 .discountMoney(request.getDiscountMoney())
-                .moneyAfter(request.getMoneyBeforeDiscount() - request.getDiscountMoney() + (request.getShippingFee() != null ? request.getShippingFee() : 0))
+                .moneyAfter(request.getMoneyBeforeDiscount() - request.getDiscountMoney() + shippingFee)
                 .totalMoney(request.getMoneyBeforeDiscount() - request.getDiscountMoney()) // Sẽ là tổng tiền hàng trừ cho giảm giá
                 .moneyBeforeDiscount(request.getMoneyBeforeDiscount()) // Tiền trước khi được giảm giá
                 .shipDate(request.getShipDate())
@@ -360,6 +399,7 @@ public class BillServiceImpl implements BillService {
                 .shippingAddress(address)
                 .numberPhone(request.getNumberPhone())
                 .shipMoney(request.getShipMoney())
+                .isFreeShip(request.getIsFreeShip() ? request.getIsFreeShip() : false)
                 .voucher(voucher)
                 .build();
         // Nếu đặt hàng online thì ===
@@ -370,7 +410,7 @@ public class BillServiceImpl implements BillService {
             if (request.getIsCOD()) {
                 bill.setStatus(BillStatus.DA_XAC_NHAN);
             } else {
-                bill.setStatus(BillStatus.CHO_VAN_CHUYEN);
+                bill.setStatus(BillStatus.CHO_XAC_NHAN);
             }
         } else {
             bill.setStatus(BillStatus.DA_HOAN_THANH);
@@ -480,7 +520,7 @@ public class BillServiceImpl implements BillService {
                     .customer(customer)
                     .staff(staff)
                     .bill(billSave)
-                    .status(BillStatus.CHO_VAN_CHUYEN)
+                    .status(BillStatus.CHO_XAC_NHAN)
                     .build();
         } else {
             billHistory_2 = BillHistory
@@ -647,6 +687,7 @@ public class BillServiceImpl implements BillService {
                 .addressReponse(addressReponse)
                 .email(bill.getEmail())
                 .voucherReponse(voucher)
+                .isFreeShip(bill.getIsFreeShip())
                 .status(bill.getStatus() != null ? bill.getStatus().toString() : null)
                 .createAt(bill.getCreatedAt())
                 .moneyAfter(bill.getMoneyAfter())
