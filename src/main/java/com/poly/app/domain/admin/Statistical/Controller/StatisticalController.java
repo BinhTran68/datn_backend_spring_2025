@@ -5,10 +5,7 @@ import com.poly.app.domain.admin.Statistical.Repository.StatisticalRepository;
 import com.poly.app.domain.admin.Statistical.Service.*;
 import com.poly.app.domain.common.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -75,6 +72,20 @@ public class StatisticalController {
         return ApiResponse.<List<NameData>>builder()
                 .data(service.getSumByCustomDate(startDate, endDate))
                 .build();
+    }
+    //mail doanh thu ngày
+    @PostMapping("/send-daily-report-email")
+    public ApiResponse<String> sendDailyReportEmail() {
+        try {
+            service.sendDailyRevenueReportEmail();
+            System.out.println("báo cáo ngày đã về rồi đây");
+            return ApiResponse.<String>builder()
+                    .data("Báo cáo doanh thu ngày đã được gửi thành công")
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.<String>builder()
+                    .build();
+        }
     }
 
     //2.Sản phẩm bán chạy

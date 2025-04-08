@@ -18,4 +18,14 @@ public class Email {
     private String titleEmail;
     private File pdfFile;
     private String fileName;
+    // Add to your Email class
+    private File excelFile;
+
+    public File getExcelFile() {
+        return excelFile;
+    }
+
+    public void setExcelFile(File excelFile) {
+        this.excelFile = excelFile;
+    }
 }
