@@ -4,6 +4,7 @@ package com.poly.app.domain.repository;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Staff;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Integer> {
+public interface CustomerRepository extends JpaRepository<Customer, Integer>, JpaSpecificationExecutor<Customer> {
 
     Customer findByEmail(String email);
     Customer findByPhoneNumber(String phoneNumber);
@@ -29,6 +30,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     List<Customer> searchByKeyword(@Param("keyword") String keyword);
 
     Customer findByTokenActiveAccount(String tokenActiveAccount);
+
+    boolean existsCustomersByPhoneNumber(String phoneNumber);
 }
 
 

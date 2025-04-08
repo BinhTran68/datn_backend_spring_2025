@@ -253,13 +253,22 @@ import com.poly.app.domain.admin.customer.response.CustomerResponse;
 
 import com.poly.app.domain.admin.customer.service.CustomerService;
 
+import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.repository.AddressRepository;
 import com.poly.app.domain.repository.CustomerRepository;
+import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
+import com.poly.app.infrastructure.exception.RestApiException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -286,12 +295,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerResponse createCustomer(CustomerRequest customerRequest) {
         if (customerRepository.findByEmail(customerRequest.getEmail()) != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+            throw new RestApiException( "Email đã tồn tại", HttpStatus.BAD_REQUEST);
         }
-        if (customerRepository.findByPhoneNumber(customerRequest.getPhoneNumber()) != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone already exists");
+        if(customerRequest.getPhoneNumber() != null ) {
+            if (customerRepository.existsCustomersByPhoneNumber(customerRequest.getPhoneNumber())) {
+                throw new RestApiException( "Số điện thoại đã tồn tại", HttpStatus.BAD_REQUEST);
+            }
         }
-
         Customer customer = new Customer();
         customer.setFullName(customerRequest.getFullName());
         customer.setEmail(customerRequest.getEmail());
@@ -301,17 +311,20 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setCitizenId(customerRequest.getCitizenId());
         customer.setGender(customerRequest.getGender());
         customer.setAvatar(customerRequest.getAvatar());
-        customer.setStatus(customerRequest.getStatus());
+        customer.setStatus(0);
         customerRepository.save(customer);
-        Address address = Address.builder()
-                .provinceId(customerRequest.getProvinceId())
-                .districtId(customerRequest.getDistrictId())
-                .wardId(customerRequest.getWardId())
-                .specificAddress(customerRequest.getSpecificAddress())
-                .build();
-        address.setCustomer(customer);
-        address.setIsAddressDefault(true);
-        addressRepository.save(address);
+        if (customerRequest.getProvinceId() != null && customerRequest.getDistrictId() != null && customerRequest.getWardId() != null) {
+            Address address = Address.builder()
+                    .provinceId(customerRequest.getProvinceId())
+                    .districtId(customerRequest.getDistrictId())
+                    .wardId(customerRequest.getWardId())
+                    .specificAddress(customerRequest.getSpecificAddress())
+                    .build();
+            address.setCustomer(customer);
+            address.setIsAddressDefault(true);
+            addressRepository.save(address);
+        }
+
 
         Customer customerFromDB = customerRepository.findById(customer.getId()).orElse(null);
         assert customerFromDB != null;
@@ -534,4 +547,71 @@ public class CustomerServiceImpl implements CustomerService {
                 .toList();
         return customerResponses;
     }
+
+
+    @Override
+    public Page<CustomerResponse> filterAndSearchCustomers(String searchText, String status,
+                                                           LocalDateTime startDate, LocalDateTime endDate,
+                                                           Integer minAge, Integer maxAge,
+                                                           Integer size, Integer page) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Specification<Customer> spec = Specification.where(null);
+
+        // Lọc theo trạng thái (AccountStatus)
+        if (status != null && !status.isEmpty()) {
+            AccountStatus accountStatus = AccountStatus.valueOf(status);
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("status"), accountStatus));
+        }
+
+        // Tìm kiếm theo tên, số điện thoại, email hoặc CCCD
+        if (searchText != null && !searchText.isEmpty()) {
+            String pattern = "%" + searchText + "%";
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.or(
+                            criteriaBuilder.like(root.get("fullName"), pattern),
+                            criteriaBuilder.like(root.get("phoneNumber"), pattern),
+                            criteriaBuilder.like(root.get("email"), pattern),
+                            criteriaBuilder.like(root.get("CitizenId"), pattern)
+                    ));
+        }
+
+
+
+        // Lọc theo ngày sinh
+        if (startDate != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("dateBirth"), startDate));
+        }
+
+        if (endDate != null) {
+            spec = spec.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.lessThanOrEqualTo(root.get("dateBirth"), endDate));
+        }
+
+        // Lọc theo tuổi (dateBirth)
+        if (minAge != null || maxAge != null) {
+            LocalDateTime now = LocalDateTime.now();
+            if (minAge != null) {
+                LocalDateTime maxBirthDate = now.minusYears(minAge);
+                spec = spec.and((root, query, criteriaBuilder) ->
+                        criteriaBuilder.lessThanOrEqualTo(root.get("dateBirth"), maxBirthDate));
+            }
+            if (maxAge != null) {
+                LocalDateTime minBirthDate = now.minusYears(maxAge);
+                spec = spec.and((root, query, criteriaBuilder) ->
+                        criteriaBuilder.greaterThanOrEqualTo(root.get("dateBirth"), minBirthDate));
+            }
+        }
+
+        Page<Customer> customerPage = customerRepository.findAll(spec, pageable);
+        List<CustomerResponse> responses = customerPage.getContent().stream()
+                .map(customer -> new CustomerResponse(customer))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(responses, pageable, customerPage.getTotalElements());
+    }
+
 }
