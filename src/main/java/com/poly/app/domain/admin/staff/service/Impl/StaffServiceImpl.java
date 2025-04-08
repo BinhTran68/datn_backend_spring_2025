@@ -12,11 +12,14 @@ import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
 import com.poly.app.infrastructure.exception.RestApiException;
+import com.poly.app.infrastructure.util.ExcelHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -225,6 +228,16 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public boolean checkPhoneExists(String phoneNumber) {
         return staffRepository.findByPhoneNumber(phoneNumber) != null;
+    }
+
+    @Override
+    public void saveEmployeesFromExcel(MultipartFile file) throws IOException {
+        try {
+            List<Staff> employees = ExcelHelper.excelToEmployees(file.getInputStream());
+            staffRepository.saveAll(employees);
+        } catch (IOException e) {
+            throw new RuntimeException("Lỗi đọc file Excel: " + e.getMessage());
+        }
     }
 
 }
