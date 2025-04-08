@@ -11,6 +11,7 @@ import com.poly.app.domain.repository.AddressRepository;
 import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
+import com.poly.app.infrastructure.exception.RestApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -38,31 +39,22 @@ public class StaffServiceImpl implements StaffService {
 
     public StaffReponse createStaff(StaffRequest staffRequest) {
         if (staffRepository.findByEmail(staffRequest.getEmail()) != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+            throw new RestApiException( "Email đã tồn tại trong hệ thống!", HttpStatus.BAD_REQUEST);
         }
         if (staffRepository.findByPhoneNumber(staffRequest.getPhoneNumber()) != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Phone already exists");
+            throw new RestApiException("Số điện thoại đã tồn tại!", HttpStatus.BAD_REQUEST);
         }
         Staff staff = new Staff();
         staff.setFullName(staffRequest.getFullName());
         staff.setEmail(staffRequest.getEmail());
         staff.setPhoneNumber(staffRequest.getPhoneNumber());
         staff.setDateBirth(staffRequest.getDateBirth());
-        staff.setPassword(staffRequest.getPassword());
         staff.setCitizenId(staffRequest.getCitizenId());
         staff.setGender(staffRequest.getGender());
         staff.setAvatar(staffRequest.getAvatar());
 
         staffRepository.save(staff);
-        Address address = Address.builder()
-                .provinceId(staffRequest.getProvinceId())
-                .districtId(staffRequest.getDistrictId())
-                .wardId(staffRequest.getWardId())
-                .specificAddress(staffRequest.getSpecificAddress())
-                .build();
-        address.setStaff(staff);
-        address.setIsAddressDefault(true);
-        addressRepository.save(address);
+
 
         Staff staffFromDB = staffRepository.findById(staff.getId()).orElse(null);
         assert staffFromDB != null;
@@ -85,7 +77,6 @@ public class StaffServiceImpl implements StaffService {
                 "\n" +
                 "</body>\n" +
                 "</html>\n");
-
 
         emailSender.sendEmail(email);
         return new StaffReponse(staffFromDB);
