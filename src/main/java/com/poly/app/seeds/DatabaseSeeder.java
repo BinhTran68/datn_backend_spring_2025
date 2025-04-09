@@ -552,120 +552,16 @@ public class DatabaseSeeder implements CommandLineRunner {
         staffRepository.save(staff2);
 
 
-        Customer customerBill1 = customerRepository.findById(1).orElse(null); // Giả sử customer có id = 1
-        Customer customerBill2 = customerRepository.findById(2).orElse(null); // Giả sử customer có id = 2
-        Staff staffBill1 = staffRepository.findById(1).orElse(null); // Giả sử staff có id = 1
-        Staff staffBill2 = staffRepository.findById(2).orElse(null); // Giả sử staff có id = 2
-
-        if (customerBill1 != null && staffBill1 != null) {
-            Bill bill1 = Bill.builder()
-                    .customer(customerBill1)
-                    .staff(staffBill1)
-
-                    .customerMoney(500000.0)
-                    .discountMoney(50000.0)
-                    .shipMoney(30000.0)
-                    .totalMoney(480000.0)
-                    .typeBill(TypeBill.ONLINE)
-                    .completeDate(LocalDateTime.now()) // Ngày hoàn thành
-                    .confirmDate(LocalDateTime.now()) // Ngày xác nhận
-                    .desiredDateOfReceipt(LocalDateTime.now()) // Ngày nhận hàng mong muốn
-                    .shipDate(LocalDateTime.now()) // Ngày giao hàng
-
-                    .numberPhone("0912345678")
-                    .email("nguyenvana@example.com")
-                    .status(BillStatus.DA_THANH_TOAN) // Trạng thái hóa đơn
-                    .build();
-            billRepository.save(bill1);
 
 
-            Bill bill3 = Bill.builder()
-                    .customer(customerBill1)
-                    .staff(staffBill1)
-
-                    .customerMoney(500000.0)
-                    .discountMoney(50000.0)
-                    .shipMoney(30000.0)
-                    .totalMoney(480000.0)
-                    .typeBill(TypeBill.ONLINE)
-                    .completeDate(LocalDateTime.now()) // Ngày hoàn thành
-                    .confirmDate(LocalDateTime.now()) // Ngày xác nhận
-                    .desiredDateOfReceipt(LocalDateTime.now()) // Ngày nhận hàng mong muốn
-                    .shipDate(LocalDateTime.now()) // Ngày giao hàng
-                    .numberPhone("0912345678")
-                    .email("nguyenvana@example.com")
-                    .status(BillStatus.DA_THANH_TOAN) // Trạng thái hóa đơn
-                    .build();
-            billRepository.save(bill1);
-            billRepository.save(bill3);
 
 
-        }
 
 
-        if (customerBill2 != null && staffBill2 != null) {
-            Bill bill2 = Bill.builder()
-                    .customer(customerBill2)
-                    .staff(staffBill2)
-                    .billCode("BILL002")
-                    .customerMoney(300000.0)
-                    .discountMoney(20000.0)
-                    .shipMoney(25000.0)
-                    .totalMoney(305000.0)
-                    .typeBill(TypeBill.OFFLINE)
-                    .completeDate(LocalDateTime.now()) // Ngày hoàn thành
-                    .confirmDate(LocalDateTime.now()) // Ngày xác nhận
-                    .desiredDateOfReceipt(LocalDateTime.now()) // Ngày nhận hàng mong muốn
-                    .shipDate(LocalDateTime.now()) // Ngày giao hàng
-
-                    .numberPhone("0987654321")
-                    .email("tranthib@example.com")
-                    .status(BillStatus.CHO_XAC_NHAN) // Trạng thái hóa đơn
-                    .build();
-            billRepository.save(bill2);
-
-        }
 
 
-        Bill bill1 = billRepository.findById(1).orElse(null); // Giả sử bill có id = 1
-        Bill bill2 = billRepository.findById(2).orElse(null); // Giả sử bill có id = 2
-        ProductDetail productDetailBill1 = productDetailRepository.findById(1).orElse(null); // Giả sử productDetail có id = 1
-        ProductDetail productDetailBill2 = productDetailRepository.findById(2).orElse(null); // Giả sử productDetail có id = 2
 
-        BillHistory billHistory = BillHistory
-                .builder().bill(bill2).customer(customerBill1).staff(staffBill1).status(BillStatus.CHO_XAC_NHAN)
-                .build();
-        BillHistory billHistory1 = BillHistory
-                .builder().bill(bill1).customer(customerBill1).staff(staffBill1).status(BillStatus.CHO_VAN_CHUYEN)
-                .build();
 
-        billHistoryRepository.save(billHistory);
-
-        billHistoryRepository.save(billHistory1);
-
-        if (bill1 != null && productDetailBill1 != null) {
-            BillDetail billDetail1 = BillDetail.builder()
-                    .bill(bill1)
-                    .productDetail(productDetail1)
-                    .price(100000.0) // Giá của sản phẩm
-                    .quantity(2) // Số lượng sản phẩm
-                    .totalMoney(200000.0) // Tổng tiền (price * quantity)
-                    .status(Status.HOAT_DONG) // Trạng thái hóa đơn chi tiết
-                    .build();
-            billDetailRepository.save(billDetail1);
-        }
-
-        if (bill2 != null && productDetailBill2 != null) {
-            BillDetail billDetail2 = BillDetail.builder()
-                    .bill(bill2)
-                    .productDetail(productDetail2)
-                    .price(150000.0) // Giá của sản phẩm
-                    .quantity(1) // Số lượng sản phẩm
-                    .totalMoney(150000.0) // Tổng tiền (price * quantity)
-                    .status(Status.HOAT_DONG) // Trạng thái hóa đơn chi tiết
-                    .build();
-            billDetailRepository.save(billDetail2);
-        }
 
 
         PaymentMethods paymentMethod1 = PaymentMethods.builder()
@@ -684,35 +580,11 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         PaymentMethods paymentMethod3 = PaymentMethods.builder()
                 .paymentMethodsType(PaymentMethodsType.COD)
-                .paymentMethod(PaymentMethodEnum.COD)
                 .status(Status.HOAT_DONG) // Trạng thái không hoạt động
                 .build();
         paymentMethodsRepository.save(paymentMethod3);
 
 
-        Bill billPaymentMethods1 = billRepository.findById(1).orElse(null); // Giả sử Bill có ID là 1
-        PaymentMethods paymentMethodBill1 = paymentMethodsRepository.findById(1).orElse(null); // Giả sử phương thức thanh toán có ID là 1
-
-        Bill billPaymentMethods2 = billRepository.findById(2).orElse(null); // Giả sử Bill có ID là 2
-        PaymentMethods paymentMethodBill2 = paymentMethodsRepository.findById(2).orElse(null); // Giả sử phương thức thanh toán có ID là 2
-
-        if (billPaymentMethods1 != null && paymentMethodBill1 != null) {
-            // Tạo PaymentBill cho bill1 và paymentMethod1
-            PaymentBill paymentBill1 = PaymentBill.builder()
-                    .bill(bill1)
-                    .paymentMethods(paymentMethod1)
-                    .build();
-            paymentBillRepository.save(paymentBill1);
-        }
-
-        if (billPaymentMethods2 != null && paymentMethodBill2 != null) {
-            // Tạo PaymentBill cho bill2 và paymentMethod2
-            PaymentBill paymentBill2 = PaymentBill.builder()
-                    .bill(bill2)
-                    .paymentMethods(paymentMethod2)
-                    .build();
-            paymentBillRepository.save(paymentBill2);
-        }
 
 
         Voucher voucher1 = Voucher.builder()

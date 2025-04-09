@@ -141,6 +141,9 @@ public class ClientServiceImpl implements ClientService {
         Voucher voucher = null;
         if (request.getVoucherId() != null) {
             voucher = voucherRepository.findById(request.getVoucherId()).orElse(null);
+//trừ vc
+            voucher.setQuantity(voucher.getQuantity()-1);
+            voucherRepository.save(voucher);
         }
         Address address = null;
         if (request.getDetailAddressShipping() != null && customer != null) {
@@ -362,7 +365,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Page<CartResponse> getAllCartCustomerId(Integer customerId, Integer page, Integer size) {
+    public Page<CartResponse> getAllCartCustomerId(Integer customerId, Integer page,    Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         return cartDetailRepository.getAllByCustomerId(customerId, pageable);
     }

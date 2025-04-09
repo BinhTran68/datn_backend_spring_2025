@@ -102,6 +102,7 @@ public class WebSocketControllerClient {
                 .status(MessageStatus.valueOf(message.getStatus()))
                 .senderId(message.getSenderId())
                 .build());
+
         simpMessagingTemplate.convertAndSend("/topic/anou","thong báo mới");
 
         // Trả về tin nhắn đã lưu để gửi qua WebSocket
