@@ -9,7 +9,9 @@ import com.poly.app.domain.admin.customer.response.AddressResponse;
 
 import com.poly.app.domain.admin.address.AddressRequest;
 import com.poly.app.domain.admin.customer.response.AddressResponse;
+import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Customer;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,4 +45,6 @@ public interface CustomerService {
     boolean checkPhoneExists(String phoneNumber);
 
     List<CustomerResponse> findCustomerByQuery(String query);
+
+    Page<CustomerResponse> filterAndSearchCustomers(String searchText, String status, LocalDateTime startDate, LocalDateTime endDate, Integer minAge, Integer maxAge, Integer size, Integer page);
 }

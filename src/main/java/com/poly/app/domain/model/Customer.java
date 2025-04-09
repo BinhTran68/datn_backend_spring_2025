@@ -72,6 +72,8 @@ public class Customer extends PrimaryEntity implements Serializable, UserDetails
     }
 
 
+    private String tokenActiveAccount;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         log.info("getAuthorities");

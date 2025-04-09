@@ -28,6 +28,8 @@ public interface BestSaleRepository extends JpaRepository<BillDetail,Integer> {
         JOIN gender g ON pd.gender_id = g.id
         JOIN bill bl ON bd.bill_id = bl.id
         WHERE DATE(FROM_UNIXTIME(bl.created_at / 1000)) = CURDATE()
+                  AND bl.status = 'DA_HOAN_THANH'
+        
         GROUP BY p.product_name, b.brand_name, t.type_name, c.color_name, m.material_name, 
                  s.size_name, sole.sole_name, g.gender_name, pd.price 
         ORDER BY total_quantity_sold DESC 
@@ -52,6 +54,8 @@ public interface BestSaleRepository extends JpaRepository<BillDetail,Integer> {
         JOIN gender g ON pd.gender_id = g.id
         JOIN bill bl ON bd.bill_id = bl.id
         WHERE YEARWEEK(FROM_UNIXTIME(bl.created_at / 1000)) = YEARWEEK(CURDATE())
+                  AND bl.status = 'DA_HOAN_THANH'
+        
         GROUP BY p.product_name, b.brand_name, t.type_name, c.color_name, m.material_name, 
                  s.size_name, sole.sole_name, g.gender_name, pd.price 
         ORDER BY total_quantity_sold DESC 
@@ -77,6 +81,8 @@ public interface BestSaleRepository extends JpaRepository<BillDetail,Integer> {
         JOIN bill bl ON bd.bill_id = bl.id
         WHERE YEAR(FROM_UNIXTIME(bl.created_at / 1000)) = YEAR(CURDATE()) 
           AND MONTH(FROM_UNIXTIME(bl.created_at / 1000)) = MONTH(CURDATE())
+                    AND bl.status = 'DA_HOAN_THANH'
+          
         GROUP BY p.product_name, b.brand_name, t.type_name, c.color_name, m.material_name, 
                  s.size_name, sole.sole_name, g.gender_name, pd.price 
         ORDER BY total_quantity_sold DESC 
@@ -100,6 +106,8 @@ public interface BestSaleRepository extends JpaRepository<BillDetail,Integer> {
         JOIN gender g ON pd.gender_id = g.id
         JOIN bill bl ON bd.bill_id = bl.id
         WHERE YEAR(FROM_UNIXTIME(bl.created_at / 1000)) = YEAR(CURDATE()) 
+                  AND bl.status = 'DA_HOAN_THANH'
+        
         GROUP BY p.product_name, b.brand_name, t.type_name, c.color_name, m.material_name, 
                  s.size_name, sole.sole_name, g.gender_name, pd.price 
         ORDER BY total_quantity_sold DESC 
@@ -124,6 +132,8 @@ public interface BestSaleRepository extends JpaRepository<BillDetail,Integer> {
         JOIN gender g ON pd.gender_id = g.id
         JOIN bill bl ON bd.bill_id = bl.id
         WHERE DATE(FROM_UNIXTIME(bl.created_at / 1000)) BETWEEN :startDate AND :endDate
+                  AND bl.status = 'DA_HOAN_THANH'
+        
         GROUP BY p.product_name, b.brand_name, t.type_name, c.color_name, m.material_name, 
                  s.size_name, sole.sole_name, g.gender_name, pd.price 
         ORDER BY total_quantity_sold DESC 

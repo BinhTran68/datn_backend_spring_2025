@@ -11,6 +11,8 @@ public class AddressResponse {
     private String wardId;
     private Boolean isAddressDefault;
     private String specificAddress;
+    private Integer id;
+
 
 
     public AddressResponse(Address address) {
@@ -19,6 +21,7 @@ public class AddressResponse {
         this.wardId = address.getWardId();
         this.isAddressDefault = address.getIsAddressDefault() != null ? address.getIsAddressDefault() : false;
         this.specificAddress = address.getSpecificAddress();
+        this.id = address.getId();
     }
 
 }

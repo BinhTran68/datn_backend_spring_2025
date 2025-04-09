@@ -15,12 +15,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class FreeshipOrder extends PrimaryEntity implements Serializable {
 
 
     @Column(name = "min_order_value", nullable = false)
     private Double minOrderValue;
 
-    @Column(name = "shipping_discount", nullable = false)
-    private Double shippingDiscount;
 }

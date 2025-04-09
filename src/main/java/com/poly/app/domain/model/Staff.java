@@ -50,9 +50,9 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
     private LocalDateTime dateBirth;
 
     @Column(unique = true)
-    private String CitizenId;
+    private String citizenId;
 
-    @Column(length = EntityProperties.LENGTH_PHONE)
+    @Column(length = EntityProperties.LENGTH_PHONE, unique = true)
     private String phoneNumber;
 
     @Column(length = EntityProperties.LENGTH_EMAIL)

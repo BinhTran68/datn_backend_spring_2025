@@ -7,5 +7,5 @@ public enum PaymentMethodEnum {
     VN_PAY,
     MOMO,
     ZALO_PAY,
-    COD,
+    COD
 }

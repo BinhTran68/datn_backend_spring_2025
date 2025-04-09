@@ -5,7 +5,9 @@ import com.poly.app.domain.admin.address.AddressRequest;
 import com.poly.app.domain.admin.customer.response.AddressResponse;
 import com.poly.app.domain.admin.staff.request.StaffRequest;
 import com.poly.app.domain.admin.staff.response.StaffReponse;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface StaffService {
@@ -35,4 +37,6 @@ public interface StaffService {
     boolean checkEmailExists(String email);
 
     boolean checkPhoneExists(String phoneNumber);
+
+    void saveEmployeesFromExcel(MultipartFile file) throws IOException;
 }

@@ -28,6 +28,7 @@ public class StaffReponse {
      Integer status;
     String avatar;
     private List<Address> addresses;
+    String roleName;
 
     public StaffReponse(Staff staff) {
         this.fullName = staff.getFullName();
@@ -41,5 +42,6 @@ public class StaffReponse {
         this.addresses = staff.getAddresses();
         this.id = staff.getId();
         this.status = staff.getStatus();
+        this.roleName = staff.getRole() != null ? staff.getRole().getRoleName() : "ROLE_STAFF";
     }
 }

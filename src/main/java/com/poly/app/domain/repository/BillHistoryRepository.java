@@ -5,6 +5,7 @@ import com.poly.app.domain.model.Bill;
 import com.poly.app.domain.model.BillHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,6 +29,9 @@ public interface BillHistoryRepository extends JpaRepository<BillHistory,Integer
 
     BillHistory findDistinctFirstByBillOrderByCreatedAtDesc(Bill bill);
 
-
+    @Query("SELECT CASE WHEN COUNT(bh) > 0 THEN true ELSE false END " +
+            "FROM BillHistory bh " +
+            "WHERE bh.bill = :bill AND bh.status = 'DA_THANH_TOAN'")
+    Boolean existsByBillAndStatusDaThanhToan(@Param("bill") Bill bill);
 
 }

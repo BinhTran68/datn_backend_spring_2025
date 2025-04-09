@@ -24,11 +24,11 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
                     DATE(FROM_UNIXTIME(b.created_at / 1000)) AS reportDate,
                     SUM(b.total_money) AS totalRevenue,  
                     COUNT(b.id) AS totalOrders,  
-                SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfulOrders,
+                SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfullOrders,
                     SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
-                    SUM(CASE WHEN b.status = 'RETURNED' THEN 1 ELSE 0 END) AS returnedOrders,
-                    SUM(bd.quantity) AS totalProductsSold  
-                FROM bill b
+                    SUM(CASE WHEN b.status = 'TRA_HANG' THEN 1 ELSE 0 END) AS returnedOrders,
+            SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
+                                             FROM bill b
                 LEFT JOIN bill_detail bd ON b.id = bd.bill_id
                 WHERE DATE(FROM_UNIXTIME(b.created_at / 1000)) = CURDATE()
                 GROUP BY reportDate
@@ -43,9 +43,9 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
                     CAST(YEARWEEK(FROM_UNIXTIME(b.created_at / 1000)) AS CHAR) AS reportTime,
                     SUM(b.total_money) AS totalRevenue,  
                     COUNT(b.id) AS totalOrders,  
-                    SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfulOrders,
+                    SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfullOrders,
                     SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
-                    SUM(CASE WHEN b.status = 'RETURNED' THEN 1 ELSE 0 END) AS returnedOrders,
+                    SUM(CASE WHEN b.status = 'TRA_HANG' THEN 1 ELSE 0 END) AS returnedOrders,
                     SUM(bd.quantity) AS totalProductsSold  
                 FROM bill b
                 LEFT JOIN bill_detail bd ON b.id = bd.bill_id
@@ -62,11 +62,11 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
                     DATE_FORMAT(FROM_UNIXTIME(b.created_at / 1000), '%Y-%m') AS reportTime,
                     SUM(b.total_money) AS totalRevenue,  
                     COUNT(b.id) AS totalOrders,  
-                    SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfulOrders,
+                    SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfullOrders,
                     SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
                     SUM(CASE WHEN b.status = 'TRA_HANG' THEN 1 ELSE 0 END) AS returnedOrders,
-                    SUM(bd.quantity) AS totalProductsSold  
-                FROM bill b
+            SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
+                                                              FROM bill b
                 LEFT JOIN bill_detail bd ON b.id = bd.bill_id
                 WHERE DATE_FORMAT(FROM_UNIXTIME(b.created_at / 1000), '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
                 GROUP BY reportTime
@@ -81,11 +81,11 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
                     CAST(YEAR(FROM_UNIXTIME(b.created_at / 1000)) AS CHAR) AS reportTime,
                     SUM(b.total_money) AS totalRevenue,  
                     COUNT(b.id) AS totalOrders,  
-                    SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfulOrders,
+                    SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfullOrders,
                     SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
                     SUM(CASE WHEN b.status = 'TRA_HANG' THEN 1 ELSE 0 END) AS returnedOrders,
-                    SUM(bd.quantity) AS totalProductsSold  
-                FROM bill b
+            SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
+                                                    FROM bill b
                 LEFT JOIN bill_detail bd ON b.id = bd.bill_id
                 WHERE YEAR(FROM_UNIXTIME(b.created_at / 1000)) = YEAR(CURDATE())
                 GROUP BY reportTime
@@ -100,10 +100,10 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
                     CONCAT(:startDate, ' to ', :endDate) AS reportTime,
                     COALESCE(SUM(b.total_money), 0) AS totalRevenue,  
                     COALESCE(COUNT(b.id), 0) AS totalOrders,  
-                    COALESCE(SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END), 0) AS successfulOrders,
+                    COALESCE(SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END), 0) AS successfullOrders,
                     COALESCE(SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END), 0) AS cancelledOrders,
                     COALESCE(SUM(CASE WHEN b.status = 'TRA_HANG' THEN 1 ELSE 0 END), 0) AS returnedOrders,
-                    COALESCE(SUM(bd.quantity), 0) AS totalProductsSold  
+                   COALESCE(SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END), 0) AS totalProductsSold      
                 FROM bill b
                 LEFT JOIN bill_detail bd ON b.id = bd.bill_id
                 WHERE DATE(FROM_UNIXTIME(b.created_at / 1000)) BETWEEN :startDate AND :endDate

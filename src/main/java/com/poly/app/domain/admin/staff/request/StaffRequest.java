@@ -26,4 +26,5 @@ public class StaffRequest {
     private String wardId;
     private Boolean isAddressDefault;
     private String specificAddress;
+    private String roleName;
 }

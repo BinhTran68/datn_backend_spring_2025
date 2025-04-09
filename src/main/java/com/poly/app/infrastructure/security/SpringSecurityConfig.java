@@ -33,8 +33,9 @@ public class SpringSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers("/api/admin/*")
-                            .hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MANAGER");
+                            .hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF", "ROLE_MANAGER", "ROLE_STAFF_SALE");
                     req.requestMatchers("/api/user/*");
+                    req.requestMatchers("/api/authentication/change-password");
                     req.anyRequest().permitAll();
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))

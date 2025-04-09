@@ -43,6 +43,8 @@ public class CreateBillRequest {
     private List<BillDetailRequest> billDetailRequests;
     private String transactionCode;
     private Boolean isCOD;
+    private Double moneyBeforeDiscount;
+    private Boolean isFreeShip;
 }
 
 

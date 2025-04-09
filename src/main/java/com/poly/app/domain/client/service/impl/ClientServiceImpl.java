@@ -496,7 +496,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Optional<Object> findAdressDefaulCustomerId(Integer customerId) {
-        Object o = addressRepository.findByCustomerIdAndIsAddressDefault(customerId, true);
+        Object o = addressRepository.findFirstByCustomerIdAndIsAddressDefault(customerId, true);
         return Optional.of(o);
     }
 

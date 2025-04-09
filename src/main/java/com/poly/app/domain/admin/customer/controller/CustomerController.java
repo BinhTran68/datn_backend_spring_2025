@@ -104,6 +104,7 @@ import com.poly.app.domain.admin.customer.response.CustomerResponse;
 import com.poly.app.domain.admin.customer.service.CustomerService;
 import com.poly.app.domain.admin.customer.service.impl.CustomerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -200,6 +201,26 @@ public class CustomerController {
         List<CustomerResponse> customers = customerService.filterCustomers(searchText, status, startDate, endDate, minAge, maxAge);
         return ResponseEntity.ok(customers);
     }
+
+
+    @GetMapping("/index")
+    public ResponseEntity<?> filterCustomers(
+            @RequestParam(required = false) String searchText,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDateTime endDate,
+            @RequestParam(required = false) Integer minAge,
+            @RequestParam(required = false) Integer maxAge,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "0") Integer page
+    ) {
+
+        return ResponseEntity.ok(customerService
+                .filterAndSearchCustomers(searchText, status, startDate, endDate, minAge, maxAge, size, page));
+    }
+
+
+
     @GetMapping("/check-email")
     public ResponseEntity<Map<String, Boolean>> checkEmail(@RequestParam String email) {
         boolean exists = customerServiceImpl.checkEmailExists(email);
