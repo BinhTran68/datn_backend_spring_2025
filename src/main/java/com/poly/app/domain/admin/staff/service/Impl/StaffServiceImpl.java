@@ -6,8 +6,10 @@ import com.poly.app.domain.admin.staff.request.StaffRequest;
 import com.poly.app.domain.admin.staff.response.StaffReponse;
 import com.poly.app.domain.admin.staff.service.StaffService;
 import com.poly.app.domain.model.Address;
+import com.poly.app.domain.model.Role;
 import com.poly.app.domain.model.Staff;
 import com.poly.app.domain.repository.AddressRepository;
+import com.poly.app.domain.repository.RoleRepository;
 import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
@@ -15,6 +17,7 @@ import com.poly.app.infrastructure.exception.RestApiException;
 import com.poly.app.infrastructure.util.ExcelHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -37,6 +40,10 @@ public class StaffServiceImpl implements StaffService {
 
     @Autowired
     private EmailSender emailSender;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Override
 
@@ -47,6 +54,12 @@ public class StaffServiceImpl implements StaffService {
         if (staffRepository.findByPhoneNumber(staffRequest.getPhoneNumber()) != null) {
             throw new RestApiException("Số điện thoại đã tồn tại!", HttpStatus.BAD_REQUEST);
         }
+        Staff staffExitStaff = staffRepository.findStaffByCitizenId(staffRequest.getCitizenId());
+
+        if (staffExitStaff != null) {
+            throw new RestApiException("Căn cước đã tồn tại!", HttpStatus.BAD_REQUEST);
+        }
+
         Staff staff = new Staff();
         staff.setFullName(staffRequest.getFullName());
         staff.setEmail(staffRequest.getEmail());
@@ -55,9 +68,12 @@ public class StaffServiceImpl implements StaffService {
         staff.setCitizenId(staffRequest.getCitizenId());
         staff.setGender(staffRequest.getGender());
         staff.setAvatar(staffRequest.getAvatar());
+        staff.setStatus(0);
+        staff.setPassword(passwordEncoder.encode(staffRequest.getPassword()));
 
+        Role role = roleRepository.findByRoleName(staffRequest.getRoleName());
+        staff.setRole(role);
         staffRepository.save(staff);
-
 
         Staff staffFromDB = staffRepository.findById(staff.getId()).orElse(null);
         assert staffFromDB != null;
@@ -101,6 +117,12 @@ public class StaffServiceImpl implements StaffService {
             staff.getAddresses().clear();
             staff.setStatus(staffRequest.getStatus());
             Staff updatedStaff = staffRepository.save(staff);
+
+
+            Role role = roleRepository.findByRoleName(staffRequest.getRoleName());
+            staff.setRole(role);
+            staffRepository.save(staff);
+
             return new StaffReponse(updatedStaff);
         } else {
             throw new RuntimeException("Customer not found");
@@ -200,8 +222,9 @@ public class StaffServiceImpl implements StaffService {
                         staff.getFullName().toLowerCase().contains(searchText.toLowerCase()) ||
                         staff.getPhoneNumber().contains(searchText))
                 .filter(staff -> status == null || status.equals("Tất cả") ||
-                        (status.equals("Kích hoạt") && staff.getStatus() == 0) ||
-                        (status.equals("Khóa") && staff.getStatus() == 1))
+                        (status.equals("HOAT_DONG") && staff.getStatus() == 0) ||
+                        (status.equals("CHUA_KICH_HOAT") && staff.getStatus() == 2) ||
+                        (status.equals("NGUNG_HOAT_DONG") && staff.getStatus() == 1))
                 .filter(staff -> {
                     if (dobFrom != null && dobTo != null) {
                         LocalDateTime dobFromDateTime = LocalDateTime.parse(dobFrom);

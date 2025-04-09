@@ -138,6 +138,9 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Role role2 = Role.builder().roleName("ROLE_MANAGER").build();
         roleRepository.save(role2);
+
+        Role role3 = Role.builder().roleName("ROLE_STAFF_SALE").build();
+        roleRepository.save(role3);
         //
 
         //
@@ -523,7 +526,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .code("STF001")
                 .fullName("admin@fpt.com")
                 .dateBirth(LocalDateTime.now()) // Ngày sinh (dạng timestamp)
-                .CitizenId("1234567890")
+                .citizenId("1234567890")
                 .phoneNumber("0901234567")
                 .email("admin@fpt.com")
                 .gender(true) // Nam
@@ -539,7 +542,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .code("STF002")
                 .fullName("Trần Thị B")
                 .dateBirth(LocalDateTime.now()) // Ngày sinh (dạng timestamp)
-                .CitizenId("0987654321")
+                .citizenId("0987654321")
                 .phoneNumber("0987654321")
                 .email("tranthib@example.com")
                 .gender(false) // Nữ
