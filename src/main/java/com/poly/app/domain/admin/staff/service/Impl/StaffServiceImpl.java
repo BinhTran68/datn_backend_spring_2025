@@ -5,6 +5,7 @@ import com.poly.app.domain.admin.customer.response.AddressResponse;
 import com.poly.app.domain.admin.staff.request.StaffRequest;
 import com.poly.app.domain.admin.staff.response.StaffReponse;
 import com.poly.app.domain.admin.staff.service.StaffService;
+import com.poly.app.domain.auth.service.AuthenticationService;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Role;
 import com.poly.app.domain.model.Staff;
@@ -44,6 +45,8 @@ public class StaffServiceImpl implements StaffService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @Override
 
@@ -262,5 +265,16 @@ public class StaffServiceImpl implements StaffService {
             throw new RuntimeException("Lỗi đọc file Excel: " + e.getMessage());
         }
     }
+
+    @Override
+    public void updateLastSeen() {
+            LocalDateTime now = LocalDateTime.now();
+            Staff staffAuth = authenticationService.getStaffAuth();
+            if(staffAuth != null) {
+                staffAuth.setLastSeen(now);
+                staffRepository.save(staffAuth);
+            }
+    }
+
 
 }

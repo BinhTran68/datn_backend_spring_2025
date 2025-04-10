@@ -7,6 +7,7 @@ import com.poly.app.domain.admin.staff.response.StaffReponse;
 import com.poly.app.domain.admin.staff.service.Impl.StaffServiceImpl;
 import com.poly.app.domain.admin.staff.service.StaffService;
 import com.poly.app.infrastructure.util.ExcelHelper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +126,13 @@ public class StaffController {
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File không đúng định dạng Excel");
+    }
+
+    @PutMapping("/ping")
+    public ResponseEntity<?> ping(HttpServletRequest request) {
+
+        staffService.updateLastSeen();
+        return ResponseEntity.ok().build();
     }
 
 }

@@ -20,6 +20,8 @@ public interface PaymentBillRepository extends JpaRepository<PaymentBill, Intege
 
     List<PaymentBill> findByBill(Bill bill);
 
+    PaymentBill findDistinctFirstByBill(Bill bill);
+
     PaymentBill findByBillId(Integer id);
 //e công sửa 2 trường paymentbillstatus với updateat ->
     @Query(value = "SELECT " +

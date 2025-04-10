@@ -233,6 +233,12 @@ public class BillServiceImpl implements BillService {
             }
         }
         bill.setStatus(request.getStatus());
+        if(request.getStatus() == BillStatus.DA_THANH_TOAN) {
+            PaymentBill paymentBill = paymentBillRepository.findDistinctFirstByBill(bill);
+            paymentBill.setTotalMoney(bill.getMoneyAfter());
+            paymentBill.setPayMentBillStatus(PayMentBillStatus.DA_THANH_TOAN);
+            paymentBillRepository.save(paymentBill);
+        }
 
         if (bill.getStatus() == BillStatus.DA_XAC_NHAN) {
             // Trừ số lượng sản phẩm khi xác nhận
@@ -248,6 +254,7 @@ public class BillServiceImpl implements BillService {
                 productDetail.setQuantity(productDetail.getQuantity() - billDetail.getQuantity());
                 productDetailRepository.save(productDetail);
             }
+
 
 
             // Kiểm tra -> trừ số lượng voucher

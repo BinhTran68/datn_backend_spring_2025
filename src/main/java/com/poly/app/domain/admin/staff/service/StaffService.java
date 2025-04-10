@@ -39,4 +39,6 @@ public interface StaffService {
     boolean checkPhoneExists(String phoneNumber);
 
     void saveEmployeesFromExcel(MultipartFile file) throws IOException;
+
+    void updateLastSeen();
 }

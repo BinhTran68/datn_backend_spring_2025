@@ -279,6 +279,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 customer =  customerRepository.save(newCustomer);
             }
 
+            if(customer.getStatus() == 1) {
+                throw new RestApiException("Tài khoản của quý khách đã bị ngừng hoạt động! Liên hê với cửa hàng để kích hoạt lại!", HttpStatus.BAD_REQUEST);
+            }
             // Nếu đã đăng nhập thì tạo token login như thường
             TokenPayload tokenPayload = new TokenPayload();
             tokenPayload.setEmail(customer.getEmail());

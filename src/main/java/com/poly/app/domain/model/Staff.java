@@ -80,6 +80,13 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
         this.status = AccountStatus.values()[status];
     }
 
+    private LocalDateTime lastSeen; // 👈 Thêm trường này để kiểm tra online/offline
+
+    public boolean isOnline(Staff user) {
+        return user.getLastSeen() != null &&
+                user.getLastSeen().isAfter(LocalDateTime.now().minusSeconds(60));
+    }
+
     @ManyToOne
     @JoinColumn(name = "id_role")
     private Role role;
@@ -90,7 +97,7 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
         log.info("getAuthorities");
         String roleName = Optional.ofNullable(role)
                 .map(Role::getRoleName)
-                .orElse("ROLE_USER");  // Sử dụng quyền mặc định nếu role là null
+                .orElse("ROLE_STAFF");  // Sử dụng quyền mặc định nếu role là null
         log.warn("roleName: {}", roleName);
         authorities.add(new SimpleGrantedAuthority(roleName));
         return authorities;
