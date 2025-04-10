@@ -69,12 +69,15 @@ public interface ClientService {
 
     String buyBack(Integer billId, Integer customerId);
 
-    Page<ProductViewResponse> findFilteredProducts(Long productId,Long brandId, Long genderId, Long typeId, Long colorId, Long materialId,
-                                             Double minPrice,
-                                             Double maxPrice,
-                                             int page, int size);
+    Page<ProductViewResponse> findFilteredProducts(Long productId, Long brandId, Long genderId, Long typeId, Long colorId, Long materialId,
+                                                   Double minPrice,
+                                                   Double maxPrice,
+                                                   int page, int size);
 
-    String  refund(Integer billId,Integer MoneyRefund, String description) throws Exception;
-     List<ProductDetailDiscountDTO> getDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId);
-     PromotionView getPromotionView(Integer productId, Integer colorId, Integer genderId);
+    String refund(Integer billId, Integer MoneyRefund, String description) throws Exception;
+    List<ProductDetailDiscountDTO> getDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId);
+
+    PromotionView getPromotionView(Integer productId, Integer colorId, Integer genderId);
+
+    Boolean hasBought(Integer customerId, Integer productId);
 }

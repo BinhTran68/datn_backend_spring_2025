@@ -323,4 +323,15 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                    "GROUP BY pd.id, pd.price, pd.color_id, pd.gender_id",
             nativeQuery = true)
     List<Object[]> findDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId);
+
+    @Query(value = "SELECT \n" +
+                   "  EXISTS (\n" +
+                   "    SELECT 1\n" +
+                   "    FROM bill b\n" +
+                   "    JOIN bill_detail bd ON bd.bill_id = b.id\n" +
+                   "    JOIN product_detail pd ON pd.id = bd.product_detail_id\n" +
+                   "    JOIN product p ON p.id = pd.product_id\n" +
+                   "    WHERE b.customer_id = :customerId AND p.id = :productId AND b.status ='DA_HOAN_THANH'\n" +
+                   "  ) AS has_bought;",nativeQuery = true)
+    Long hasBought(@Param("customerId") Integer customerId, @Param("productId") Integer productId);
 }

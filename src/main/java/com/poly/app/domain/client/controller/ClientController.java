@@ -425,4 +425,11 @@ public class ClientController {
             @RequestParam Integer genderId) {
         return clientService.getDiscountedProductDetails(productId, colorId, genderId);
     }
+    @GetMapping("/has-bought")
+    public Boolean hasBought(
+            @RequestParam Integer productId,
+            @RequestParam Integer customerId
+        ) {
+        return clientService.hasBought(customerId,productId);
+    }
 }

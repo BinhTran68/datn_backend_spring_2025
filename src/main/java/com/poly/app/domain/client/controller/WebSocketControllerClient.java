@@ -61,31 +61,11 @@ public class WebSocketControllerClient {
 
 
     @MessageMapping("/comment/{productId}")
+//    @SendTo("/topic/comments/{productId}")
     public void handleComment(@DestinationVariable Integer productId, CommentMessage message) {
-        commentService.saveComment(productId, message.getCustomerId(), message.getComment(), message.getRate(), message.getParentId());
+        commentService.saveComment(productId, message.getCustomerId(), message.getComment(), message.getRate(), message.getParentId(),message.getAction());
+
     }
-    @MessageMapping("/comment/update/{productId}")
-    public void handleUpdateComment(@DestinationVariable Integer productId, CommentMessage message) {
-        // Log dữ liệu nhận được từ WebSocket
-        System.out.println("Received update request for product " + productId + ": " + message);
-
-        // Kiểm tra nếu dữ liệu bị null
-        if (message == null || message.getComment() == null || message.getParentId() == null) {
-            System.err.println("Dữ liệu nhận được không hợp lệ: " + message);
-            return;
-        }
-
-        // Gọi service để cập nhật bình luận
-        commentService.updateComment(
-                productId,
-                message.getCustomerId(),
-                message.getParentId(),
-                message.getComment(),
-                message.getRate()
-        );
-    }
-
-
     @MessageMapping("/message/{conversationId}")
     @SendTo("/topic/messages/{conversationId}")
     public Message sendMessage(@DestinationVariable Integer conversationId, MessageRequet message) {

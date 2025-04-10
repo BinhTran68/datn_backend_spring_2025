@@ -17,6 +17,7 @@ import java.util.List;
 public interface CommentsRepository extends JpaRepository<Comments,Integer> {
     List<Comments> findByProductIdOrderByCreatedAtAsc(Integer productId);
     List<Comments> findAllByOrderByCreatedAtAsc();
+    List<Comments> findAllByProductIdOrderByCreatedAtAsc(Integer productId);
     List<Comments> findAllByParentId(Integer parentId); // Tìm tất cả các câu trả lời
     boolean existsByProductIdAndCustomerId(Integer productId, Integer customerId);
 @Query("SELECT c FROM Comments c WHERE " +
