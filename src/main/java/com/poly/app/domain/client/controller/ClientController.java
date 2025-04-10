@@ -10,6 +10,7 @@ import com.poly.app.domain.client.service.ClientService;
 import com.poly.app.domain.common.ApiResponse;
 import com.poly.app.domain.common.Meta;
 import com.poly.app.domain.model.Voucher;
+import com.poly.app.domain.repository.ProductDetailRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ClientController {
     ClientService clientService;
-
+ProductDetailRepository productDetailRepository;
     @GetMapping("/getallproducthadpromotion")
     ApiResponse<List<ProductViewResponseClass>> getAllProductHadPromotion(@RequestParam(value = "page", defaultValue = "0") Integer page
             , @RequestParam(value = "size", defaultValue = "5") Integer size
@@ -424,5 +425,19 @@ public class ClientController {
             @RequestParam Integer colorId,
             @RequestParam Integer genderId) {
         return clientService.getDiscountedProductDetails(productId, colorId, genderId);
+    }
+    @GetMapping("/has-bought")
+    public Boolean hasBought(
+            @RequestParam Integer productId,
+            @RequestParam Integer customerId
+        ) {
+        return clientService.hasBought(customerId,productId);
+    }
+    @GetMapping("/product-full")
+    public ApiResponse<List<ProductDetailResponse>> getAllSelectDetail() {
+        return ApiResponse.<List<ProductDetailResponse>>builder()
+                .message("get all product")
+                .data(productDetailRepository.getAllProductDetail())
+                .build();
     }
 }

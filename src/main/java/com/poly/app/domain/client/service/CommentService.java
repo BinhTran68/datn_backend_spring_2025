@@ -28,109 +28,121 @@ public class CommentService {
     private ProductRepository productRepository;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-    public Comments saveComment(Integer productId, Integer customerId, String commentText, Double rate, Integer parentId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new RuntimeException("Khách hàng không tồn tại"));
 
-        // Kiểm tra nếu là bình luận gốc, chỉ cho phép một bình luận trên sản phẩm
-        if (parentId == null) {
-            boolean hasCommented = commentsRepository.existsByProductIdAndCustomerId(productId, customerId);
-            if (hasCommented) {
-                throw new RuntimeException("Bạn chỉ được bình luận một lần trên sản phẩm này!");
+    public void saveComment(Integer productId, Integer customerId, String commentText, Double rate, Integer parentId, String action) {
+        CommentDTO commentDTO =null;
+        if (!action.equalsIgnoreCase("update")) {
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
+            Customer customer = customerRepository.findById(customerId)
+                    .orElseThrow(() -> new RuntimeException("Khách hàng không tồn tại"));
+
+            // Kiểm tra nếu là bình luận gốc, chỉ cho phép một bình luận trên sản phẩm
+            if (parentId == null) {
+                boolean hasCommented = commentsRepository.existsByProductIdAndCustomerId(productId, customerId);
+                if (hasCommented) {
+                    throw new RuntimeException("Bạn chỉ được bình luận một lần trên sản phẩm này!");
+                }
             }
+
+            Comments comment = new Comments();
+            comment.setProduct(product);
+            comment.setCustomer(customer);
+            comment.setComment(commentText);
+            comment.setRate(rate != null ? rate : 5.0);
+            comment.setCreatedAt(System.currentTimeMillis());
+            comment.setUpdatedAt(null); // Khi tạo mới, `updatedAt` phải là null
+            comment.setParentId(parentId); // Lưu parentId dưới dạng Integer
+            comment.setAdminReply(null);
+
+            Comments savedComment = commentsRepository.save(comment);
+
+             commentDTO = new CommentDTO(
+                    savedComment.getId(),
+                    customer.getId(),
+                    customer.getFullName(),
+                    commentText,
+                    savedComment.getCreatedAt(),
+                    savedComment.getUpdatedAt(),
+                    customer.getEmail(),
+                    product.getProductName(),
+                    product.getId(),
+                    savedComment.getRate(),
+                    customer.getAvatar(),
+                    null, // Admin chưa phản hồi
+                    parentId // Trả về parentId nếu có
+            );
+        }else{
+            commentDTO= updateComment(productId,
+                    customerId,
+                    parentId,
+                    commentText,
+                    rate);
         }
 
-        Comments comment = new Comments();
-        comment.setProduct(product);
-        comment.setCustomer(customer);
-        comment.setComment(commentText);
-        comment.setRate(rate != null ? rate : 5.0);
-        comment.setCreatedAt(System.currentTimeMillis());
-        comment.setUpdatedAt(null); // Khi tạo mới, `updatedAt` phải là null
-        comment.setParentId(parentId); // Lưu parentId dưới dạng Integer
-        comment.setAdminReply(null);
 
-        Comments savedComment = commentsRepository.save(comment);
+        messagingTemplate.convertAndSend("/topic/comments/" + productId, commentDTO);
+        messagingTemplate.convertAndSend("/topic/admin/noticomments", "thong bao");
 
+
+    }
+
+    // Cập nhật bình luận
+    public CommentDTO updateComment(Integer productId, Integer customerId, Integer commentId, String commentText, Double rate) {
+        // Tìm bình luận hiện có
+        Comments existingComment = commentsRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Bình luận không tồn tại"));
+
+        // Kiểm tra quyền chỉnh sửa
+        if (!existingComment.getCustomer().getId().equals(customerId)) {
+            throw new RuntimeException("Bạn không thể chỉnh sửa bình luận của người khác!");
+        }
+
+        // Kiểm tra productId có khớp không
+        if (!existingComment.getProduct().getId().equals(productId)) {
+            throw new IllegalArgumentException("Product ID không khớp với bình luận!");
+        }
+
+        // Kiểm tra nội dung bình luận
+        if (commentText == null || commentText.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nội dung bình luận không được để trống!");
+        }
+
+        // Cập nhật thông tin
+        existingComment.setComment(commentText);
+        existingComment.setRate(rate != null ? rate : existingComment.getRate());
+        existingComment.setUpdatedAt(System.currentTimeMillis());
+        System.out.println("existingComment2" + existingComment);
+        // Lưu vào cơ sở dữ liệu
+        Comments updatedComment = commentsRepository.save(existingComment);
+
+        // Tạo DTO để gửi qua WebSocket
         CommentDTO commentDTO = new CommentDTO(
-                savedComment.getId(),
-                customer.getId(),
-                customer.getFullName(),
+                updatedComment.getId(),
+                customerId,
+                existingComment.getCustomer().getFullName(),
                 commentText,
-                savedComment.getCreatedAt(),
-                savedComment.getUpdatedAt(),
-                customer.getEmail(),
-                product.getProductName(),
-                product.getId(),
-                savedComment.getRate(),
-                customer.getAvatar(),
-                null, // Admin chưa phản hồi
-                parentId // Trả về parentId nếu có
+                updatedComment.getCreatedAt(),
+                updatedComment.getUpdatedAt(),
+                existingComment.getCustomer().getEmail(),
+                existingComment.getProduct().getProductName(),
+                existingComment.getProduct().getId(),
+                updatedComment.getRate(),
+                existingComment.getCustomer().getAvatar(),
+                updatedComment.getAdminReply(), // Giữ nguyên adminReply hiện tại
+                updatedComment.getParentId()
         );
 
-        messagingTemplate.convertAndSend("/topic/comments/" + productId, commentDTO);
+        // Gửi thông điệp WebSocket
+        try {
+            messagingTemplate.convertAndSend("/topic/comments/" + productId, commentDTO);
+        } catch (Exception e) {
+            System.err.println("Failed to send WebSocket message: " + e.getMessage());
+            // Có thể thêm logic rollback nếu cần
+        }
 
-        return savedComment;
+        return commentDTO;
     }
-
-// Cập nhật bình luận
-public Comments updateComment(Integer productId, Integer customerId, Integer commentId, String commentText, Double rate) {
-    // Tìm bình luận hiện có
-    Comments existingComment = commentsRepository.findById(commentId)
-            .orElseThrow(() -> new RuntimeException("Bình luận không tồn tại"));
-
-    // Kiểm tra quyền chỉnh sửa
-    if (!existingComment.getCustomer().getId().equals(customerId)) {
-        throw new RuntimeException("Bạn không thể chỉnh sửa bình luận của người khác!");
-    }
-
-    // Kiểm tra productId có khớp không
-    if (!existingComment.getProduct().getId().equals(productId)) {
-        throw new IllegalArgumentException("Product ID không khớp với bình luận!");
-    }
-
-    // Kiểm tra nội dung bình luận
-    if (commentText == null || commentText.trim().isEmpty()) {
-        throw new IllegalArgumentException("Nội dung bình luận không được để trống!");
-    }
-
-    // Cập nhật thông tin
-    existingComment.setComment(commentText);
-    existingComment.setRate(rate != null ? rate : existingComment.getRate());
-    existingComment.setUpdatedAt(System.currentTimeMillis());
-    System.out.println("existingComment2"+ existingComment);
-    // Lưu vào cơ sở dữ liệu
-    Comments updatedComment = commentsRepository.save(existingComment);
-
-    // Tạo DTO để gửi qua WebSocket
-    CommentDTO commentDTO = new CommentDTO(
-            updatedComment.getId(),
-            customerId,
-            existingComment.getCustomer().getFullName(),
-            commentText,
-            updatedComment.getCreatedAt(),
-            updatedComment.getUpdatedAt(),
-            existingComment.getCustomer().getEmail(),
-            existingComment.getProduct().getProductName(),
-            existingComment.getProduct().getId(),
-            updatedComment.getRate(),
-            existingComment.getCustomer().getAvatar(),
-            updatedComment.getAdminReply(), // Giữ nguyên adminReply hiện tại
-            updatedComment.getParentId()
-    );
-
-    // Gửi thông điệp WebSocket
-    try {
-        messagingTemplate.convertAndSend("/topic/comments/" + productId, commentDTO);
-    } catch (Exception e) {
-        System.err.println("Failed to send WebSocket message: " + e.getMessage());
-        // Có thể thêm logic rollback nếu cần
-    }
-
-    return updatedComment;
-}
 
 
     // Trả lời bình luận (Admin)
@@ -221,7 +233,8 @@ public Comments updateComment(Integer productId, Integer customerId, Integer com
                 ))
                 .collect(Collectors.toList());
     }
-//Tìm kiếm
+
+    //Tìm kiếm
 //public List<CommentDTO> searchCommentsByProductNameAndCreatedAt(String productName, Long createdAt) {
 //    List<Comments> comments = commentsRepository.findByProductNameAndCreatedAtAfter(productName, createdAt);
 //
@@ -241,41 +254,71 @@ public Comments updateComment(Integer productId, Integer customerId, Integer com
 //            comment.getParentId()
 //    )).collect(Collectors.toList());
 //}
-public List<CommentDTO> searchCommentsByProductNameAndCreatedAt(String productName, Long createdAt) {
-    Long fromDate = null;
-    Long toDate = null;
+    public List<CommentDTO> searchCommentsByProductNameAndCreatedAt(String productName, Long createdAt) {
+        Long fromDate = null;
+        Long toDate = null;
 
-    if (createdAt != null) {
-        LocalDate date = Instant.ofEpochMilli(createdAt)
-                .atZone(ZoneId.systemDefault()) // Chuyển sang múi giờ hiện tại
-                .toLocalDate();
+        if (createdAt != null) {
+            LocalDate date = Instant.ofEpochMilli(createdAt)
+                    .atZone(ZoneId.systemDefault()) // Chuyển sang múi giờ hiện tại
+                    .toLocalDate();
 
-        fromDate = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        toDate = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() - 1;
+            fromDate = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            toDate = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() - 1;
+        }
+
+        List<Comments> comments = commentsRepository.findByProductNameAndCreatedAtBetween(productName, fromDate, toDate);
+
+        return comments.stream().map(comment -> new CommentDTO(
+                comment.getId(),
+                comment.getCustomer() != null ? comment.getCustomer().getId() : null,
+                comment.getCustomer() != null ? comment.getCustomer().getFullName() : "Trả lời từ người bán",
+                comment.getComment(),
+                comment.getCreatedAt(),
+                comment.getUpdatedAt(),
+                comment.getCustomer() != null ? comment.getCustomer().getEmail() : "admin@poly.app",
+                comment.getProduct() != null ? comment.getProduct().getProductName() : "Unknown Product",
+                comment.getProduct() != null ? comment.getProduct().getId() : null,
+                comment.getRate(),
+                comment.getCustomer() != null ? comment.getCustomer().getAvatar() : null,
+                comment.getAdminReply(),
+                comment.getParentId()
+        )).collect(Collectors.toList());
     }
-
-    List<Comments> comments = commentsRepository.findByProductNameAndCreatedAtBetween(productName, fromDate, toDate);
-
-    return comments.stream().map(comment -> new CommentDTO(
-            comment.getId(),
-            comment.getCustomer() != null ? comment.getCustomer().getId() : null,
-            comment.getCustomer() != null ? comment.getCustomer().getFullName() : "Trả lời từ người bán",
-            comment.getComment(),
-            comment.getCreatedAt(),
-            comment.getUpdatedAt(),
-            comment.getCustomer() != null ? comment.getCustomer().getEmail() : "admin@poly.app",
-            comment.getProduct() != null ? comment.getProduct().getProductName() : "Unknown Product",
-            comment.getProduct() != null ? comment.getProduct().getId() : null,
-            comment.getRate(),
-            comment.getCustomer() != null ? comment.getCustomer().getAvatar() : null,
-            comment.getAdminReply(),
-            comment.getParentId()
-    )).collect(Collectors.toList());
-}
 
 
     public List<String> getProductNames() {
         return commentsRepository.findAllByOrderByCreatedAtAsc()
+                .stream()
+                .filter(comment -> comment.getProduct() != null)
+                .map(comment -> comment.getProduct().getProductName())
+                .distinct() // Remove duplicates
+                .collect(Collectors.toList());
+    }
+
+    public List<CommentDTO> getAllComments(Integer productId) {
+        return commentsRepository.findAllByProductIdOrderByCreatedAtAsc(productId)
+                .stream()
+                .map(comment -> new CommentDTO(
+                        comment.getId(),
+                        comment.getCustomer() != null ? comment.getCustomer().getId() : null,
+                        comment.getCustomer() != null ? comment.getCustomer().getFullName() : "Trả lời từ người bán",
+                        comment.getComment(),
+                        comment.getCreatedAt(),
+                        comment.getUpdatedAt(),
+                        comment.getCustomer() != null ? comment.getCustomer().getEmail() : "admin@poly.app",
+                        comment.getProduct() != null ? comment.getProduct().getProductName() : "Unknown Product",
+                        comment.getProduct() != null ? comment.getProduct().getId() : null,
+                        comment.getRate(),
+                        comment.getCustomer() != null ? comment.getCustomer().getAvatar() : null,
+                        comment.getAdminReply(),
+                        comment.getParentId()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getProductNames(Integer productId) {
+        return commentsRepository.findAllByProductIdOrderByCreatedAtAsc(productId)
                 .stream()
                 .filter(comment -> comment.getProduct() != null)
                 .map(comment -> comment.getProduct().getProductName())

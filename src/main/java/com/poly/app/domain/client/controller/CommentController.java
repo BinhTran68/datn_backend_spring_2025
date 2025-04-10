@@ -37,6 +37,36 @@ public class CommentController {
 //                .data(comments)
 //                .build();
 //    }
+    @GetMapping("/product")
+    public ApiResponse<List<CommentDTO>> getAllCommentsProduct(
+            @RequestParam(value = "sortOrder", defaultValue = "desc") String sortOrder,
+            @RequestParam(value = "productId") Integer productId) {
+
+        // Kiểm tra và đặt lại sortOrder hợp lệ
+        if (!sortOrder.equalsIgnoreCase("asc") && !sortOrder.equalsIgnoreCase("desc")) {
+            return ApiResponse.<List<CommentDTO>>builder()
+                    .message("Tham số sortOrder không hợp lệ. Chỉ có thể là 'asc' hoặc 'desc'.")
+                    .build();
+        }
+
+        // Lấy danh sách bình luận từ service
+        List<CommentDTO> comments = commentService.getAllComments(productId);
+
+        // Sắp xếp bình luận theo thời gian
+        comments.sort((c1, c2) -> {
+            if (sortOrder.equalsIgnoreCase("asc")) {
+                return c1.getCreatedAt().compareTo(c2.getCreatedAt());
+            } else {
+                return c2.getCreatedAt().compareTo(c1.getCreatedAt());
+            }
+        });
+
+        return ApiResponse.<List<CommentDTO>>builder()
+                .message("Lấy danh sách bình luận thành công")
+                .data(comments)
+                .build();
+    }
+
     @GetMapping("/all")
     public ApiResponse<List<CommentDTO>> getAllComments(
             @RequestParam(value = "sortOrder", defaultValue = "desc") String sortOrder) {
@@ -65,6 +95,7 @@ public class CommentController {
                 .data(comments)
                 .build();
     }
+
     // API lấy tất cả tên sản phẩm từ bình luận
 // API lấy tất cả tên sản phẩm từ bình luận
     @GetMapping("/productName")
@@ -110,18 +141,19 @@ public class CommentController {
                 .data("Deleted Comment ID: " + commentId)
                 .build();
     }
-//    //tìm kiếm
-@GetMapping("/search")
-public ApiResponse<List<CommentDTO>> searchComments(
-        @RequestParam(required = false) String productName,
-        @RequestParam(required = false) Long createdAt
-) {
-    List<CommentDTO> comments = commentService.searchCommentsByProductNameAndCreatedAt(productName, createdAt);
-    return ApiResponse.<List<CommentDTO>>builder()
-            .message("Tìm kiếm bình luận thành công")
-            .data(comments)
-            .build();
-}
+
+    //    //tìm kiếm
+    @GetMapping("/search")
+    public ApiResponse<List<CommentDTO>> searchComments(
+            @RequestParam(required = false) String productName,
+            @RequestParam(required = false) Long createdAt
+    ) {
+        List<CommentDTO> comments = commentService.searchCommentsByProductNameAndCreatedAt(productName, createdAt);
+        return ApiResponse.<List<CommentDTO>>builder()
+                .message("Tìm kiếm bình luận thành công")
+                .data(comments)
+                .build();
+    }
 
 
 }

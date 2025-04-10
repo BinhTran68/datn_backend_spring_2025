@@ -8,5 +8,6 @@ public class CommentMessage {
     private String comment;
     private Integer parentId;
     private Double rate;
+    private String action;
 }
 

@@ -61,6 +61,7 @@ public class ClientServiceImpl implements ClientService {
     EmailSender emailSender;
     SimpMessagingTemplate messagingTemplate;
     AnnouncementRepository announcementRepository;
+    FreeshipOrderRepository freeshipOrderRepository;
 
 
     @Override
@@ -994,6 +995,8 @@ public class ClientServiceImpl implements ClientService {
 //        return mapStatusReFund.get("returnmessage").toString();
 
     }
+//    lấy ra các đượt giảm giá theo productdetail để tìm ra khoảng giá thật sẽ giảm
+
     public List<ProductDetailDiscountDTO> getDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId) {
         List<Object[]> results = productViewRepository.findDiscountedProductDetails(productId, colorId, genderId);
 
@@ -1063,4 +1066,11 @@ public class ClientServiceImpl implements ClientService {
                 .maxDiscount(maxDiscountStr)
                 .build();
     }
+
+    @Override
+    public Boolean hasBought(Integer customerId, Integer productId) {
+        return productViewRepository.hasBought(customerId,productId)>0;
+    }
+
+
 }
