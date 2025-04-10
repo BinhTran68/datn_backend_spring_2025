@@ -9,8 +9,8 @@ import com.poly.app.domain.model.Brand;
 import com.poly.app.domain.model.Color;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Gender;
+import com.poly.app.domain.model.Image;
 import com.poly.app.domain.model.Material;
-import com.poly.app.domain.model.PaymentBill;
 import com.poly.app.domain.model.PaymentMethods;
 import com.poly.app.domain.model.Product;
 import com.poly.app.domain.model.ProductDetail;
@@ -23,11 +23,8 @@ import com.poly.app.domain.model.Type;
 import com.poly.app.domain.model.Voucher;
 import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.constant.DiscountType;
-import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
 import com.poly.app.infrastructure.constant.Status;
-import com.poly.app.infrastructure.constant.BillStatus;
-import com.poly.app.infrastructure.constant.TypeBill;
 import com.poly.app.infrastructure.constant.VoucherType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -37,82 +34,47 @@ import org.springframework.stereotype.Component;
 import com.poly.app.domain.repository.*;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class DatabaseSeeder implements CommandLineRunner {
-
     @Autowired
     RoleRepository roleRepository;
-
     @Autowired
     AddressRepository addressRepository;
-
     @Autowired
     CustomerRepository customerRepository;
-
     @Autowired
     GenderRepository genderRepository;
-
     @Autowired
     AnnouncementRepository announcementRepository;
-
     @Autowired
     SizeRepository sizeRepository;
-
     @Autowired
     SoleRepository soleRepository;
-
     @Autowired
     TypeRepository typeRepository;
-
     @Autowired
     BrandRepository brandRepository;
-
     @Autowired
     MaterialRepository materialRepository;
-
     @Autowired
     ColorRepository colorRepository;
-
     @Autowired
     ProductRepository productRepository;
-
     @Autowired
     ProductDetailRepository productDetailRepository;
-
     @Autowired
     ImageRepository imageRepository;
 
-    @Autowired
-    CartRepository cartRepository;
-
-    @Autowired
-    CartDetailRepository cartDetailRepository;
-
-    @Autowired
-    BillRepository billRepository;
-
-    @Autowired
-    BillDetailRepository billDetailRepository;
-
-    @Autowired
-    BillHistoryRepository billHistoryRepository;
-
-    @Autowired
     PaymentMethodsRepository paymentMethodsRepository;
-
     @Autowired
     PaymentBillRepository paymentBillRepository;
-
     @Autowired
     PromotionRepository promotionRepository;
-
-//    @Autowired
-//    PromotionDetailRepository promotionDetailRepository;
-
     @Autowired
     VoucherRepository voucherRepository;
-
     @Autowired
     CustomerVoucherRepository customerVoucherRepository;
 
@@ -141,11 +103,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Role role3 = Role.builder().roleName("ROLE_STAFF_SALE").build();
         roleRepository.save(role3);
-        //
-
-        //
-
-        // Seed Gender data
         Gender genderMale = Gender.builder()
                 .genderCode("M")
                 .genderName("Nam")
@@ -195,9 +152,6 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .build();
         customerRepository.save(customer2);
 
-
-        ///
-
         Customer customerExits = customerRepository.findById(1).orElseThrow(() ->
                 new RuntimeException("Customer with ID 1 not found"));
 
@@ -214,10 +168,6 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .announcementContent("Chúc mừng bạn đã nhận được voucher giảm giá 100k!")
                 .build();
         announcementRepository.save(announcement2);
-
-
-        //
-
         Color color1 = Color.builder().colorName("Đỏ").status(Status.HOAT_DONG).build();
         Color color2 = Color.builder().colorName("Xanh dương").status(Status.HOAT_DONG).build();
         Color color3 = Color.builder().colorName("Đen").status(Status.HOAT_DONG).build();
@@ -230,7 +180,6 @@ public class DatabaseSeeder implements CommandLineRunner {
         Color color10 = Color.builder().colorName("Tím").status(Status.HOAT_DONG).build();
         Color color11 = Color.builder().colorName("Be").status(Status.HOAT_DONG).build();
         Color color12 = Color.builder().colorName("Nâu").status(Status.HOAT_DONG).build();
-
         // Save data to the database
         colorRepository.save(color1);
         colorRepository.save(color2);
@@ -244,7 +193,6 @@ public class DatabaseSeeder implements CommandLineRunner {
         colorRepository.save(color10);
         colorRepository.save(color11);
         colorRepository.save(color12);
-
         Size size1 = Size.builder().sizeName("36").status(Status.HOAT_DONG).build();
         Size size2 = Size.builder().sizeName("37").status(Status.HOAT_DONG).build();
         Size size3 = Size.builder().sizeName("38").status(Status.HOAT_DONG).build();
@@ -256,7 +204,6 @@ public class DatabaseSeeder implements CommandLineRunner {
         Size size9 = Size.builder().sizeName("44").status(Status.HOAT_DONG).build();
         Size size10 = Size.builder().sizeName("45").status(Status.HOAT_DONG).build();
         Size size11 = Size.builder().sizeName("46").status(Status.HOAT_DONG).build();
-
         // Save data to the database
         sizeRepository.save(size1);
         sizeRepository.save(size2);
@@ -269,57 +216,46 @@ public class DatabaseSeeder implements CommandLineRunner {
         sizeRepository.save(size9);
         sizeRepository.save(size10);
         sizeRepository.save(size11);
-
-
         Sole sole1 = Sole.builder().soleName("Rubber Sole").status(Status.HOAT_DONG).build();
         Sole sole2 = Sole.builder().soleName("PU Sole").status(Status.HOAT_DONG).build();
         Sole sole3 = Sole.builder().soleName("PVC Sole").status(Status.HOAT_DONG).build();
         Sole sole4 = Sole.builder().soleName("Leather Sole").status(Status.HOAT_DONG).build();
         Sole sole5 = Sole.builder().soleName("Foam Sole").status(Status.HOAT_DONG).build();
-
-        // Save data to the database
         soleRepository.save(sole1);
         soleRepository.save(sole2);
         soleRepository.save(sole3);
         soleRepository.save(sole4);
         soleRepository.save(sole5);
-
-
         Type type1 = Type.builder().typeName("Sports Shoes").status(Status.HOAT_DONG).build();
         Type type2 = Type.builder().typeName("Casual Shoes").status(Status.HOAT_DONG).build();
         Type type3 = Type.builder().typeName("Formal Shoes").status(Status.HOAT_DONG).build();
         Type type4 = Type.builder().typeName("Boots").status(Status.HOAT_DONG).build();
         Type type5 = Type.builder().typeName("Slippers").status(Status.HOAT_DONG).build();
-
         // Save data to the database
         typeRepository.save(type1);
         typeRepository.save(type2);
         typeRepository.save(type3);
         typeRepository.save(type4);
         typeRepository.save(type5);
-
-
         // Add seed data
         Brand brand1 = Brand.builder().brandName("Nike").status(Status.HOAT_DONG).build();
         Brand brand2 = Brand.builder().brandName("Adidas").status(Status.HOAT_DONG).build();
         Brand brand3 = Brand.builder().brandName("Puma").status(Status.HOAT_DONG).build();
         Brand brand4 = Brand.builder().brandName("Reebok").status(Status.HOAT_DONG).build();
         Brand brand5 = Brand.builder().brandName("New Balance").status(Status.HOAT_DONG).build();
-
         // Save data to the database
         brandRepository.save(brand1);
         brandRepository.save(brand2);
         brandRepository.save(brand3);
         brandRepository.save(brand4);
         brandRepository.save(brand5);
-
-
         // Add seed data
-        Material material1 = Material.builder().materialName("Leather").status(Status.HOAT_DONG).build();
-        Material material2 = Material.builder().materialName("Canvas").status(Status.HOAT_DONG).build();
-        Material material3 = Material.builder().materialName("Suede").status(Status.HOAT_DONG).build();
+        Material material1 = Material.builder().materialName("Da").status(Status.HOAT_DONG).build();
+        Material material2 = Material.builder().materialName("Vải bố").status(Status.HOAT_DONG).build();
+        Material material3 = Material.builder().materialName("Da lộn").status(Status.HOAT_DONG).build();
         Material material4 = Material.builder().materialName("Nylon").status(Status.HOAT_DONG).build();
-        Material material5 = Material.builder().materialName("Mesh").status(Status.HOAT_DONG).build();
+        Material material5 = Material.builder().materialName("Lưới").status(Status.HOAT_DONG).build();
+
 
         // Save data to the database
         materialRepository.save(material1);
@@ -509,6 +445,19 @@ public class DatabaseSeeder implements CommandLineRunner {
         productDetailRepository.save(productDetail7);
         productDetailRepository.save(productDetail8);
 
+        List<String> imageUrls = Arrays.asList(
+                "https://golfcity.com.vn/wp-content/uploads/2020/12/giay-golf-nam-Ecco-Mens-Golf-Casual-Hybrid-1.jpg",
+                "https://down-vn.img.susercontent.com/file/vn-11134211-7r98o-lm4ut4mhhvj320",
+                "https://png.pngtree.com/png-vector/20201128/ourlarge/pngtree-casual-shoes-png-image_2394294.jpg"
+                // Thêm nhiều url khác nếu bạn có
+        );
+        for (ProductDetail productDetail : productDetailRepository.findAll()) {
+            Image image = Image.builder().productDetail(productDetail)
+                    .url(imageUrls.get(imageUrls.size() - 1))
+                    .isDefault(true)
+                    .build();
+            imageRepository.save(image);
+        }
 
         Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN");
         Role userRole = roleRepository.findByRoleName("ROLE_STAFF");
@@ -553,18 +502,6 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .build();
 
         staffRepository.save(staff2);
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         PaymentMethods paymentMethod1 = PaymentMethods.builder()

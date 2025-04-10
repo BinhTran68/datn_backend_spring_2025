@@ -164,7 +164,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public void resetPassword(ResetPasswordRequest request) {
-        Customer customer = customerRepository.findByTokenActiveAccount(request.getToken());
+        Customer customer = customerRepository .findByTokenActiveAccount(request.getToken());
         if (customer == null) {
             throw new RestApiException("Token không hợp lệ", HttpStatus.UNAUTHORIZED);
         }
