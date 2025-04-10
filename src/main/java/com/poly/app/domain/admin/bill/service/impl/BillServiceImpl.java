@@ -43,6 +43,7 @@ import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.PayMentBillStatus;
 import com.poly.app.infrastructure.constant.PaymentMethodEnum;
 import com.poly.app.infrastructure.constant.PaymentMethodsType;
+import com.poly.app.infrastructure.constant.Status;
 import com.poly.app.infrastructure.constant.TypeBill;
 import com.poly.app.infrastructure.constant.VoucherType;
 import com.poly.app.infrastructure.email.Email;
@@ -601,19 +602,28 @@ public class BillServiceImpl implements BillService {
 
     // Để nguyên
     private PaymentMethods createAndSavePaymentMethod(PaymentMethodEnum methodEnum) {
-        PaymentMethods paymentMethods = PaymentMethods.builder()
-                .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
-                .paymentMethod(methodEnum)
-                .build();
-        return paymentMethodsRepository.save(paymentMethods);
+        PaymentMethods paymentMethods = paymentMethodsRepository
+                .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.THANH_TOAN_TRUOC,methodEnum)
+                .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
+                        .paymentMethod(methodEnum)
+                        .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
+                        .status(Status.HOAT_DONG)
+                        .build()));
+
+        return paymentMethods;
     }
 
     private PaymentMethods createAndSavePaymentMethodCOD(PaymentMethodEnum methodEnum) {
-        PaymentMethods paymentMethods = PaymentMethods.builder()
-                .paymentMethodsType(PaymentMethodsType.COD)
-                .paymentMethod(methodEnum)
-                .build();
-        return paymentMethodsRepository.save(paymentMethods);
+
+        PaymentMethods paymentMethods = paymentMethodsRepository
+                .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.COD,methodEnum)
+                .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
+                        .paymentMethod(methodEnum)
+                        .paymentMethodsType(PaymentMethodsType.COD)
+                        .status(Status.HOAT_DONG)
+                        .build()));
+
+        return paymentMethods;
     }
 
     private void savePaymentBill(Bill bill, PaymentMethods paymentMethods,
