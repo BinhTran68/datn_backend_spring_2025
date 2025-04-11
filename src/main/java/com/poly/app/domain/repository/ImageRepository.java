@@ -51,4 +51,7 @@ public interface ImageRepository extends JpaRepository<Image, Integer> {
             nativeQuery = true)
     List<Image> findPublicIdsByProductIdAndColorId(@Param("productId") Integer productId,
                                                     @Param("colorId") Integer colorId);
+
+
+    List<Image> findByProductDetail_Id(Integer productDetailId);
 }

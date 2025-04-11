@@ -232,7 +232,7 @@ public class BillServiceImpl implements BillService {
                 paymentBillRepository.save(paymentBill);
             }
         }
-        bill.setStatus(request.getStatus());
+
         if(request.getStatus() == BillStatus.DA_THANH_TOAN) {
             PaymentBill paymentBill = paymentBillRepository.findDistinctFirstByBill(bill);
             paymentBill.setTotalMoney(bill.getMoneyAfter());
@@ -240,7 +240,7 @@ public class BillServiceImpl implements BillService {
             paymentBillRepository.save(paymentBill);
         }
 
-        if (bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+        if (request.getStatus() == BillStatus.DA_XAC_NHAN) {
             // Trừ số lượng sản phẩm khi xác nhận
             // Xử lí trừ số lượng san phẩm
             List<BillDetail> billDetails = billDetailRepository.findByBill(bill);
@@ -255,8 +255,17 @@ public class BillServiceImpl implements BillService {
                 productDetailRepository.save(productDetail);
             }
 
+            if (request.getStatus() == BillStatus.DA_HUY && bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+                List<BillDetail> billDetailsRollBack = billDetailRepository.findByBill(bill);
+                for (BillDetail billDetail : billDetailsRollBack) {
+                    ProductDetail productDetail = billDetail.getProductDetail();
+                    // Hoàn lại số lượng
+                    productDetail.setQuantity(productDetail.getQuantity() + billDetail.getQuantity());
+                    productDetailRepository.save(productDetail);
+                }
+            }
 
-
+            bill.setStatus(request.getStatus());
             // Kiểm tra -> trừ số lượng voucher
 
 //            // Bởi vì có trường hợp voucher

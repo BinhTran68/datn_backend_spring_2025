@@ -1,10 +1,17 @@
 package com.poly.app.domain.admin.product.response.productdetail;
 import com.poly.app.domain.client.response.PromotionResponse;
+import com.poly.app.domain.model.Image;
+import com.poly.app.domain.repository.ImageRepository;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
+@Slf4j
 @Getter
 @Setter
 @Builder
@@ -26,11 +33,16 @@ public class FilterProductDetailWithPromotionDTO {
     private String status;
     private String updatedAt;
     private String updatedBy;
-    private String image;
+    List<Image> image;
     private PromotionResponse promotionResponse; // client
 
+
     // Constructor nhận từ interface
-    public static FilterProductDetailWithPromotionDTO fromEntity(FilterProductDetailResponse response, PromotionResponse promotionResponse) {
+    public static FilterProductDetailWithPromotionDTO fromEntity(FilterProductDetailResponse response,
+
+                                                                 PromotionResponse promotionResponse,     List<Image> image) {
+        log.info("FilterProductDetailWithPromotionDTO fromEntity {}", response.getImage());
+
         return FilterProductDetailWithPromotionDTO.builder()
                 .id(response.getId())
                 .code(response.getCode())
@@ -49,7 +61,7 @@ public class FilterProductDetailWithPromotionDTO {
                 .status(response.getStatus())
                 .updatedAt(response.getUpdatedAt())
                 .updatedBy(response.getUpdatedBy())
-                .image(response.getImage())
+                .image(image)
                 .promotionResponse(promotionResponse)
                 .build();
     }

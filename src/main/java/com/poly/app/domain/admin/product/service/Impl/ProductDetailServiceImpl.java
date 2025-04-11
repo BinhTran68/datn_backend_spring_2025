@@ -502,7 +502,8 @@ log.info(productDetails.toString());
                             List<com.poly.app.domain.client.response.PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(filterProductDetailResponse.getId());
                             com.poly.app.domain.client.response.PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(com.poly.app.domain.client.response.PromotionResponse::getDiscountValue))
                                     .orElse(null);
-                            return     FilterProductDetailWithPromotionDTO.fromEntity(filterProductDetailResponse, maxPromotion);
+                            List<Image> images = imageRepository.findByProductDetail_Id(filterProductDetailResponse.getId());
+                            return     FilterProductDetailWithPromotionDTO.fromEntity(filterProductDetailResponse, maxPromotion, images);
                         }
 
                     ).collect(Collectors.toList());

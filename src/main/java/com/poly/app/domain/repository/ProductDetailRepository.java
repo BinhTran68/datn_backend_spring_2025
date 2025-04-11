@@ -204,12 +204,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetail, In
     @Query("SELECT p FROM Product p WHERE p.id = :id")
     Optional<ProductDetail> findByIdWithLock(@Param("id") String id);
 
-    // Query để lấy sản phẩm có số lượng available
-    @Query("SELECT p FROM ProductDetail p WHERE p.id = :id AND (p.quantity - p.holdQuantity) >= :requiredQuantity")
-    Optional<ProductDetail> findByIdAndAvailableQuantity(
-            @Param("id") String id,
-            @Param("requiredQuantity") Integer requiredQuantity
-    );
+
 
     //Em tú làm
     @Query("SELECT new com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse" +
