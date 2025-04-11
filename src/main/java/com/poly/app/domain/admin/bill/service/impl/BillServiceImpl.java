@@ -15,6 +15,7 @@ import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequ
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.staff.response.AddressReponse;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
+import com.poly.app.domain.admin.voucher.service.VoucherService;
 import com.poly.app.domain.auth.service.AuthenticationService;
 import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Bill;
@@ -353,6 +354,11 @@ public class BillServiceImpl implements BillService {
             if (voucher != null) {
                 voucher.setQuantity(voucher.getQuantity() - 1);
                 voucherRepository.save(voucher);
+                if (voucher.getVoucherType() == VoucherType.PRIVATE) {
+                    CustomerVoucher customerVoucher = customerVoucherRepository.findCustomerVouchersByVoucherAndCustomer_Id(voucher, request.getCustomerId());
+                    customerVoucher.setQuantity(customerVoucher.getQuantity() - 1);
+                    customerVoucherRepository.save(customerVoucher);
+                }
             }
         }
         Address address = null;
@@ -379,11 +385,9 @@ public class BillServiceImpl implements BillService {
             if (request.getIsFreeShip() != null && request.getIsFreeShip()) {
                 shippingFee = (double) 0;
             }
-
         }  else {
             shippingFee = (double) 0;
         }
-
 
         Bill bill = Bill
                 .builder()
@@ -566,9 +570,13 @@ public class BillServiceImpl implements BillService {
         List<CustomerVoucher> customerVouchers = Optional.ofNullable(
                 customerVoucherRepository.findCustomerVouchersByCustomerId(customerId)
         ).orElse(List.of()); // Nếu null thì trả về danh sách rỗng tránh NullPointerException
-
+        //
         List<Voucher> validVouchers = customerVouchers.stream()
-                .map(CustomerVoucher::getVoucher)
+                .map((customerVoucher -> {
+                    Voucher voucher =  customerVoucher.getVoucher();
+                    voucher.setQuantity(customerVoucher.getQuantity());
+                    return voucher;
+                }))
                 .filter(voucher -> voucher.getQuantity() > 0)
                 .filter(voucher -> voucher.getStartDate().isBefore(LocalDateTime.now()) || voucher.getStartDate().isEqual(LocalDateTime.now()))
                 .filter(voucher -> voucher.getEndDate().isAfter(LocalDateTime.now()) || voucher.getEndDate().isEqual(LocalDateTime.now()))
@@ -576,13 +584,13 @@ public class BillServiceImpl implements BillService {
                 .collect(Collectors.toList());
 
         List<VoucherReponse> voucherReponses = validVouchers.stream()
-                .map(VoucherReponse::formEntity)
+                .map(voucher ->
+                        VoucherReponse.formEntity(voucher))
                 .collect(Collectors.toList());
 
         List<VoucherReponse> voucherReponsePublic = Optional.ofNullable(
                 getAllVoucherResponse()
         ).orElse(List.of()); // Xử lý trường hợp billService trả về null
-
         // Hợp hai danh sách
         List<VoucherReponse> mergedVouchers = new ArrayList<>(voucherReponses);
         mergedVouchers.addAll(voucherReponsePublic);

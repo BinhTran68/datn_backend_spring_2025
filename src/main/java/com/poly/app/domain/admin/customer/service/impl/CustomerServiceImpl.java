@@ -258,6 +258,7 @@ import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.repository.AddressRepository;
 import com.poly.app.domain.repository.CustomerRepository;
+import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.infrastructure.constant.AccountStatus;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
@@ -291,6 +292,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private EmailSender emailSender;
+    @Autowired
+    private StaffRepository staffRepository;
 
     @Override
     public CustomerResponse createCustomer(CustomerRequest customerRequest) {
@@ -301,6 +304,9 @@ public class CustomerServiceImpl implements CustomerService {
             if (customerRepository.existsCustomersByPhoneNumber(customerRequest.getPhoneNumber())) {
                 throw new RestApiException( "Số điện thoại đã tồn tại", HttpStatus.BAD_REQUEST);
             }
+        }
+        if (staffRepository.findByEmail(customerRequest.getEmail()) != null) {
+            throw new RestApiException( "Email đã tồn tại", HttpStatus.BAD_REQUEST);
         }
         Customer customer = new Customer();
         customer.setFullName(customerRequest.getFullName());

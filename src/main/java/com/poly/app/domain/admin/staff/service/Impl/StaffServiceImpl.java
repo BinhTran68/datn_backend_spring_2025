@@ -10,6 +10,7 @@ import com.poly.app.domain.model.Address;
 import com.poly.app.domain.model.Role;
 import com.poly.app.domain.model.Staff;
 import com.poly.app.domain.repository.AddressRepository;
+import com.poly.app.domain.repository.CustomerRepository;
 import com.poly.app.domain.repository.RoleRepository;
 import com.poly.app.domain.repository.StaffRepository;
 import com.poly.app.infrastructure.email.Email;
@@ -47,6 +48,8 @@ public class StaffServiceImpl implements StaffService {
     private RoleRepository roleRepository;
     @Autowired
     private AuthenticationService authenticationService;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Override
 
@@ -61,6 +64,10 @@ public class StaffServiceImpl implements StaffService {
 
         if (staffExitStaff != null) {
             throw new RestApiException("Căn cước đã tồn tại!", HttpStatus.BAD_REQUEST);
+        }
+
+        if (customerRepository.findByEmail(staffRequest.getEmail()) != null) {
+            throw new RestApiException( "Email đã tồn tại", HttpStatus.BAD_REQUEST);
         }
 
         Staff staff = new Staff();

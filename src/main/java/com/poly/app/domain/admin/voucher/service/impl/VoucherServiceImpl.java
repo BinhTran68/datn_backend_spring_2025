@@ -96,7 +96,7 @@ public class VoucherServiceImpl implements VoucherService {
                 Customer customer = customerService.getEntityCustomerByEmail(emailKH);
                 CustomerVoucher customerVoucher = CustomerVoucher.builder()
                         .customer(customer)
-                        .quantity(request.getQuantity())
+                        .quantity(1)
                         .voucher(voucher).build();
                 customerVoucherRepository.save(customerVoucher);
 
@@ -390,8 +390,13 @@ public class VoucherServiceImpl implements VoucherService {
                 customerVoucherRepository.findCustomerVouchersByCustomerId(customerId)
         ).orElse(List.of()); // Nếu null thì trả về danh sách rỗng tránh NullPointerException
 
+        //
         List<Voucher> validVouchers = customerVouchers.stream()
-                .map(CustomerVoucher::getVoucher)
+                .map((customerVoucher -> {
+                    Voucher voucher =  customerVoucher.getVoucher();
+                    voucher.setQuantity(customerVoucher.getQuantity());
+                    return voucher;
+                }))
                 .filter(voucher -> voucher.getQuantity() > 0)
                 .filter(voucher -> voucher.getStartDate().isBefore(LocalDateTime.now()) || voucher.getStartDate().isEqual(LocalDateTime.now()))
                 .filter(voucher -> voucher.getEndDate().isAfter(LocalDateTime.now()) || voucher.getEndDate().isEqual(LocalDateTime.now()))
@@ -399,7 +404,8 @@ public class VoucherServiceImpl implements VoucherService {
                 .collect(Collectors.toList());
 
         List<VoucherReponse> voucherReponses = validVouchers.stream()
-                .map(VoucherReponse::formEntity)
+                .map(voucher ->
+                        VoucherReponse.formEntity(voucher))
                 .collect(Collectors.toList());
 
         List<VoucherReponse> voucherReponsePublic = Optional.ofNullable(

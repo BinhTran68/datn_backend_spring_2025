@@ -25,4 +25,7 @@ public interface CustomerVoucherRepository extends JpaRepository<CustomerVoucher
 
     List<CustomerVoucher> findCustomerVouchersByCustomerId(Integer customerId);
 
+
+    CustomerVoucher findCustomerVouchersByVoucherAndCustomer_Id(Voucher voucher, Integer customerId);
+
 }

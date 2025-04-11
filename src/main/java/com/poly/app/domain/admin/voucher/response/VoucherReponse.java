@@ -40,6 +40,7 @@ public class VoucherReponse {
         if (voucher == null) {
             return null;
         }
+
         return VoucherReponse.builder()
                 .id(voucher.getId())
                 .voucherCode(voucher.getVoucherCode())

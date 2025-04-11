@@ -129,6 +129,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public Boolean register(RegisterRequest request) {
+        if (staffRepository.findByEmail(request.getEmail()) != null) {
+            throw new RestApiException( "Email đã tồn tại", HttpStatus.BAD_REQUEST);
+        }
+
         boolean existsCustomerByEmail = customerRepository.existsCustomerByEmail(request.getEmail());
         if (existsCustomerByEmail) {
             throw new ApiException(ErrorCode.ACCOUNT_EMAIL_EXISTED);
