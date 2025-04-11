@@ -49,4 +49,7 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 
     Page<Voucher> findAll(Specification<Voucher> spec, Pageable pageable);
     Voucher findVoucherByVoucherCode(String voucherCode);
+
+
+    List<Voucher> findByEndDateBeforeAndStatusVoucherNot(LocalDateTime date, StatusEnum status);
 }

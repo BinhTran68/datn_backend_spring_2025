@@ -28,5 +28,5 @@ public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
     Page<Promotion> findAll(Specification<Promotion> spec, Pageable pageable);
 
 
-
+    List<Promotion> findByEndDateBeforeAndStatusPromotionNot(LocalDateTime today, StatusEnum statusPromotion);
 }

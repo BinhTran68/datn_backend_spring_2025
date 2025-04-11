@@ -226,7 +226,7 @@ public class GenHoaDon {
             totalcell.setHorizontalAlignment(Element.ALIGN_LEFT);
             totalcell.setBorder(Rectangle.NO_BORDER);
             invoiceTable3.addCell(totalcell);
-            PdfPCell totalcell2 = new PdfPCell(new Paragraph(decimalFormat.format(bill.getTotalMoney() != null ? bill.getTotalMoney().longValue() : 0), headerFont));
+            PdfPCell totalcell2 = new PdfPCell(new Paragraph(decimalFormat.format(bill.getMoneyBeforeDiscount() != null ? bill.getMoneyBeforeDiscount().longValue() : 0), headerFont));
             totalcell2.setHorizontalAlignment(Element.ALIGN_RIGHT);
             totalcell2.setBorder(Rectangle.NO_BORDER);
             invoiceTable3.addCell(totalcell2);
