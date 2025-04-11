@@ -141,7 +141,7 @@ public class BillServiceImpl implements BillService {
     ) {
         Sort sort = null;
         if (statusBill == BillStatus.CHO_XAC_NHAN) {
-            sort = Sort.by(Sort.Direction.DESC, "createdAt");
+            sort = Sort.by(Sort.Direction.ASC, "createdAt");
         } else {
             sort = Sort.by(Sort.Direction.DESC, "createdAt");
         }
@@ -205,13 +205,10 @@ public class BillServiceImpl implements BillService {
         if (bill == null) {
             throw new ApiException(ErrorCode.HOA_DON_NOT_FOUND);
         }
-        if(request.getStatus() == BillStatus.DA_HUY) {
-            // Kiểm tra đã thanh toán chưa. Nếu đã thanh toán thì tạo ra 1 payment hoàn tiện
-            Boolean  isPayment = billHistoryRepository.existsByBillAndStatusDaThanhToan(bill);
-            log.info("isPayment = " + isPayment);
-            if(isPayment) {
-                // Nếu đã thanh toán thì tạo ra 1 hàm hoàn tiề
-                // n
+        if (request.getStatus() == BillStatus.DA_HUY && bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+            // Kiểm tra đã thanh toán chưa. Nếu đã thanh toán thì tạo ra 1 payment hoàn tiền
+            Boolean isPayment = billHistoryRepository.existsByBillAndStatusDaThanhToan(bill);
+            if (isPayment) {
                 PaymentMethods paymentMethods = PaymentMethods
                         .builder()
                         .paymentMethod(request.getPaymentMethodEnum())
@@ -228,8 +225,15 @@ public class BillServiceImpl implements BillService {
                         .totalMoney(bill.getTotalMoney())
                         .transactionCode(request.getTransactionCode())
                         .build();
-
                 paymentBillRepository.save(paymentBill);
+            }
+
+            // Hoàn lại số lượng sản phẩm
+            List<BillDetail> billDetailsRollBack = billDetailRepository.findByBill(bill);
+            for (BillDetail billDetail : billDetailsRollBack) {
+                ProductDetail productDetail = billDetail.getProductDetail();
+                productDetail.setQuantity(productDetail.getQuantity() + billDetail.getQuantity());
+                productDetailRepository.save(productDetail);
             }
         }
 
@@ -255,37 +259,19 @@ public class BillServiceImpl implements BillService {
                 productDetailRepository.save(productDetail);
             }
 
-            if (request.getStatus() == BillStatus.DA_HUY && bill.getStatus() == BillStatus.DA_XAC_NHAN) {
-                List<BillDetail> billDetailsRollBack = billDetailRepository.findByBill(bill);
-                for (BillDetail billDetail : billDetailsRollBack) {
-                    ProductDetail productDetail = billDetail.getProductDetail();
-                    // Hoàn lại số lượng
-                    productDetail.setQuantity(productDetail.getQuantity() + billDetail.getQuantity());
-                    productDetailRepository.save(productDetail);
-                }
-            }
-
-            bill.setStatus(request.getStatus());
-            // Kiểm tra -> trừ số lượng voucher
-
-//            // Bởi vì có trường hợp voucher
-//            Voucher voucher = bill.getVoucher();
-//            if(voucher != null) {
-//                voucher.setQuantity(voucher.getQuantity() - 1);
-//            }
-
 
 
             sendMailUpdateSanPhamAsync(bill.getEmail(), bill,
                     "Trạng thái đơn hàng",
                     "Đơn hàng của bạn đã được xác nhận");
         }
-        if (bill.getStatus() == BillStatus.DANG_VAN_CHUYEN) {
+        if (request.getStatus() == BillStatus.DANG_VAN_CHUYEN) {
             sendMailUpdateSanPhamAsync(bill.getEmail(), bill,
                     "Trạng thái đơn hàng",
                     "Đơn hàng của bạn đã được giao cho đơn vị vận chuyển");
         }
 
+        bill.setStatus(request.getStatus());
         Bill billUpdate = billRepository.save(bill);
 
         BillHistory billHistory = BillHistory.builder()
@@ -387,8 +373,6 @@ public class BillServiceImpl implements BillService {
                     .build();
             address = addressRepository.save(newAddress);
         }
-        log.info("Bill");
-
         Double shippingFee = request.getShippingFee();
         if(shippingFee != null) {
             shippingFee = request.getShippingFee();
@@ -427,7 +411,7 @@ public class BillServiceImpl implements BillService {
             if (request.getIsCOD()) {
                 bill.setStatus(BillStatus.DA_XAC_NHAN);
             } else {
-                bill.setStatus(BillStatus.CHO_XAC_NHAN);
+                bill.setStatus(BillStatus.DA_XAC_NHAN);
             }
         } else {
             bill.setStatus(BillStatus.DA_HOAN_THANH);
@@ -537,7 +521,7 @@ public class BillServiceImpl implements BillService {
                     .customer(customer)
                     .staff(staff)
                     .bill(billSave)
-                    .status(BillStatus.CHO_XAC_NHAN)
+                    .status(BillStatus.DA_XAC_NHAN)
                     .build();
         } else {
             billHistory_2 = BillHistory

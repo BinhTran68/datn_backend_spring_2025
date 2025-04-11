@@ -72,11 +72,25 @@ public class GenHoaDon {
 
             // Đặt vị trí và kích thước mới cho ảnh
 
+
+
             img.setAbsolutePosition(30, 750);
             img.scaleAbsolute(newWidth, newHeight);
 
             // Thêm ảnh vào tài liệu
             document.add(img);
+
+            // Tạo mã QR Code và thêm vào tài liệu
+            String qrContent = "Mã hóa đơn: " + bill.getBillCode() + 
+                              "\nNgày tạo: " + DateUtil.converDateTimeString(bill.getCreatedAt()) + 
+                              "\nTổng tiền: " + (bill.getMoneyAfter() != null ? bill.getMoneyAfter().longValue() :
+                              (bill.getTotalMoney() != null ? bill.getTotalMoney().longValue() : 0));
+            
+            BarcodeQRCode qrcode = new BarcodeQRCode(qrContent, 1, 1, null);
+            Image qrcodeImage = qrcode.getImage();
+            qrcodeImage.scaleAbsolute(newWidth, newWidth);  // Sử dụng cùng kích thước với logo
+            qrcodeImage.setAbsolutePosition(pageWidth - 30 - newWidth, 750); // Đặt đối xứng với logo
+            document.add(qrcodeImage);
 
             // Đầu trang: F-Shoes, Số điện thoại, Email, Địa chỉ, QR Code
             Paragraph fShoes = new Paragraph("The Hands", titleFont);
@@ -93,13 +107,6 @@ public class GenHoaDon {
             document.add(contactInfo);
             document.add(contactInfo2);
             document.add(contactInfo3);
-
-            // Tạo mã QR Code và thêm vào tài liệu
-//            BarcodeQRCode qrcode = new BarcodeQRCode(bill.getCode(), 1, 1, null);
-//            Image qrcodeImage = qrcode.getImage();
-//            qrcodeImage.scaleAbsolute(100, 100);  // Điều chỉnh kích thước của mã QR Code
-//            qrcodeImage.setAbsolutePosition(30, 710);
-//            document.add(qrcodeImage);
 
             // Thêm dòng trống
             document.add(new Paragraph(""));
@@ -129,22 +136,22 @@ public class GenHoaDon {
             cell1.setHorizontalAlignment(Element.ALIGN_RIGHT);
             cell1.setBorder(Rectangle.NO_BORDER);
             invoiceTable.addCell(cell1);
-            PdfPCell cell4 = new PdfPCell(new Paragraph("Địa chỉ nhận hàng: " +
-                    (bill.getTypeBill() == TypeBill.OFFLINE ? "Tại cửa hàng" : bill.getShippingAddress()), normalFont));
-            cell4.setHorizontalAlignment(Element.ALIGN_LEFT);
-            cell4.setBorder(Rectangle.NO_BORDER);
-            invoiceTable.addCell(cell4);
+//            PdfPCell cell4 = new PdfPCell(new Paragraph("Địa chỉ nhận hàng: " +
+//                    (bill.getTypeBill() == TypeBill.OFFLINE ? "Tại cửa hàng" : bill.getShippingAddress()), normalFont));
+//            cell4.setHorizontalAlignment(Element.ALIGN_LEFT);
+//            cell4.setBorder(Rectangle.NO_BORDER);
+//            invoiceTable.addCell(cell4);
 
             PdfPCell cell2 = new PdfPCell(new Paragraph("Ngày tạo: " + DateUtil.converDateTimeString(bill.getCreatedAt()), normalFont));
-            cell2.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            cell2.setHorizontalAlignment(Element.ALIGN_LEFT);
             cell2.setBorder(Rectangle.NO_BORDER);
             invoiceTable.addCell(cell2);
 
-            PdfPCell cell5 = new PdfPCell(new Paragraph("Nhân viên: " +
-                    (bill.getStaff() != null ? bill.getStaff().getFullName() : "Nhân viên"), normalFont));
-            cell5.setHorizontalAlignment(Element.ALIGN_LEFT);
-            cell5.setBorder(Rectangle.NO_BORDER);
-            invoiceTable.addCell(cell5);
+//            PdfPCell cell5 = new PdfPCell(new Paragraph("Nhân viên: " +
+//                    (bill.getStaff() != null ? bill.getStaff().getFullName() : "Nhân viên"), normalFont));
+//            cell5.setHorizontalAlignment(Element.ALIGN_LEFT);
+//            cell5.setBorder(Rectangle.NO_BORDER);
+//            invoiceTable.addCell(cell5);
 
             PdfPCell cell6 = new PdfPCell(new Paragraph("Trạng thái: " + 
                 (bill.getStatus() == BillStatus.DA_HOAN_THANH ? "Hoàn thành" :
@@ -198,7 +205,10 @@ public class GenHoaDon {
                 table.addCell(decimalFormat.format(billDetail.getPrice()));
                 table.addCell(decimalFormat.format(billDetail.getPrice() * billDetail.getQuantity()));
                 table.addCell(bill.getStatus() == BillStatus.DA_HOAN_THANH ? "Hoàn thành" :
-                            bill.getStatus() == BillStatus.CHO_XAC_NHAN ? "Chờ xử lý" :
+                            bill.getStatus() == BillStatus.CHO_XAC_NHAN ? "Chờ xác nhận" :
+                            bill.getStatus() == BillStatus.DA_THANH_TOAN ? "Đã thanh toán" :
+                            bill.getStatus() == BillStatus.CHO_VAN_CHUYEN ? "Chờ vận chuyển" :
+                            bill.getStatus() == BillStatus.DANG_VAN_CHUYEN ? "Đang vận chuyển" :
                             bill.getStatus() == BillStatus.DA_HUY ? "Đã hủy" : "Đang xử lý");
 
                 sttCounter++;
@@ -242,7 +252,8 @@ public class GenHoaDon {
             totalcell5.setBorder(Rectangle.NO_BORDER);
             invoiceTable3.addCell(totalcell5);
             if (bill.getShipMoney() != null) {
-                PdfPCell totalcell6 = new PdfPCell(new Paragraph(decimalFormat.format(bill.getShipMoney().longValue()), headerFont));
+                PdfPCell totalcell6 =
+                        new PdfPCell(new Paragraph(decimalFormat.format(bill.getIsFreeShip() ? 0 :bill.getShipMoney().longValue()), headerFont));
                 totalcell6.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 totalcell6.setBorder(Rectangle.NO_BORDER);
                 invoiceTable3.addCell(totalcell6);

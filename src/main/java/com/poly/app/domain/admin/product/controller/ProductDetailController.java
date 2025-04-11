@@ -88,6 +88,7 @@ public class ProductDetailController {
                                                              @RequestParam(value = "name", defaultValue = "") String productDetailName) {
 
         Page<ProductDetailResponse> page1 = productDetailService.findByName(page - 1, size, productDetailName);
+
         return ApiResponse.<List<ProductDetailResponse>>builder()
                 .message("find product detail page")
                 .data(page1.getContent())

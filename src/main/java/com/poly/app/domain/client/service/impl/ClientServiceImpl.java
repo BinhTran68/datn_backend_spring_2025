@@ -616,12 +616,12 @@ public class ClientServiceImpl implements ClientService {
                     billDetails.stream()
                             .map(item -> new BillDetailResponse(item.getId(), item.getQuantity(), item.getPrice(), item.getImage()))
                             .collect(Collectors.toList());
-            PaymentBill paymentBill = paymentBillRepository.findByBillId(b.getId());
-            PaymentMethods paymentMethods = null;
-            if (paymentBill != null) {
-                paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
-
-            }
+//            PaymentBill paymentBill = paymentBillRepository.findByBillId(b.getId());
+//            PaymentMethods paymentMethods = null;
+//            if (paymentBill != null) {
+//                paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
+//
+//            }
             String voucherCode = "";
             if (b.getVoucher() != null) voucherCode = b.getBillCode();
             SearchStatusBillResponse searchStatusBillResponse = SearchStatusBillResponse.builder()
@@ -638,7 +638,7 @@ public class ClientServiceImpl implements ClientService {
                     .typeBill(b.getTypeBill())
                     .notes(b.getNotes())
                     .status(b.getStatus())
-                    .payment(paymentMethods.getPaymentMethod() != null ? paymentMethods.getPaymentMethod().name() : "")
+//                    .payment(paymentMethods.getPaymentMethod() != null ? paymentMethods.getPaymentMethod().name() : "")
                     .voucher(voucherCode)
                     .addressRequest(b.getShippingAddress() !=null? AddressRequest.builder()
                             .provinceId(b.getShippingAddress().getProvinceId())

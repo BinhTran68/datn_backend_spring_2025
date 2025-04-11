@@ -351,6 +351,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     public ProductDetailResponse getProductDetail(int id) {
         ProductDetail productDetail = productDetailRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko ton tai"));
         List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
+
+        List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+        Optional<PromotionResponse> maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue));
+
         return ProductDetailResponse.builder()
                 .id(productDetail.getId())
                 .code(productDetail.getCode())
@@ -369,6 +373,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .status(productDetail.getStatus())
                 .updateAt(productDetail.getUpdatedAt())
                 .updateBy(productDetail.getUpdatedBy())
+                .promotionResponse(maxPromotion.orElse(null))
+
                 .image(images)
                 .build();
     }
@@ -424,15 +430,27 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     @Override
     public Page<ProductDetailResponse> findByName(int page, int size, String productName) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDetailResponse> productDetails = productDetailRepository.findByName(String.format("%%%s%%", productName), pageable);
-        // Gán danh sách ảnh cho từng sản phẩm
+        Page<ProductDetailResponse> productDetails = productDetailRepository.findByName(
+                String.format("%%%s%%", productName), pageable);
+
+        // Duyệt qua từng ProductDetailResponse trong Page
         productDetails.forEach(pd -> {
+            // Gán danh sách ảnh
             List<ImgResponse> images = imageRepository.findByProductDetailId(pd.getId());
             pd.setImage(images);
+
+            // Tìm promotion có discount cao nhất
+            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(pd.getId());
+            PromotionResponse maxPromotion = promotionResponses.stream()
+                    .max(Comparator.comparing(PromotionResponse::getDiscountValue))
+                    .orElse(null);
+            pd.setPromotionResponse(maxPromotion); // Nhớ thêm setPromotion trong ProductDetailResponse
         });
-log.info(productDetails.toString());
+
+        log.info(productDetails.toString());
         return productDetails;
     }
+
 
     @Override
     public List<ProductDetailResponse> getAllProductDetailExportData() {
