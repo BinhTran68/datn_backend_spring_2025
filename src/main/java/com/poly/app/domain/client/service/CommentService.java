@@ -9,6 +9,8 @@ import com.poly.app.domain.repository.CommentsRepository;
 import com.poly.app.domain.repository.CustomerRepository;
 import com.poly.app.domain.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -213,9 +215,28 @@ public class CommentService {
     }
 
     // Lấy tất cả bình luận
-    public List<CommentDTO> getAllComments() {
-        return commentsRepository.findAllByOrderByCreatedAtAsc()
-                .stream()
+//    public List<CommentDTO> getAllComments() {
+//        return commentsRepository.findAllByOrderByCreatedAtAsc()
+//                .stream()
+//                .map(comment -> new CommentDTO(
+//                        comment.getId(),
+//                        comment.getCustomer() != null ? comment.getCustomer().getId() : null,
+//                        comment.getCustomer() != null ? comment.getCustomer().getFullName() : "Trả lời từ người bán",
+//                        comment.getComment(),
+//                        comment.getCreatedAt(),
+//                        comment.getUpdatedAt(),
+//                        comment.getCustomer() != null ? comment.getCustomer().getEmail() : "admin@poly.app",
+//                        comment.getProduct() != null ? comment.getProduct().getProductName() : "Unknown Product",
+//                        comment.getProduct() != null ? comment.getProduct().getId() : null,
+//                        comment.getRate(),
+//                        comment.getCustomer() != null ? comment.getCustomer().getAvatar() : null,
+//                        comment.getAdminReply(),
+//                        comment.getParentId()
+//                ))
+//                .collect(Collectors.toList());
+//    }
+    public Page<CommentDTO> getAllComments(Pageable pageable) {
+        return commentsRepository.findAll(pageable)
                 .map(comment -> new CommentDTO(
                         comment.getId(),
                         comment.getCustomer() != null ? comment.getCustomer().getId() : null,
@@ -230,30 +251,11 @@ public class CommentService {
                         comment.getCustomer() != null ? comment.getCustomer().getAvatar() : null,
                         comment.getAdminReply(),
                         comment.getParentId()
-                ))
-                .collect(Collectors.toList());
+                ));
     }
 
+
     //Tìm kiếm
-//public List<CommentDTO> searchCommentsByProductNameAndCreatedAt(String productName, Long createdAt) {
-//    List<Comments> comments = commentsRepository.findByProductNameAndCreatedAtAfter(productName, createdAt);
-//
-//    return comments.stream().map(comment -> new CommentDTO(
-//            comment.getId(),
-//            comment.getCustomer() != null ? comment.getCustomer().getId() : null,
-//            comment.getCustomer() != null ? comment.getCustomer().getFullName() : "Trả lời từ người bán",
-//            comment.getComment(),
-//            comment.getCreatedAt(),
-//            comment.getUpdatedAt(),
-//            comment.getCustomer() != null ? comment.getCustomer().getEmail() : "admin@poly.app",
-//            comment.getProduct() != null ? comment.getProduct().getProductName() : "Unknown Product",
-//            comment.getProduct() != null ? comment.getProduct().getId() : null,
-//            comment.getRate(),
-//            comment.getCustomer() != null ? comment.getCustomer().getAvatar() : null,
-//            comment.getAdminReply(),
-//            comment.getParentId()
-//    )).collect(Collectors.toList());
-//}
     public List<CommentDTO> searchCommentsByProductNameAndCreatedAt(String productName, Long createdAt) {
         Long fromDate = null;
         Long toDate = null;
