@@ -11,6 +11,7 @@ import com.poly.app.domain.model.Voucher;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ClientService {
@@ -74,7 +75,7 @@ public interface ClientService {
                                                    Double maxPrice,
                                                    int page, int size);
 
-    String refund(Integer billId, Integer MoneyRefund, String description) throws Exception;
+    Map<String, Object> refund(Integer billId, Integer MoneyRefund, String description) throws Exception;
     List<ProductDetailDiscountDTO> getDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId);
 
     PromotionView getPromotionView(Integer productId, Integer colorId, Integer genderId);

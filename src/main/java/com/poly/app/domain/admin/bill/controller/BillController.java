@@ -43,7 +43,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +110,7 @@ public class BillController {
             byte[] pdfBytes = Files.readAllBytes(pdfFile.toPath());
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDisposition(ContentDisposition.inline().filename("HoaDon"+billCode+".pdf").build()); // Đặt tên file
+            headers.setContentDisposition(ContentDisposition.inline().filename("HoaDon" + billCode + ".pdf").build()); // Đặt tên file
             pdfFile.delete();
             return ResponseEntity.ok()
                     .headers(headers)
@@ -141,16 +144,18 @@ public class BillController {
             for (RestoreQuantityRequest request : requests) {
                 ProductDetail product = productDetailRepository.findById(request.getId())
                         .orElseThrow(() -> new RuntimeException("Product not found"));
-                if(request.getIsRestoreQuantity()) {
+                if (request.getIsRestoreQuantity()) {
                     product.setQuantity(product.getQuantity() + request.getQuantity());
-                }else {
-                    product.setQuantity( product.getQuantity() - request.getQuantity());
+                } else {
+                    product.setQuantity(product.getQuantity() - request.getQuantity());
                 }
-                     ProductDetail productDetail =    productDetailRepository.save(product);
+                ProductDetail productDetail = productDetailRepository.save(product);
                 ProductDetailResponse productDetailResponse = ProductDetailResponse.fromEntity(productDetail);
                 List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
                 productDetailResponse.setImage(images);
-                List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+
+                    List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(), ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
+
                 Optional<PromotionResponse> maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue));
                 productDetailResponse.setPromotionResponse(maxPromotion.orElse(null));
                 webSocketService.sendProductUpdate(productDetailResponse);

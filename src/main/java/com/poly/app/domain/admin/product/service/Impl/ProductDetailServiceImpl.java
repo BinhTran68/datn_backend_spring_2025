@@ -33,6 +33,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -296,7 +298,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
                 .updateAt(productDetail.getUpdatedAt())
                 .updateBy(productDetail.getUpdatedBy())
                 .build();
-        List<com.poly.app.domain.client.response.PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+        List<com.poly.app.domain.client.response.PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(), ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
         Optional<com.poly.app.domain.client.response.PromotionResponse> maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue));
         productDetailResponse.setPromotionResponse(maxPromotion.orElse(null));
         webSocketService.sendProductUpdate(productDetailResponse);
@@ -352,7 +354,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         ProductDetail productDetail = productDetailRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("id ko ton tai"));
         List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
 
-        List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+        List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(),ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
         Optional<PromotionResponse> maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue));
 
         return ProductDetailResponse.builder()
@@ -440,7 +442,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
             pd.setImage(images);
 
             // Tìm promotion có discount cao nhất
-            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(pd.getId());
+            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(pd.getId(),ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
             PromotionResponse maxPromotion = promotionResponses.stream()
                     .max(Comparator.comparing(PromotionResponse::getDiscountValue))
                     .orElse(null);
@@ -517,7 +519,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         List<FilterProductDetailWithPromotionDTO> filterProductDetailWithPromotionDTOS =
                 list.stream().map(filterProductDetailResponse -> {
 
-                            List<com.poly.app.domain.client.response.PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(filterProductDetailResponse.getId());
+                            List<com.poly.app.domain.client.response.PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(filterProductDetailResponse.getId(),ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
                             com.poly.app.domain.client.response.PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(com.poly.app.domain.client.response.PromotionResponse::getDiscountValue))
                                     .orElse(null);
                             List<Image> images = imageRepository.findByProductDetail_Id(filterProductDetailResponse.getId());

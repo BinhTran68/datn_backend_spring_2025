@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -315,9 +316,10 @@ ProductDetailRepository productDetailRepository;
     ApiResponse<SearchStatusBillResponse> searchBill(
             @RequestParam(required = false) String billCode
     ) {
+//        log.error("sdasdasdasdsadasdasddddddddđ",billCode);
         return ApiResponse.<SearchStatusBillResponse>builder()
                 .message("lấy trạng thái hóa đơn")
-                .data(clientService.searchBill(billCode))
+                .data(clientService.searchBill(billCode.trim()))
                 .build();
     }
     @GetMapping("/veritifybillcode")
@@ -361,13 +363,13 @@ ProductDetailRepository productDetailRepository;
                 .build();
     }
     @GetMapping("/refund")
-    ApiResponse<String> refund(
+    ApiResponse<Map<String, Object>> refund(
             @RequestParam Integer billId,
             @RequestParam Integer moneyRefund,
             @RequestParam String depcription
 
     ) throws Exception {
-        return ApiResponse.<String>builder()
+        return ApiResponse.<     Map<String, Object> >builder()
                 .message("Hủy đơn hàng")
                 .data(clientService.refund(billId,moneyRefund,depcription))
                 .build();

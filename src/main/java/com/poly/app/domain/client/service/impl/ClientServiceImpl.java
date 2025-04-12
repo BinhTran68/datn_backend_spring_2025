@@ -33,6 +33,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,6 +65,7 @@ public class ClientServiceImpl implements ClientService {
     SimpMessagingTemplate messagingTemplate;
     AnnouncementRepository announcementRepository;
     FreeshipOrderRepository freeshipOrderRepository;
+    CustomerVoucherRepository customerVoucherRepository;
 
 
     @Override
@@ -93,7 +97,7 @@ public class ClientServiceImpl implements ClientService {
         try {
             ProductDetailResponse productDetail = productViewRepository.findByProductAndColorAndSize(productId, colorId, sizeId);
             List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
-            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(),ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
             PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue))
                     .orElse(null);
             productDetail.setImage(images);
@@ -142,9 +146,19 @@ public class ClientServiceImpl implements ClientService {
         Voucher voucher = null;
         if (request.getVoucherId() != null) {
             voucher = voucherRepository.findById(request.getVoucherId()).orElse(null);
-//trừ vc
+//trừ voucher
+//            trừ voucher tổng số
             voucher.setQuantity(voucher.getQuantity()-1);
             voucherRepository.save(voucher);
+
+            if (voucher.getVoucherType().equals(VoucherType.PRIVATE) && customer!=null) {
+//                trừ ở prv
+            CustomerVoucher customerVoucher=    customerVoucherRepository.findCustomerVouchersByVoucherAndCustomer_Id(voucher,customer.getId());
+            customerVoucher.setQuantity(customerVoucher.getQuantity()-1);
+            customerVoucherRepository.save(customerVoucher);
+            }
+
+
         }
         Address address = null;
         if (request.getDetailAddressShipping() != null && customer != null) {
@@ -420,14 +434,14 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public VoucherBestResponse voucherBest(String customerId, String billValue) {
-        List<Voucher> vouchers = voucherRepository.findValidVouchers(customerId);
+        List<Voucher> vouchers = voucherRepository.findValidVouchers(customerId,Timestamp.from(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant()));
         VoucherBest voucherBest = new VoucherBest();
         return voucherBest.recommendBestVoucher(Double.valueOf(billValue), vouchers);
     }
 
     @Override
     public List<Voucher> findValidVouchers(String customerId) {
-        return voucherRepository.findValidVouchers(customerId);
+        return voucherRepository.findValidVouchers(customerId,Timestamp.from(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant()));
     }
 
     @Override
@@ -472,7 +486,7 @@ public class ClientServiceImpl implements ClientService {
             ProductDetail productDetail = productDetailRepository.findById(i.getProductDetailId())
                     .orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
 //            tìm promotion
-            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId());
+            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(),ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
             PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue))
                     .orElse(null);
             if (productDetail != null) {
@@ -513,7 +527,7 @@ public class ClientServiceImpl implements ClientService {
                 billDetails.stream()
                         .map(item -> new BillDetailResponse(item.getId(), item.getQuantity(), item.getPrice(), item.getImage()))
                         .collect(Collectors.toList());
-        PaymentBill paymentBill = paymentBillRepository.findByBillId(bill.getId());
+        PaymentBill paymentBill = paymentBillRepository.findByBill(bill).get(0);
         PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
         String voucherCode = "";
         if (bill.getVoucher() != null) voucherCode = bill.getBillCode();
@@ -673,6 +687,8 @@ public class ClientServiceImpl implements ClientService {
 
                     bill.setStatus(BillStatus.DA_HUY);
                     billRepository.save(bill);
+
+
                     billHistoryRepository.save(BillHistory
                             .builder()
                             .customer(bill.getCustomer())
@@ -717,15 +733,28 @@ public class ClientServiceImpl implements ClientService {
                         log.info("" + id);
                         log.info("" + bill.getMoneyAfter());
                         log.info("" + description);
-                        String refund = refundBill(bill.getId(), bill.getMoneyAfter().intValue(), "Hoan tien ");
+                        Map<String, Object>  refund = refundBill(bill.getId(), bill.getMoneyAfter().intValue(), "Hoan tien ");
                         bill.setStatus(BillStatus.DA_HUY);
                         billRepository.save(bill);
-                        paymentBill.setPayMentBillStatus(PayMentBillStatus.DA_HOAN_TIEN);
-                        paymentBillRepository.save(paymentBill);
+
+//                        paymentBill.setPayMentBillStatus(PayMentBillStatus.DA_HOAN_TIEN);
+//                        paymentBillRepository.save(paymentBill);
+//log.warn("sdfkfdsjfldsjfkdsjflsdfjsdlkfjdskfjdslkfjsdfsdfdsfdsfsfdsfdsfdfsdfsd"+refund.toString());
+//                        ghi thêm một bản paymentBill
+                        PaymentBill paymentBillRefund = PaymentBill.builder()
+                                .payMentBillStatus(PayMentBillStatus.DA_HOAN_TIEN)
+                                .bill(bill)
+                                .paymentMethods(paymentBill.getPaymentMethods())
+                                .transactionCode(refund.get("mrefundid").toString())
+                                .totalMoney(bill.getMoneyAfter())
+                                .build();
+                        paymentBillRepository.save(paymentBillRefund);
+
+//                        ghi lịch sử
                         billHistoryRepository.save(BillHistory
                                 .builder()
                                 .customer(bill.getCustomer())
-                                .description("Hủy đơn hàng: " + bill.getBillCode() + "  Lý do: " + description + " mã truy vấn hoàn tiền: " + refund)
+                                .description("Hủy đơn hàng: " + bill.getBillCode() + "  Lý do: " + description + " mã truy vấn hoàn tiền: " + refund.get("mrefundid").toString())
                                 .bill(bill)
                                 .status(BillStatus.DA_HUY)
                                 .build());
@@ -813,7 +842,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public String refund(Integer billId, Integer MoneyRefund, String description) throws Exception {
+    public      Map<String, Object>  refund(Integer billId, Integer MoneyRefund, String description) throws Exception {
         return refundBill(billId, MoneyRefund, description);
     }
 
@@ -965,7 +994,7 @@ public class ClientServiceImpl implements ClientService {
         emailSender.sendEmail(email);
     }
 
-    private String refundBill(Integer billId, Integer moneyRefund, String description) throws Exception {
+    private      Map<String, Object>  refundBill(Integer billId, Integer moneyRefund, String description) throws Exception {
         Bill bill = billRepository.findById(billId).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
         PaymentBill paymentBill = paymentBillRepository.findByBillId(billId);
 //        /lấy status
@@ -973,7 +1002,7 @@ public class ClientServiceImpl implements ClientService {
         log.info("1" + mapStatus.toString());
         Object zptransid = mapStatus.get("zptransid");
         if (!(Integer.valueOf(mapStatus.get("returncode").toString()) >= 1 && zptransid != null))
-            return mapStatus.get("returnmessage").toString();
+            return mapStatus;
 
 //        hoàn tiền
         Map<String, Object> mapRefund = zaloPayService.refund
@@ -981,10 +1010,10 @@ public class ClientServiceImpl implements ClientService {
         Object refund = mapRefund.get("mrefundid");
         log.info("2" + mapRefund.toString());
         if (!(Integer.valueOf(mapStatus.get("returncode").toString()) >= 1 && refund != null)) {
-            return mapRefund.get("returnmessage").toString();
+            return mapRefund;
 
         } else {
-            return mapRefund.get("mrefundid").toString();
+            return mapRefund;
 
         }
 
@@ -998,7 +1027,8 @@ public class ClientServiceImpl implements ClientService {
 //    lấy ra các đượt giảm giá theo productdetail để tìm ra khoảng giá thật sẽ giảm
 
     public List<ProductDetailDiscountDTO> getDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId) {
-        List<Object[]> results = productViewRepository.findDiscountedProductDetails(productId, colorId, genderId);
+        ZonedDateTime vietnamTime = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+        List<Object[]> results = productViewRepository.findDiscountedProductDetails(productId, colorId, genderId,  Timestamp.from(vietnamTime.toInstant()));
 
         // Ánh xạ và lọc
         return results.stream()

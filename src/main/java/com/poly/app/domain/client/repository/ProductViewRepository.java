@@ -13,6 +13,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -228,8 +230,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                    "(pd.promotion.id, pd.productDetail.id, pd.promotion.discountValue, pd.promotion.promotionName) " +
                    "FROM ProductPromotion pd " +
                    "WHERE pd.productDetail.id = :productDetailId " +
-                   "AND FUNCTION('NOW') BETWEEN pd.promotion.startDate AND pd.promotion.endDate")
-    List<PromotionResponse> findPromotionByProductDetailId(@Param("productDetailId") Integer productDetailId);
+                   "AND :currentTime BETWEEN pd.promotion.startDate AND pd.promotion.endDate")
+    List<PromotionResponse> findPromotionByProductDetailId(@Param("productDetailId") Integer productDetailId,@Param("currentTime") LocalDateTime timestamp);
 
 //lọc
 
@@ -319,10 +321,10 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                    "AND prd.id = :productId " +
                    "AND pd.color_id = :colorId " +
                    "AND pd.gender_id = :genderId " +
-                   "AND NOW() BETWEEN p.start_date AND p.end_date " +
+                   "AND :currentTime BETWEEN p.start_date AND p.end_date " +
                    "GROUP BY pd.id, pd.price, pd.color_id, pd.gender_id",
             nativeQuery = true)
-    List<Object[]> findDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId);
+    List<Object[]> findDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId, Timestamp currentTime);
 
     @Query(value = "SELECT \n" +
                    "  EXISTS (\n" +

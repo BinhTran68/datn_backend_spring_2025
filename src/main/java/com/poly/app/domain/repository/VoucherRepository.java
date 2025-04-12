@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,8 +23,8 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
     @Query(value = """
             (SELECT v.* 
             FROM voucher v
-            WHERE v.start_date <= NOW() 
-              AND v.end_date >= NOW() 
+            WHERE v.start_date <= :currentTime 
+              AND v.end_date >= :currentTime 
               AND v.quantity > 0
               AND v.status_voucher = 'dang_kich_hoat'
               AND v.voucher_type = 'PUBLIC')
@@ -33,13 +34,13 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
             (SELECT v.* 
             FROM voucher v
             LEFT JOIN customer_voucher cv ON v.id = cv.voucher_id
-            WHERE v.start_date <= NOW() 
-              AND v.end_date >= NOW() 
-              AND v.quantity > 0
+            WHERE v.start_date <= :currentTime 
+              AND v.end_date >= :currentTime  
+              AND cv.quantity > 0
               AND v.status_voucher = 'dang_kich_hoat'
               AND (:customerId IS NOT NULL AND cv.customer_id = :customerId))
             """, nativeQuery = true)
-    List<Voucher> findValidVouchers(@Param("customerId") String customerId);
+    List<Voucher> findValidVouchers(@Param("customerId") String customerId,@Param("currentTime") Timestamp currentTime);
 
 
 
