@@ -49,7 +49,7 @@ public class ChartService {
     private ChartDTO mapToChartDTO(List<Object[]> results) {
         if (results == null || results.isEmpty() || results.get(0) == null) {
             log.warn("Chart data is empty or null, returning default values.");
-            return new ChartDTO(0, 0, 0, 0, 0, 0, 0, 0);
+            return new ChartDTO(0, 0, 0, 0, 0, 0, 0);
         }
 
         Object[] row = results.get(0);
@@ -60,8 +60,7 @@ public class ChartService {
                 getDoubleValue(row, 3), // dangVanChuyenPercent
                 getDoubleValue(row, 4), // daThanhToanPercent
                 getDoubleValue(row, 5), // daHoanThanhPercent
-                getDoubleValue(row, 6), // daHuyPercent
-                getDoubleValue(row, 7)  // traHangPercent
+                getDoubleValue(row, 6) // daHuyPercent
         );
     }
 
