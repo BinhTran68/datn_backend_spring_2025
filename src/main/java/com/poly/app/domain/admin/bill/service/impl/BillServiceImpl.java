@@ -243,6 +243,8 @@ public class BillServiceImpl implements BillService {
             paymentBill.setTotalMoney(bill.getMoneyAfter());
             paymentBill.setPayMentBillStatus(PayMentBillStatus.DA_THANH_TOAN);
             paymentBillRepository.save(paymentBill);
+
+            bill.setCustomerMoney(bill.getMoneyAfter());
         }
 
         if (request.getStatus() == BillStatus.DA_XAC_NHAN) {
