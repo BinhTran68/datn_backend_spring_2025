@@ -13,11 +13,10 @@ public class ChartDTO {
     private double daThanhToanPercent;
     private double daHoanThanhPercent;
     private double daHuyPercent;
-    private double traHangPercent;
 
     public ChartDTO(double choXacNhanPercent, double daXacNhanPercent, double choVanChuyenPercent,
                     double dangVanChuyenPercent, double daThanhToanPercent, double daHoanThanhPercent,
-                    double daHuyPercent, double traHangPercent) {
+                    double daHuyPercent) {
         this.choXacNhanPercent = choXacNhanPercent;
         this.daXacNhanPercent = daXacNhanPercent;
         this.choVanChuyenPercent = choVanChuyenPercent;
@@ -25,6 +24,5 @@ public class ChartDTO {
         this.daThanhToanPercent = daThanhToanPercent;
         this.daHoanThanhPercent = daHoanThanhPercent;
         this.daHuyPercent = daHuyPercent;
-        this.traHangPercent = traHangPercent;
     }
 }

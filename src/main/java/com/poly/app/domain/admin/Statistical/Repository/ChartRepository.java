@@ -21,8 +21,7 @@ public interface ChartRepository extends JpaRepository<Bill, Integer> {
                     ROUND(SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS dangVanChuyenPercent,
                     ROUND(SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daThanhToanPercent,
                     ROUND(SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHoanThanhPercent,
-                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent,
-                    ROUND(SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS traHangPercent
+                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent
                 FROM bill
                 WHERE DATE(FROM_UNIXTIME(created_at / 1000)) = CURDATE()
             """, nativeQuery = true)
@@ -37,8 +36,7 @@ public interface ChartRepository extends JpaRepository<Bill, Integer> {
                     ROUND(SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS dangVanChuyenPercent,
                     ROUND(SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daThanhToanPercent,
                     ROUND(SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHoanThanhPercent,
-                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent,
-                    ROUND(SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS traHangPercent
+                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent
                 FROM bill
                 WHERE YEARWEEK(FROM_UNIXTIME(created_at / 1000), 1) = YEARWEEK(CURDATE(), 1)
             """, nativeQuery = true)
@@ -53,8 +51,7 @@ public interface ChartRepository extends JpaRepository<Bill, Integer> {
                     ROUND(SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS dangVanChuyenPercent,
                     ROUND(SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daThanhToanPercent,
                     ROUND(SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHoanThanhPercent,
-                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent,
-                    ROUND(SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS traHangPercent
+                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent
                 FROM bill
                 WHERE MONTH(FROM_UNIXTIME(created_at / 1000)) = MONTH(CURDATE()) 
                 AND YEAR(FROM_UNIXTIME(created_at / 1000)) = YEAR(CURDATE())
@@ -70,8 +67,7 @@ public interface ChartRepository extends JpaRepository<Bill, Integer> {
                     ROUND(SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS dangVanChuyenPercent,
                     ROUND(SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daThanhToanPercent,
                     ROUND(SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHoanThanhPercent,
-                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent,
-                    ROUND(SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS traHangPercent
+                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent
                 FROM bill
                 WHERE YEAR(FROM_UNIXTIME(created_at / 1000)) = YEAR(CURDATE())
             """, nativeQuery = true)
@@ -86,8 +82,7 @@ public interface ChartRepository extends JpaRepository<Bill, Integer> {
                     ROUND(SUM(CASE WHEN status = 'DANG_VAN_CHUYEN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS dangVanChuyenPercent,
                     ROUND(SUM(CASE WHEN status = 'DA_THANH_TOAN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daThanhToanPercent,
                     ROUND(SUM(CASE WHEN status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHoanThanhPercent,
-                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent,
-                    ROUND(SUM(CASE WHEN status = 'TRA_HANG' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS traHangPercent
+                    ROUND(SUM(CASE WHEN status = 'DA_HUY' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS daHuyPercent
                 FROM bill
                 WHERE DATE(FROM_UNIXTIME(created_at / 1000)) BETWEEN :startDate AND :endDate
             """, nativeQuery = true)

@@ -9,6 +9,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -67,34 +71,58 @@ public class CommentController {
                 .build();
     }
 
-    @GetMapping("/all")
-    public ApiResponse<List<CommentDTO>> getAllComments(
-            @RequestParam(value = "sortOrder", defaultValue = "desc") String sortOrder) {
+//    @GetMapping("/all")
+//    public ApiResponse<List<CommentDTO>> getAllComments(
+//            @RequestParam(value = "sortOrder", defaultValue = "desc") String sortOrder) {
+//        // Kiểm tra và đặt lại sortOrder hợp lệ
+//        if (!sortOrder.equalsIgnoreCase("asc") && !sortOrder.equalsIgnoreCase("desc")) {
+//            return ApiResponse.<List<CommentDTO>>builder()
+//                    .message("Tham số sortOrder không hợp lệ. Chỉ có thể là 'asc' hoặc 'desc'.")
+//                    .build();
+//        }
+//        // Lấy danh sách bình luận từ service
+//        List<CommentDTO> comments = commentService.getAllComments();
+//
+//        // Sắp xếp bình luận theo thời gian
+//        comments.sort((c1, c2) -> {
+//            if (sortOrder.equalsIgnoreCase("asc")) {
+//                return c1.getCreatedAt().compareTo(c2.getCreatedAt());
+//            } else {
+//                return c2.getCreatedAt().compareTo(c1.getCreatedAt());
+//            }
+//        });
+//        return ApiResponse.<List<CommentDTO>>builder()
+//                .message("Lấy danh sách bình luận thành công")
+//                .data(comments)
+//                .build();
+//    }
+@GetMapping("/all")
+public ApiResponse<Page<CommentDTO>> getAllComments(
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size,
+        @RequestParam(value = "sortOrder", defaultValue = "desc") String sortOrder) {
 
-        // Kiểm tra và đặt lại sortOrder hợp lệ
-        if (!sortOrder.equalsIgnoreCase("asc") && !sortOrder.equalsIgnoreCase("desc")) {
-            return ApiResponse.<List<CommentDTO>>builder()
-                    .message("Tham số sortOrder không hợp lệ. Chỉ có thể là 'asc' hoặc 'desc'.")
-                    .build();
-        }
-
-        // Lấy danh sách bình luận từ service
-        List<CommentDTO> comments = commentService.getAllComments();
-
-        // Sắp xếp bình luận theo thời gian
-        comments.sort((c1, c2) -> {
-            if (sortOrder.equalsIgnoreCase("asc")) {
-                return c1.getCreatedAt().compareTo(c2.getCreatedAt());
-            } else {
-                return c2.getCreatedAt().compareTo(c1.getCreatedAt());
-            }
-        });
-
-        return ApiResponse.<List<CommentDTO>>builder()
-                .message("Lấy danh sách bình luận thành công")
-                .data(comments)
+    // Kiểm tra sortOrder hợp lệ
+    if (!sortOrder.equalsIgnoreCase("asc") && !sortOrder.equalsIgnoreCase("desc")) {
+        return ApiResponse.<Page<CommentDTO>>builder()
+                .message("Tham số sortOrder không hợp lệ. Chỉ có thể là 'asc' hoặc 'desc'.")
                 .build();
     }
+
+    // Tạo Sort object
+    Sort sort = Sort.by(sortOrder.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "createdAt");
+
+    // Tạo Pageable object
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    // Lấy danh sách bình luận phân trang từ service
+    Page<CommentDTO> comments = commentService.getAllComments(pageable);
+
+    return ApiResponse.<Page<CommentDTO>>builder()
+            .message("Lấy danh sách bình luận thành công")
+            .data(comments)
+            .build();
+}
 
     // API lấy tất cả tên sản phẩm từ bình luận
 // API lấy tất cả tên sản phẩm từ bình luận
