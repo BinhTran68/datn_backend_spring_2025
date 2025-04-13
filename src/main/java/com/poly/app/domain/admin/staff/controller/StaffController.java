@@ -134,7 +134,16 @@ public class StaffController {
         staffService.updateLastSeen();
         return ResponseEntity.ok().build();
     }
-
+    @GetMapping("/logout-status/{id}")
+    public ResponseEntity<?> logout(@PathVariable("id") Integer id) {
+        staffService.logoutStatus(id);
+        return ResponseEntity.ok().build();
+    }
+    @GetMapping("/login-status/{id}")   
+    public ResponseEntity<?> login(@PathVariable("id") Integer id) {
+        staffService.loginStatus(id);
+        return ResponseEntity.ok().build();
+    }
 }
 
 

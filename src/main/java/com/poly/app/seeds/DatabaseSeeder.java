@@ -489,11 +489,11 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         Staff staff2 = Staff.builder()
                 .code("STF002")
-                .fullName("Trần Thị B")
+                .fullName("Nhân viên A")
                 .dateBirth(LocalDateTime.now()) // Ngày sinh (dạng timestamp)
                 .citizenId("0987654321")
                 .phoneNumber("0987654321")
-                .email("tranthib@example.com")
+                .email("nhanvien1@example.com")
                 .gender(false) // Nữ
                 .password(passwordEncoder.encode("123456"))
                 .avatar("avatar2.jpg")
