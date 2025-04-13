@@ -11,7 +11,7 @@
     <groupId>com.poly</groupId>
     <artifactId>datn_backend_spring</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>datn_backend_spring</name>
     <description>Project for Spring Boot</description>
     <url/>
