@@ -41,4 +41,6 @@ public interface StaffService {
     void saveEmployeesFromExcel(MultipartFile file) throws IOException;
 
     void updateLastSeen();
+    void logoutStatus(Integer id);
+    void loginStatus(Integer id);
 }

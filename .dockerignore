@@ -1,0 +1,5 @@
+.git
+*.log
+target/*.log
+src/
+pom.xml

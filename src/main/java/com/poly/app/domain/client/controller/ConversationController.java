@@ -2,6 +2,7 @@ package com.poly.app.domain.client.controller;
 
 import com.poly.app.domain.client.request.ConversationRequest;
 import com.poly.app.domain.client.response.LastMesage;
+import com.poly.app.domain.client.response.StaffResponse;
 import com.poly.app.domain.model.Conversation;
 import com.poly.app.domain.model.Customer;
 import com.poly.app.domain.model.Message;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/conversations")
@@ -67,9 +69,19 @@ public class ConversationController {
     }
 
     @GetMapping("/staff")
-    public ResponseEntity<List<Staff>> getAllStaff() {
+    public ResponseEntity<List<StaffResponse>> getAllStaff() {
         List<Staff> staffList = staffRepository.findAll();
-        return ResponseEntity.ok(staffList);
+
+        List<StaffResponse> responseList = staffList.stream()
+                .map(staff -> StaffResponse.builder()
+                        .id(staff.getId())
+                        .fullName(staff.getFullName())
+                        .isOnline(staff.getIsOnline())
+                        .build())
+                .collect(Collectors.toList()); // thêm toList()
+
+        return ResponseEntity.ok(responseList);
     }
+
 }
 

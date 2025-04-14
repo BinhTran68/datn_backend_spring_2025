@@ -283,5 +283,20 @@ public class StaffServiceImpl implements StaffService {
             }
     }
 
+    @Override
+    public void logoutStatus(Integer id) {
+        Staff staff = staffRepository.findById(id).get();
+        staff.setLastSeen(LocalDateTime.now());
+        staff.setIsOnline(false);
+        staffRepository.save(staff);
+    }
+
+    @Override
+    public void loginStatus(Integer id) {
+        Staff staff = staffRepository.findById(id).get();
+        staff.setIsOnline(true);
+        staffRepository.save(staff);
+    }
+
 
 }

@@ -86,6 +86,8 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
         return user.getLastSeen() != null &&
                 user.getLastSeen().isAfter(LocalDateTime.now().minusSeconds(60));
     }
+    @Column
+    private Boolean isOnline;
 
     @ManyToOne
     @JoinColumn(name = "id_role")
