@@ -174,7 +174,7 @@ public class StatisticalController {
 
         ChartDTO chartData = chartService.getChartCustom(startDate, endDate);
         if (chartData == null) {
-            chartData = new ChartDTO(0, 0, 0, 0, 0, 0, 0, 0);
+            chartData = new ChartDTO(0, 0, 0, 0, 0, 0, 0);
         }
         return ApiResponse.<ChartDTO>builder()
                 .data(chartData)

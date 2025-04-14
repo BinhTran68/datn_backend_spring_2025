@@ -68,6 +68,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Autowired
     ImageRepository imageRepository;
 
+    @Autowired
     PaymentMethodsRepository paymentMethodsRepository;
     @Autowired
     PaymentBillRepository paymentBillRepository;

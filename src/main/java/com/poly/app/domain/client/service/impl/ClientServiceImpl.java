@@ -728,7 +728,15 @@ public class ClientServiceImpl implements ClientService {
 
                 }
                 case ZALO_PAY -> {
+
                     try {
+                        PaymentMethods paymentMethod = paymentMethodsRepository
+                                .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.HOAN_TIEN, PaymentMethodEnum.ZALO_PAY)
+                                .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
+                                        .paymentMethod(PaymentMethodEnum.ZALO_PAY)
+                                        .paymentMethodsType(PaymentMethodsType.HOAN_TIEN)
+                                        .status(Status.HOAT_DONG)
+                                        .build()));
                         log.warn("chạy vao đây----------------------");
                         log.info("" + id);
                         log.info("" + bill.getMoneyAfter());
@@ -744,7 +752,7 @@ public class ClientServiceImpl implements ClientService {
                         PaymentBill paymentBillRefund = PaymentBill.builder()
                                 .payMentBillStatus(PayMentBillStatus.DA_HOAN_TIEN)
                                 .bill(bill)
-                                .paymentMethods(paymentBill.getPaymentMethods())
+                                .paymentMethods(paymentMethod)
                                 .transactionCode(refund.get("mrefundid").toString())
                                 .totalMoney(bill.getMoneyAfter())
                                 .build();
