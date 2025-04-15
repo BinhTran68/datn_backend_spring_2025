@@ -307,6 +307,7 @@ public class BillServiceImpl implements BillService {
         newAddress.setSpecificAddress(request.getSpecificAddress());
         newAddress.setWardId(request.getWardId());
         bill.setShippingAddress(newAddress);
+        bill.setShipMoney(request.getFeeShipping());
 
         if (newAddress.getId() == null) {
             addressRepository.save(newAddress);  // Lưu mới nếu chưa có ID
@@ -705,7 +706,7 @@ public class BillServiceImpl implements BillService {
                 .shipDate(bill.getShipDate())
                 .address(bill.getShippingAddress())
                 .addressReponse(addressReponse)
-                .email(bill.getEmail())
+                .email(bill.getEmailOk())
                 .voucherReponse(voucher)
                 .isFreeShip(bill.getIsFreeShip())
                 .status(bill.getStatus() != null ? bill.getStatus().toString() : null)
@@ -743,7 +744,15 @@ public class BillServiceImpl implements BillService {
             bill.setMoneyBeforeDiscount(request.getMoneyBeforeDiscount());
             bill.setDiscountMoney(request.getDiscountMoney());
             bill.setShipMoney(request.getShipMoney());
+            bill.setIsFreeShip(request.getIsFreeShip());
             bill.setVoucher(voucher);
+            if(request.getIsFreeShip() != null && request.getIsFreeShip()) {
+                bill.setIsFreeShip(true);
+                bill.setMoneyAfter(request.getMoneyBeforeDiscount() - request.getDiscountMoney());  // Tiền khach can thanh toan
+            }else {
+                bill.setIsFreeShip(false);
+                bill.setMoneyAfter(request.getMoneyBeforeDiscount() + request.getShipMoney() - request.getDiscountMoney());  // Tiền khach can thanh toan
+            }
 
             // 2️⃣ Ghi lịch sử cập nhật đơn hàng
             BillHistory billHistory = BillHistory
