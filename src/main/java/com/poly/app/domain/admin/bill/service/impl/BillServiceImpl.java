@@ -188,7 +188,7 @@ public class BillServiceImpl implements BillService {
         if (bill == null) {
             throw new ApiException(ErrorCode.HOA_DON_NOT_FOUND);
         }
-        if (request.getStatus() == BillStatus.DA_HUY && bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+        if (request.getStatus() == BillStatus.DA_HUY && (bill.getStatus() == BillStatus.DA_XAC_NHAN || bill.getStatus() == BillStatus.CHO_XAC_NHAN)) {
             // Kiểm tra đã thanh toán chưa. Nếu đã thanh toán thì tạo ra 1 payment hoàn tiền
             Boolean isPayment = billHistoryRepository.existsByBillAndStatusDaThanhToan(bill);
             if (isPayment) {
@@ -212,11 +212,13 @@ public class BillServiceImpl implements BillService {
             }
 
             // Hoàn lại số lượng sản phẩm
-            List<BillDetail> billDetailsRollBack = billDetailRepository.findByBill(bill);
-            for (BillDetail billDetail : billDetailsRollBack) {
-                ProductDetail productDetail = billDetail.getProductDetail();
-                productDetail.setQuantity(productDetail.getQuantity() + billDetail.getQuantity());
-                productDetailRepository.save(productDetail);
+            if(bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+                List<BillDetail> billDetailsRollBack = billDetailRepository.findByBill(bill);
+                for (BillDetail billDetail : billDetailsRollBack) {
+                    ProductDetail productDetail = billDetail.getProductDetail();
+                    productDetail.setQuantity(productDetail.getQuantity() + billDetail.getQuantity());
+                    productDetailRepository.save(productDetail);
+                }
             }
         }
 
