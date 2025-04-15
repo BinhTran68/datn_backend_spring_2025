@@ -706,7 +706,7 @@ public class BillServiceImpl implements BillService {
                 .shipDate(bill.getShipDate())
                 .address(bill.getShippingAddress())
                 .addressReponse(addressReponse)
-                .email(bill.getEmailOk())
+                .email(bill.getEmail())
                 .voucherReponse(voucher)
                 .isFreeShip(bill.getIsFreeShip())
                 .status(bill.getStatus() != null ? bill.getStatus().toString() : null)
