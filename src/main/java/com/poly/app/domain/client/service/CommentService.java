@@ -1,22 +1,25 @@
 package com.poly.app.domain.client.service;
 
+import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.client.repository.CommentDTO;
 import com.poly.app.domain.client.response.CommentMessage;
-import com.poly.app.domain.model.Comments;
-import com.poly.app.domain.model.Customer;
-import com.poly.app.domain.model.Product;
+import com.poly.app.domain.model.*;
 import com.poly.app.domain.repository.CommentsRepository;
 import com.poly.app.domain.repository.CustomerRepository;
 import com.poly.app.domain.repository.ProductRepository;
+import com.poly.app.infrastructure.constant.DiscountType;
+import com.poly.app.infrastructure.constant.VoucherType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -256,22 +259,56 @@ public class CommentService {
 
 
     //Tìm kiếm
-    public List<CommentDTO> searchCommentsByProductNameAndCreatedAt(String productName, Long createdAt) {
-        Long fromDate = null;
-        Long toDate = null;
+//    public List<CommentDTO> searchCommentsByProductNameAndCreatedAt(String productName, Long createdAt) {
+//        Long fromDate = null;
+//        Long toDate = null;
+//
+//        if (createdAt != null) {
+//            LocalDate date = Instant.ofEpochMilli(createdAt)
+//                    .atZone(ZoneId.systemDefault()) // Chuyển sang múi giờ hiện tại
+//                    .toLocalDate();
+//
+//            fromDate = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+//            toDate = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() - 1;
+//        }
+//
+//        List<Comments> comments = commentsRepository.findByProductNameAndCreatedAtBetween(productName, fromDate, toDate);
+//
+//        return comments.stream().map(comment -> new CommentDTO(
+//                comment.getId(),
+//                comment.getCustomer() != null ? comment.getCustomer().getId() : null,
+//                comment.getCustomer() != null ? comment.getCustomer().getFullName() : "Trả lời từ người bán",
+//                comment.getComment(),
+//                comment.getCreatedAt(),
+//                comment.getUpdatedAt(),
+//                comment.getCustomer() != null ? comment.getCustomer().getEmail() : "admin@poly.app",
+//                comment.getProduct() != null ? comment.getProduct().getProductName() : "Unknown Product",
+//                comment.getProduct() != null ? comment.getProduct().getId() : null,
+//                comment.getRate(),
+//                comment.getCustomer() != null ? comment.getCustomer().getAvatar() : null,
+//                comment.getAdminReply(),
+//                comment.getParentId()
+//        )).collect(Collectors.toList());
+//    }
+    public Page<CommentDTO> searchCommentsByProductName(String productName, String search, int page, int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        if (createdAt != null) {
-            LocalDate date = Instant.ofEpochMilli(createdAt)
-                    .atZone(ZoneId.systemDefault()) // Chuyển sang múi giờ hiện tại
-                    .toLocalDate();
+        Specification<Comments> spec = Specification.where(null);
 
-            fromDate = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            toDate = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() - 1;
+        if (productName != null && !productName.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("product").get("productName")), "%" + productName.toLowerCase() + "%"));
         }
 
-        List<Comments> comments = commentsRepository.findByProductNameAndCreatedAtBetween(productName, fromDate, toDate);
+        if (search != null && !search.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("comment")), "%" + search.toLowerCase() + "%"));
+        }
 
-        return comments.stream().map(comment -> new CommentDTO(
+        Page<Comments> comments = commentsRepository.findAll(spec, pageable);
+
+        return comments.map(comment -> new CommentDTO(
                 comment.getId(),
                 comment.getCustomer() != null ? comment.getCustomer().getId() : null,
                 comment.getCustomer() != null ? comment.getCustomer().getFullName() : "Trả lời từ người bán",
@@ -285,8 +322,10 @@ public class CommentService {
                 comment.getCustomer() != null ? comment.getCustomer().getAvatar() : null,
                 comment.getAdminReply(),
                 comment.getParentId()
-        )).collect(Collectors.toList());
+        ));
     }
+
+
 
 
     public List<String> getProductNames() {
