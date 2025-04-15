@@ -4,6 +4,7 @@ import com.poly.app.domain.client.repository.CommentDTO;
 import com.poly.app.domain.client.response.CommentMessage;
 import com.poly.app.domain.client.service.CommentService;
 import com.poly.app.domain.common.ApiResponse;
+import com.poly.app.domain.common.PageReponse;
 import com.poly.app.domain.model.Comments;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -171,17 +172,41 @@ public ApiResponse<Page<CommentDTO>> getAllComments(
     }
 
     //    //tìm kiếm
-    @GetMapping("/search")
-    public ApiResponse<List<CommentDTO>> searchComments(
+//    @GetMapping("/search")
+//    public ApiResponse<List<CommentDTO>> searchComments(
+//            @RequestParam(required = false) String productName,
+//            @RequestParam(required = false) Long createdAt
+//    ) {
+//        List<CommentDTO> comments = commentService.searchCommentsByProductNameAndCreatedAt(productName, createdAt);
+//        return ApiResponse.<List<CommentDTO>>builder()
+//                .message("Tìm kiếm bình luận thành công")
+//                .data(comments)
+//                .build();
+//    }
+//    @GetMapping("/search")
+//    public ApiResponse<Page<CommentDTO>> searchComments(
+//            @RequestParam(required = false) String productName,
+//            Pageable pageable
+//    ) {
+//        Page<CommentDTO> comments = commentService.searchCommentsByProductName(productName, pageable);
+//        return ApiResponse.<Page<CommentDTO>>builder()
+//                .message("Tìm kiếm bình luận thành công")
+//                .data(comments)
+//                .build();
+//    }
+    @GetMapping("/index")
+    public PageReponse index(
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(required = false) String productName,
-            @RequestParam(required = false) Long createdAt
+            @RequestParam(required = false) String search,
+            @RequestParam(value = "sortOrder", defaultValue = "desc") String sortOrder
     ) {
-        List<CommentDTO> comments = commentService.searchCommentsByProductNameAndCreatedAt(productName, createdAt);
-        return ApiResponse.<List<CommentDTO>>builder()
-                .message("Tìm kiếm bình luận thành công")
-                .data(comments)
-                .build();
+        Sort sort = Sort.by(sortOrder.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, "createdAt");
+        return new PageReponse(commentService.searchCommentsByProductName(productName, search, page, size));
     }
+
+
 
 
 }
