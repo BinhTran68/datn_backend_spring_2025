@@ -17,29 +17,9 @@ import com.poly.app.domain.admin.staff.response.AddressReponse;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.admin.voucher.service.VoucherService;
 import com.poly.app.domain.auth.service.AuthenticationService;
-import com.poly.app.domain.model.Address;
-import com.poly.app.domain.model.Bill;
-import com.poly.app.domain.model.BillDetail;
-import com.poly.app.domain.model.BillHistory;
-import com.poly.app.domain.model.Customer;
-import com.poly.app.domain.model.CustomerVoucher;
-import com.poly.app.domain.model.PaymentBill;
-import com.poly.app.domain.model.PaymentMethods;
-import com.poly.app.domain.model.ProductDetail;
-import com.poly.app.domain.model.Staff;
-import com.poly.app.domain.model.StatusEnum;
-import com.poly.app.domain.model.Voucher;
-import com.poly.app.domain.repository.AddressRepository;
-import com.poly.app.domain.repository.BillDetailRepository;
-import com.poly.app.domain.repository.BillHistoryRepository;
-import com.poly.app.domain.repository.BillRepository;
-import com.poly.app.domain.repository.CustomerRepository;
-import com.poly.app.domain.repository.CustomerVoucherRepository;
-import com.poly.app.domain.repository.PaymentBillRepository;
-import com.poly.app.domain.repository.PaymentMethodsRepository;
-import com.poly.app.domain.repository.ProductDetailRepository;
-import com.poly.app.domain.repository.StaffRepository;
-import com.poly.app.domain.repository.VoucherRepository;
+import com.poly.app.domain.client.response.NotificationResponse;
+import com.poly.app.domain.model.*;
+import com.poly.app.domain.repository.*;
 import com.poly.app.infrastructure.constant.BillStatus;
 import com.poly.app.infrastructure.constant.PayMentBillStatus;
 import com.poly.app.infrastructure.constant.PaymentMethodEnum;
@@ -68,15 +48,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -131,6 +108,11 @@ public class BillServiceImpl implements BillService {
 
     @Autowired
     EmailSender emailSender;
+
+    @Autowired
+    AnnouncementRepository announcementRepository;
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
 
     @Override
     public Page<BillResponse> getPageBill(Integer size, Integer page,
@@ -276,7 +258,30 @@ public class BillServiceImpl implements BillService {
 
         bill.setStatus(request.getStatus());
         Bill billUpdate = billRepository.save(bill);
+//e công chọc vào đây
 
+        try {
+            // Gửi thông báo qua WebSocket đến customer
+            // Tạo thông báo với nội dung phù hợp về việc hủy đơn hàng
+            Announcement announcement = new Announcement();
+            announcement.setCustomer(bill.getCustomer());
+            announcement.setAnnouncementContent("Đơn hàng #" + bill.getBillCode()+"chuyển trạng thái: "+request.getStatus());
+            announcementRepository.save(announcement);
+
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/global-notifications/" + bill.getCustomer().getId(),
+                    new NotificationResponse(
+                            Long.valueOf(announcement.getId()), // Chắc chắn ID không null sau khi đã save
+                            announcement.getAnnouncementContent(),
+                            new Date(announcement.getCreatedAt()),
+                            false
+                    )
+            );
+            System.out.println("Đã gửi thông báo WebSocket tới user: " + bill.getCustomer().getId());
+        } catch (Exception e) {
+            System.err.println("Lỗi khi gửi thông báo WebSocket: " + e.getMessage());
+            e.printStackTrace();
+        }
         BillHistory billHistory = BillHistory.builder()
                 .status(billUpdate.getStatus()).
                 description(request.getNote())

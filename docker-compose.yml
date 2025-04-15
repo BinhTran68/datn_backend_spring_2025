@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: datn_backend_app
     build:
       context: .
       dockerfile: Dockerfile

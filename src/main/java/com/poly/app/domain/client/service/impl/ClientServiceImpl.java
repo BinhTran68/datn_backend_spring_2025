@@ -97,7 +97,7 @@ public class ClientServiceImpl implements ClientService {
         try {
             ProductDetailResponse productDetail = productViewRepository.findByProductAndColorAndSize(productId, colorId, sizeId);
             List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
-            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(),ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
+            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(), ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
             PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue))
                     .orElse(null);
             productDetail.setImage(images);
@@ -148,14 +148,14 @@ public class ClientServiceImpl implements ClientService {
             voucher = voucherRepository.findById(request.getVoucherId()).orElse(null);
 //trừ voucher
 //            trừ voucher tổng số
-            voucher.setQuantity(voucher.getQuantity()-1);
+            voucher.setQuantity(voucher.getQuantity() - 1);
             voucherRepository.save(voucher);
 
-            if (voucher.getVoucherType().equals(VoucherType.PRIVATE) && customer!=null) {
+            if (voucher.getVoucherType().equals(VoucherType.PRIVATE) && customer != null) {
 //                trừ ở prv
-            CustomerVoucher customerVoucher=    customerVoucherRepository.findCustomerVouchersByVoucherAndCustomer_Id(voucher,customer.getId());
-            customerVoucher.setQuantity(customerVoucher.getQuantity()-1);
-            customerVoucherRepository.save(customerVoucher);
+                CustomerVoucher customerVoucher = customerVoucherRepository.findCustomerVouchersByVoucherAndCustomer_Id(voucher, customer.getId());
+                customerVoucher.setQuantity(customerVoucher.getQuantity() - 1);
+                customerVoucherRepository.save(customerVoucher);
             }
 
 
@@ -204,7 +204,7 @@ public class ClientServiceImpl implements ClientService {
                 .moneyAfter(request.getMoneyAfter())
                 .totalMoney(request.getTotalMoney())
                 .moneyBeforeDiscount(request.getMoneyBeforeDiscount())
-
+                .isFreeShip(request.getIsFreeShip())
                 .shipDate(request.getShipDate())
                 .shipMoney(request.getShipMoney())
                 .shippingAddress(address)
@@ -289,7 +289,7 @@ public class ClientServiceImpl implements ClientService {
 //                    tìm keiesm xem thấy phương thức thanh toán zalopay ko
 //
                     PaymentMethods paymentMethods = paymentMethodsRepository
-                            .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.THANH_TOAN_TRUOC,PaymentMethodEnum.ZALO_PAY)
+                            .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.THANH_TOAN_TRUOC, PaymentMethodEnum.ZALO_PAY)
                             .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
                                     .paymentMethod(PaymentMethodEnum.ZALO_PAY)
                                     .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
@@ -328,7 +328,7 @@ public class ClientServiceImpl implements ClientService {
             }
             case COD -> {
                 PaymentMethods paymentMethods = paymentMethodsRepository
-                        .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.COD,PaymentMethodEnum.COD)
+                        .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.COD, PaymentMethodEnum.COD)
                         .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
                                 .paymentMethod(PaymentMethodEnum.COD)
                                 .paymentMethodsType(PaymentMethodsType.COD)
@@ -380,7 +380,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Page<CartResponse> getAllCartCustomerId(Integer customerId, Integer page,    Integer size) {
+    public Page<CartResponse> getAllCartCustomerId(Integer customerId, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         return cartDetailRepository.getAllByCustomerId(customerId, pageable);
     }
@@ -434,14 +434,14 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public VoucherBestResponse voucherBest(String customerId, String billValue) {
-        List<Voucher> vouchers = voucherRepository.findValidVouchers(customerId,Timestamp.from(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant()));
+        List<Voucher> vouchers = voucherRepository.findValidVouchers(customerId, Timestamp.from(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant()));
         VoucherBest voucherBest = new VoucherBest();
         return voucherBest.recommendBestVoucher(Double.valueOf(billValue), vouchers);
     }
 
     @Override
     public List<Voucher> findValidVouchers(String customerId) {
-        return voucherRepository.findValidVouchers(customerId,Timestamp.from(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant()));
+        return voucherRepository.findValidVouchers(customerId, Timestamp.from(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant()));
     }
 
     @Override
@@ -486,7 +486,7 @@ public class ClientServiceImpl implements ClientService {
             ProductDetail productDetail = productDetailRepository.findById(i.getProductDetailId())
                     .orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
 //            tìm promotion
-            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(),ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
+            List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(), ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
             PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue))
                     .orElse(null);
             if (productDetail != null) {
@@ -645,7 +645,7 @@ public class ClientServiceImpl implements ClientService {
                     .shipMoney(b.getShipMoney())
                     .totalMoney(b.getTotalMoney())
                     .moneyAfter(b.getMoneyAfter())
-                    .shippingAddress(b.getShippingAddress() !=null ?b.getShippingAddress().getId():null)
+                    .shippingAddress(b.getShippingAddress() != null ? b.getShippingAddress().getId() : null)
                     .customerName(b.getCustomerName())
                     .numberPhone(b.getNumberPhone())
                     .email(b.getEmail())
@@ -654,12 +654,12 @@ public class ClientServiceImpl implements ClientService {
                     .status(b.getStatus())
 //                    .payment(paymentMethods.getPaymentMethod() != null ? paymentMethods.getPaymentMethod().name() : "")
                     .voucher(voucherCode)
-                    .addressRequest(b.getShippingAddress() !=null? AddressRequest.builder()
+                    .addressRequest(b.getShippingAddress() != null ? AddressRequest.builder()
                             .provinceId(b.getShippingAddress().getProvinceId())
                             .districtId(b.getShippingAddress().getDistrictId())
                             .wardId(b.getShippingAddress().getWardId())
                             .specificAddress(b.getShippingAddress().getSpecificAddress())
-                            .build():null)
+                            .build() : null)
                     .billDetailResponse(productDetails)
                     .build();
             searchStatusBillResponses.add(searchStatusBillResponse);
@@ -728,12 +728,20 @@ public class ClientServiceImpl implements ClientService {
 
                 }
                 case ZALO_PAY -> {
+
                     try {
+                        PaymentMethods paymentMethod = paymentMethodsRepository
+                                .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.HOAN_TIEN, PaymentMethodEnum.ZALO_PAY)
+                                .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
+                                        .paymentMethod(PaymentMethodEnum.ZALO_PAY)
+                                        .paymentMethodsType(PaymentMethodsType.HOAN_TIEN)
+                                        .status(Status.HOAT_DONG)
+                                        .build()));
                         log.warn("chạy vao đây----------------------");
                         log.info("" + id);
                         log.info("" + bill.getMoneyAfter());
                         log.info("" + description);
-                        Map<String, Object>  refund = refundBill(bill.getId(), bill.getMoneyAfter().intValue(), "Hoan tien ");
+                        Map<String, Object> refund = refundBill(bill.getId(), bill.getMoneyAfter().intValue(), "Hoan tien ");
                         bill.setStatus(BillStatus.DA_HUY);
                         billRepository.save(bill);
 
@@ -744,7 +752,7 @@ public class ClientServiceImpl implements ClientService {
                         PaymentBill paymentBillRefund = PaymentBill.builder()
                                 .payMentBillStatus(PayMentBillStatus.DA_HOAN_TIEN)
                                 .bill(bill)
-                                .paymentMethods(paymentBill.getPaymentMethods())
+                                .paymentMethods(paymentMethod)
                                 .transactionCode(refund.get("mrefundid").toString())
                                 .totalMoney(bill.getMoneyAfter())
                                 .build();
@@ -842,7 +850,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public      Map<String, Object>  refund(Integer billId, Integer MoneyRefund, String description) throws Exception {
+    public Map<String, Object> refund(Integer billId, Integer MoneyRefund, String description) throws Exception {
         return refundBill(billId, MoneyRefund, description);
     }
 
@@ -994,7 +1002,7 @@ public class ClientServiceImpl implements ClientService {
         emailSender.sendEmail(email);
     }
 
-    private      Map<String, Object>  refundBill(Integer billId, Integer moneyRefund, String description) throws Exception {
+    private Map<String, Object> refundBill(Integer billId, Integer moneyRefund, String description) throws Exception {
         Bill bill = billRepository.findById(billId).orElseThrow(() -> new ApiException(ErrorCode.INVALID_KEY));
         PaymentBill paymentBill = paymentBillRepository.findByBillId(billId);
 //        /lấy status
@@ -1028,7 +1036,7 @@ public class ClientServiceImpl implements ClientService {
 
     public List<ProductDetailDiscountDTO> getDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId) {
         ZonedDateTime vietnamTime = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
-        List<Object[]> results = productViewRepository.findDiscountedProductDetails(productId, colorId, genderId,  Timestamp.from(vietnamTime.toInstant()));
+        List<Object[]> results = productViewRepository.findDiscountedProductDetails(productId, colorId, genderId, Timestamp.from(vietnamTime.toInstant()));
 
         // Ánh xạ và lọc
         return results.stream()
@@ -1099,7 +1107,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Boolean hasBought(Integer customerId, Integer productId) {
-        return productViewRepository.hasBought(customerId,productId)>0;
+        return productViewRepository.hasBought(customerId, productId) > 0;
     }
 
 

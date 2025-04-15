@@ -32,6 +32,7 @@ public class Product extends PrimaryEntity implements Serializable {
 
     Status status;
 
+
     @JsonManagedReference
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductDetail> productDetails = new ArrayList<>();

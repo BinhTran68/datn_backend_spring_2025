@@ -37,5 +37,6 @@ public class CreateBillClientRequest {
     //     pay
     PaymentMethodsType paymentMethodsType;
     String transactionCode;
+    Boolean isFreeShip;
 
 }
