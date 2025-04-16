@@ -188,7 +188,7 @@ public class BillServiceImpl implements BillService {
         if (bill == null) {
             throw new ApiException(ErrorCode.HOA_DON_NOT_FOUND);
         }
-        if (request.getStatus() == BillStatus.DA_HUY && bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+        if (request.getStatus() == BillStatus.DA_HUY && (bill.getStatus() == BillStatus.DA_XAC_NHAN || bill.getStatus() == BillStatus.CHO_XAC_NHAN)) {
             // Kiểm tra đã thanh toán chưa. Nếu đã thanh toán thì tạo ra 1 payment hoàn tiền
             Boolean isPayment = billHistoryRepository.existsByBillAndStatusDaThanhToan(bill);
             if (isPayment) {
@@ -212,11 +212,13 @@ public class BillServiceImpl implements BillService {
             }
 
             // Hoàn lại số lượng sản phẩm
-            List<BillDetail> billDetailsRollBack = billDetailRepository.findByBill(bill);
-            for (BillDetail billDetail : billDetailsRollBack) {
-                ProductDetail productDetail = billDetail.getProductDetail();
-                productDetail.setQuantity(productDetail.getQuantity() + billDetail.getQuantity());
-                productDetailRepository.save(productDetail);
+            if(bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+                List<BillDetail> billDetailsRollBack = billDetailRepository.findByBill(bill);
+                for (BillDetail billDetail : billDetailsRollBack) {
+                    ProductDetail productDetail = billDetail.getProductDetail();
+                    productDetail.setQuantity(productDetail.getQuantity() + billDetail.getQuantity());
+                    productDetailRepository.save(productDetail);
+                }
             }
         }
 
@@ -312,6 +314,7 @@ public class BillServiceImpl implements BillService {
         newAddress.setSpecificAddress(request.getSpecificAddress());
         newAddress.setWardId(request.getWardId());
         bill.setShippingAddress(newAddress);
+        bill.setShipMoney(request.getFeeShipping());
 
         if (newAddress.getId() == null) {
             addressRepository.save(newAddress);  // Lưu mới nếu chưa có ID
@@ -416,6 +419,10 @@ public class BillServiceImpl implements BillService {
                 .build();
         // Nếu đặt hàng online thì ===
 
+        if (customer != null) {
+            bill.setEmail(customer.getEmail());
+            bill.setCustomerName(customer.getFullName());
+        }
 
         // Trường hợp người dùng ship
         if (request.getIsShipping()) {
@@ -748,7 +755,15 @@ public class BillServiceImpl implements BillService {
             bill.setMoneyBeforeDiscount(request.getMoneyBeforeDiscount());
             bill.setDiscountMoney(request.getDiscountMoney());
             bill.setShipMoney(request.getShipMoney());
+            bill.setIsFreeShip(request.getIsFreeShip());
             bill.setVoucher(voucher);
+            if(request.getIsFreeShip() != null && request.getIsFreeShip()) {
+                bill.setIsFreeShip(true);
+                bill.setMoneyAfter(request.getMoneyBeforeDiscount() - request.getDiscountMoney());  // Tiền khach can thanh toan
+            }else {
+                bill.setIsFreeShip(false);
+                bill.setMoneyAfter(request.getMoneyBeforeDiscount() + request.getShipMoney() - request.getDiscountMoney());  // Tiền khach can thanh toan
+            }
 
             // 2️⃣ Ghi lịch sử cập nhật đơn hàng
             BillHistory billHistory = BillHistory

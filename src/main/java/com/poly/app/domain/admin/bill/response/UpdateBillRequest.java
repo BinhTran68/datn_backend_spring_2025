@@ -24,6 +24,7 @@ public class UpdateBillRequest {
     private String customerPhone;
     private String shippingAddress;
     private String note;
+    private Double feeShipping;
 
     String provinceId; // tỉnh
     String districtId; // quận

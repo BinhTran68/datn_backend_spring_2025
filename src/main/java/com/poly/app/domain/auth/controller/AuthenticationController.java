@@ -82,9 +82,20 @@ public class AuthenticationController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/forgot-admin-password/{email}")
+    public ResponseEntity<?> forgotAdminPassword(@PathVariable String email) {
+        authenticationService.forgotAdminPassword(email);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
         authenticationService.resetPassword(request);
+        return ResponseEntity.ok().build();
+    }
+    @PostMapping("/reset-admin-password")
+    public ResponseEntity<?> resetAdminPassword(@RequestBody ResetPasswordRequest request) {
+        authenticationService.resetAdminPassword(request);
         return ResponseEntity.ok().build();
     }
 

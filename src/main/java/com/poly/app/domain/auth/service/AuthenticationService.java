@@ -44,4 +44,8 @@ public interface AuthenticationService {
     Boolean forgotPassword(String email);
 
     void resetPassword(ResetPasswordRequest request);
+
+    void resetAdminPassword(ResetPasswordRequest request);
+
+    Boolean forgotAdminPassword(String email);
 }

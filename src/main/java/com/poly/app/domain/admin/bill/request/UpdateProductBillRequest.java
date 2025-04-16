@@ -22,5 +22,6 @@ public class UpdateProductBillRequest {
     private Double moneyBeforeDiscount;
     Double discountMoney;
     String voucherCode;
+    Boolean isFreeShip;
 
 }
