@@ -179,6 +179,31 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    public void resetAdminPassword(ResetPasswordRequest request) {
+        Staff staff = staffRepository .findByTokenActiveAccount(request.getToken());
+        if (staff == null) {
+            throw new RestApiException("Token không hợp lệ", HttpStatus.UNAUTHORIZED);
+        }
+        staff.setPassword(passwordEncoder.encode(request.getPassword()));
+        String token = UUID.randomUUID().toString();
+        staff.setTokenActiveAccount(token);
+        staffRepository.save(staff);
+    }
+
+    @Override
+    public Boolean forgotAdminPassword(String email) {
+        Staff staff = staffRepository.findByEmail(email);
+        if (staff == null) {
+            throw new RestApiException("Email không tồn tại. Vui lòng kiểm tra lại!", HttpStatus.BAD_REQUEST);
+        }
+        String token = UUID.randomUUID().toString();
+        staff.setTokenActiveAccount(token);
+        staffRepository.save(staff);
+        emailService.sendForgotAdminPasswordEmail(email, token);
+        return true;
+    }
+
+    @Override
     public Boolean registerStaff(RegisterRequest request) {
 
         Staff staff = new Staff();

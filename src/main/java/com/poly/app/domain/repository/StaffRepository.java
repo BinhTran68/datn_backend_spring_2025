@@ -12,4 +12,6 @@ public interface StaffRepository extends JpaRepository<Staff, Integer> {
 
     Staff findStaffByCitizenId(String citizenId);
 
+    Staff findByTokenActiveAccount(String token);
+
 }

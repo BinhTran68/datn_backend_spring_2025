@@ -89,6 +89,8 @@ public class Staff extends PrimaryEntity implements Serializable, UserDetails {
     @Column
     private Boolean isOnline;
 
+    private String tokenActiveAccount;
+
     @ManyToOne
     @JoinColumn(name = "id_role")
     private Role role;

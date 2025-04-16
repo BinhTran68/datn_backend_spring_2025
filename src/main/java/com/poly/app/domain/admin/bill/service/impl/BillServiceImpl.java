@@ -419,6 +419,10 @@ public class BillServiceImpl implements BillService {
                 .build();
         // Nếu đặt hàng online thì ===
 
+        if (customer != null) {
+            bill.setEmail(customer.getEmail());
+            bill.setCustomerName(customer.getFullName());
+        }
 
         // Trường hợp người dùng ship
         if (request.getIsShipping()) {
