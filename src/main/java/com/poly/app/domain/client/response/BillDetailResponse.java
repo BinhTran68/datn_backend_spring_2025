@@ -20,6 +20,9 @@ public class BillDetailResponse {
     private Double price;
     private String image;
     private String productDetailname;
+    private Integer productId;
+    private Integer colorId;
+    private Integer sizeId;
 
 
 }

@@ -525,7 +525,14 @@ public class ClientServiceImpl implements ClientService {
 
         List<BillDetailResponse> productDetails =
                 billDetails.stream()
-                        .map(item -> new BillDetailResponse(item.getId(), item.getQuantity(), item.getPrice(), item.getImage(),item.getProductDetail().getProduct().getProductName()+" ["+item.getProductDetail().getColor().getColorName()+"-"+item.getProductDetail().getSize().getSizeName()+"]"))
+                        .map(item -> new BillDetailResponse(item.getId(),
+                                item.getQuantity(),
+                                item.getPrice(),
+                                item.getImage(),
+                                item.getProductDetail().getProduct().getProductName()+" ["+item.getProductDetail().getColor().getColorName()+"-"+item.getProductDetail().getSize().getSizeName()+"]",
+                                item.getProductDetail().getProduct().getId(),
+                                item.getProductDetail().getColor().getId(),
+                                item.getProductDetail().getSize().getId()))
                         .collect(Collectors.toList());
         PaymentBill paymentBill = paymentBillRepository.findByBill(bill).get(0);
         PaymentMethods paymentMethods = paymentMethodsRepository.findById(paymentBill.getPaymentMethods().getId()).orElse(null);
@@ -628,7 +635,14 @@ public class ClientServiceImpl implements ClientService {
 
             List<BillDetailResponse> productDetails =
                     billDetails.stream()
-                            .map(item -> new BillDetailResponse(item.getId(), item.getQuantity(), item.getPrice(), item.getImage(),item.getProductDetail().getProduct().getProductName()+" ["+item.getProductDetail().getColor().getColorName()+"-"+item.getProductDetail().getSize().getSizeName()+"]"))
+                            .map(item -> new BillDetailResponse(item.getId(),
+                                    item.getQuantity(),
+                                    item.getPrice(),
+                                    item.getImage()
+                                    ,item.getProductDetail().getProduct().getProductName()+" ["+item.getProductDetail().getColor().getColorName()+"-"+item.getProductDetail().getSize().getSizeName()+"]",
+                                    item.getProductDetail().getProduct().getId(),
+                                    item.getProductDetail().getColor().getId(),
+                                    item.getProductDetail().getSize().getId()))
                             .collect(Collectors.toList());
 //            PaymentBill paymentBill = paymentBillRepository.findByBillId(b.getId());
 //            PaymentMethods paymentMethods = null;
