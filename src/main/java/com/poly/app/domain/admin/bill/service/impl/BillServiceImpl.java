@@ -223,6 +223,14 @@ public class BillServiceImpl implements BillService {
         }
 
         if(request.getStatus() == BillStatus.DA_THANH_TOAN) {
+            BillHistory billHistory =   BillHistory
+                    .builder()
+                    .bill(bill)
+                    .status(BillStatus.DA_GIAO_HANG)
+                    .description(request.getNote())
+                    .build();
+            billHistoryRepository.save(billHistory);
+
             PaymentBill paymentBill = paymentBillRepository.findDistinctFirstByBill(bill);
             paymentBill.setTotalMoney(bill.getMoneyAfter());
             paymentBill.setPayMentBillStatus(PayMentBillStatus.DA_THANH_TOAN);
