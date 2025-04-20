@@ -12,12 +12,14 @@ import java.util.stream.Collector;
 @Getter
 @Setter
 @AllArgsConstructor
-    @NoArgsConstructor
+@NoArgsConstructor
 public class BillDetailResponse {
 
     private Integer productDetailId;
     private Integer quantity;
     private Double price;
     private String image;
+    private String productDetailname;
+
 
 }
