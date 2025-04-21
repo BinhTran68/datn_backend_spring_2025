@@ -95,6 +95,8 @@ public class ZaloPayStatusChecker {
                                     .status(BillStatus.DA_THANH_TOAN)
                                     .build());
                             Bill bill = billRepository.findById(pb.getBill().getId()).get();
+                            bill.setStatus(BillStatus.CHO_XAC_NHAN);
+                            billRepository.save(bill);
 //                             Tạo thông báo cho customer
                             Announcement announcement = new Announcement();
                             announcement.setCustomer(pb.getBill().getCustomer());

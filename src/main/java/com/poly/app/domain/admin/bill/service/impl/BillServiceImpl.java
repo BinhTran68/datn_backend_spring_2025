@@ -33,6 +33,7 @@ import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.exception.RestApiException;
 import com.poly.app.infrastructure.security.Auth;
+import com.poly.app.infrastructure.util.BillStatusFormatter;
 import com.poly.app.infrastructure.util.DateUtil;
 import com.poly.app.infrastructure.util.GenHoaDon;
 import jakarta.persistence.criteria.Join;
@@ -238,6 +239,21 @@ public class BillServiceImpl implements BillService {
 
             bill.setCustomerMoney(bill.getMoneyAfter());
         }
+        //econg
+        if (request.getStatus() == BillStatus.DA_HOAN_THANH) {
+            List<BillDetail> billDetails = billDetailRepository.findByBill(bill);
+//            log.warn(billDetails.toString());
+            for (BillDetail i :
+                    billDetails) {
+//                log.warn(i.toString());
+                ProductDetail productDetail = productDetailRepository.findById(i.getProductDetail().getId()).get();
+                productDetail.setSold((productDetail.getSold()!=null?productDetail.getSold():0) + i.getQuantity());
+                productDetailRepository.save(productDetail);
+            }
+
+        }
+
+//        econg het
 
         if (request.getStatus() == BillStatus.DA_XAC_NHAN) {
             // Trừ số lượng sản phẩm khi xác nhận
