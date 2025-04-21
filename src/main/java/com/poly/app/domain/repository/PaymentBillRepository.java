@@ -29,7 +29,7 @@ public interface PaymentBillRepository extends JpaRepository<PaymentBill, Intege
             "pm.paymentMethod AS paymentMethod, " +
             "pb.notes AS notes, " +
             "pb.totalMoney AS totalMoney, " +
-            "pm.updatedAt AS createdAt, " +
+            "pb.updatedAt AS createdAt, " +
             "pb.payMentBillStatus AS paymentBillStatus, " +
             "pb.transactionCode AS transactionCode " +
             "FROM PaymentBill pb " +

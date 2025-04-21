@@ -27,7 +27,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "CONCAT(p.product_name, ' [', c.color_name, '-', g.gender_name, ']') AS product_name, " +
                     "MAX(pd.id) AS product_detail_id, " +
                     "(CONCAT(MIN(pd.price),' - ',MAX(pd.price))) AS price, " +
-                    "MAX(pd.sold) AS sold, " +
+                    "SUM(pd.sold) AS sold, " +
                     "MAX(pd.color_id) AS color_id," +
                     "MAX(pd.size_id) AS size_id," +
                     "MAX(pd.gender_id) AS genderId, " +
@@ -81,7 +81,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "CONCAT(p.product_name, ' [', c.color_name, '-', g.gender_name, ']') AS product_name, " +
                     "MAX(pd.id) AS product_detail_id, " +
                     "CONCAT(MIN(pd.price), ' - ', MAX(pd.price)) AS price, " +
-                    "MAX(pd.sold) AS sold, " +
+                    "SUM(pd.sold) AS sold, " +
                     "MAX(pd.color_id) AS colorId, " +
                     "MAX(pd.size_id) AS sizeId, " +
                     "MAX(pd.gender_id) AS genderId, " +
@@ -240,7 +240,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                        "MAX(pd.id) AS productDetailId, " +
                        "CONCAT(MIN(pd.price), ' - ', MAX(pd.price)) AS price, " +
                        "CONCAT(MIN(pr.discount_value), ' - ', MAX(pr.discount_value)) AS discountValue, " +
-                       "MAX(pd.sold) AS sold, " +
+                       "SUM(pd.sold) AS sold, " +
                        "MAX(pd.color_id) AS colorId, " +
                        "MAX(pd.gender_id) AS genderId, " +
                        "MAX(pd.size_id) AS sizeId, " +

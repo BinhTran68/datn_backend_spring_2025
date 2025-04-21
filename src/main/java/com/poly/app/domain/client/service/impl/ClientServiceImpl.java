@@ -302,10 +302,10 @@ public class ClientServiceImpl implements ClientService {
                             .payMentBillStatus(PayMentBillStatus.CHUA_THANH_TOAN)
                             .build());
 
-                    if (customer == null) {
-                        veritifyBill(billSave.getEmail(), billSave, request.getPaymentMethodsType().toString());
-                        return "đang xác minh đơn hàng";
-                    }
+//                    if (customer == null) {
+//                        veritifyBill(billSave.getEmail(), billSave, request.getPaymentMethodsType().toString());
+//                        return "đang xác minh đơn hàng";
+//                    }
                     sendMail(request.getEmail(), billSave);
                     Map<String, Object> zaloPayResponse = zaloPayService.createPayment(
                             customer != null ? customer.getId().toString() : "guest",

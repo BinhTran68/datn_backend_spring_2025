@@ -33,6 +33,7 @@ import com.poly.app.infrastructure.exception.ApiException;
 import com.poly.app.infrastructure.exception.ErrorCode;
 import com.poly.app.infrastructure.exception.RestApiException;
 import com.poly.app.infrastructure.security.Auth;
+import com.poly.app.infrastructure.util.BillStatusFormatter;
 import com.poly.app.infrastructure.util.DateUtil;
 import com.poly.app.infrastructure.util.GenHoaDon;
 import jakarta.persistence.criteria.Join;
@@ -212,7 +213,7 @@ public class BillServiceImpl implements BillService {
             }
 
             // Hoàn lại số lượng sản phẩm
-            if(bill.getStatus() == BillStatus.DA_XAC_NHAN) {
+            if (bill.getStatus() == BillStatus.DA_XAC_NHAN) {
                 List<BillDetail> billDetailsRollBack = billDetailRepository.findByBill(bill);
                 for (BillDetail billDetail : billDetailsRollBack) {
                     ProductDetail productDetail = billDetail.getProductDetail();
@@ -222,7 +223,7 @@ public class BillServiceImpl implements BillService {
             }
         }
 
-        if(request.getStatus() == BillStatus.DA_THANH_TOAN) {
+        if (request.getStatus() == BillStatus.DA_THANH_TOAN) {
             PaymentBill paymentBill = paymentBillRepository.findDistinctFirstByBill(bill);
             paymentBill.setTotalMoney(bill.getMoneyAfter());
             paymentBill.setPayMentBillStatus(PayMentBillStatus.DA_THANH_TOAN);
@@ -230,6 +231,21 @@ public class BillServiceImpl implements BillService {
 
             bill.setCustomerMoney(bill.getMoneyAfter());
         }
+        //econg
+        if (request.getStatus() == BillStatus.DA_HOAN_THANH) {
+            List<BillDetail> billDetails = billDetailRepository.findByBill(bill);
+//            log.warn(billDetails.toString());
+            for (BillDetail i :
+                    billDetails) {
+//                log.warn(i.toString());
+                ProductDetail productDetail = productDetailRepository.findById(i.getProductDetail().getId()).get();
+                productDetail.setSold((productDetail.getSold()!=null?productDetail.getSold():0) + i.getQuantity());
+                productDetailRepository.save(productDetail);
+            }
+
+        }
+
+//        econg het
 
         if (request.getStatus() == BillStatus.DA_XAC_NHAN) {
             // Trừ số lượng sản phẩm khi xác nhận
@@ -237,15 +253,14 @@ public class BillServiceImpl implements BillService {
             List<BillDetail> billDetails = billDetailRepository.findByBill(bill);
             for (BillDetail billDetail : billDetails) {
                 ProductDetail productDetail = billDetail.getProductDetail();
-                if(billDetail.getQuantity() > productDetail.getQuantity()) {
+                if (billDetail.getQuantity() > productDetail.getQuantity()) {
                     throw new RestApiException("Số lượng sản phẩm "
-                            + productDetail.getProduct().getProductName()+"-"
-                            +productDetail.getColor().getColorName()+"- size: "+productDetail.getSize().getSizeName()+"-" + "không đủ!", HttpStatus.BAD_REQUEST);
+                                               + productDetail.getProduct().getProductName() + "-"
+                                               + productDetail.getColor().getColorName() + "- size: " + productDetail.getSize().getSizeName() + "-" + "không đủ!", HttpStatus.BAD_REQUEST);
                 }
                 productDetail.setQuantity(productDetail.getQuantity() - billDetail.getQuantity());
                 productDetailRepository.save(productDetail);
             }
-
 
 
             sendMailUpdateSanPhamAsync(bill.getEmail(), bill,
@@ -267,7 +282,7 @@ public class BillServiceImpl implements BillService {
             // Tạo thông báo với nội dung phù hợp về việc hủy đơn hàng
             Announcement announcement = new Announcement();
             announcement.setCustomer(bill.getCustomer());
-            announcement.setAnnouncementContent("Đơn hàng #" + bill.getBillCode()+"chuyển trạng thái: "+request.getStatus());
+            announcement.setAnnouncementContent("Đơn hàng #" + bill.getBillCode() + "chuyển trạng thái: " + BillStatusFormatter.format(request.getStatus()));
             announcementRepository.save(announcement);
 
             simpMessagingTemplate.convertAndSend(
@@ -286,7 +301,7 @@ public class BillServiceImpl implements BillService {
         }
         BillHistory billHistory = BillHistory.builder()
                 .status(billUpdate.getStatus()).
-                description(request.getNote())
+                        description(request.getNote())
                 .bill(billUpdate).build();
         billHistoryRepository.save(billHistory);
 
@@ -390,12 +405,12 @@ public class BillServiceImpl implements BillService {
             address = addressRepository.save(newAddress);
         }
         Double shippingFee = request.getShippingFee();
-        if(shippingFee != null) {
+        if (shippingFee != null) {
             shippingFee = request.getShippingFee();
             if (request.getIsFreeShip() != null && request.getIsFreeShip()) {
                 shippingFee = (double) 0;
             }
-        }  else {
+        } else {
             shippingFee = (double) 0;
         }
 
@@ -452,7 +467,7 @@ public class BillServiceImpl implements BillService {
             }
         }
 
-        if(request.getIsCOD()) {
+        if (request.getIsCOD()) {
             PaymentMethods cashPaymentMethods = createAndSavePaymentMethodCOD(
                     PaymentMethodEnum.COD
             );
@@ -587,7 +602,7 @@ public class BillServiceImpl implements BillService {
         //
         List<Voucher> validVouchers = customerVouchers.stream()
                 .map((customerVoucher -> {
-                    Voucher voucher =  customerVoucher.getVoucher();
+                    Voucher voucher = customerVoucher.getVoucher();
                     voucher.setQuantity(customerVoucher.getQuantity());
                     return voucher;
                 }))
@@ -625,7 +640,7 @@ public class BillServiceImpl implements BillService {
     // Để nguyên
     private PaymentMethods createAndSavePaymentMethod(PaymentMethodEnum methodEnum) {
         PaymentMethods paymentMethods = paymentMethodsRepository
-                .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.THANH_TOAN_TRUOC,methodEnum)
+                .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.THANH_TOAN_TRUOC, methodEnum)
                 .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
                         .paymentMethod(methodEnum)
                         .paymentMethodsType(PaymentMethodsType.THANH_TOAN_TRUOC)
@@ -638,7 +653,7 @@ public class BillServiceImpl implements BillService {
     private PaymentMethods createAndSavePaymentMethodCOD(PaymentMethodEnum methodEnum) {
 
         PaymentMethods paymentMethods = paymentMethodsRepository
-                .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.COD,methodEnum)
+                .findByPaymentMethodsTypeAndAndPaymentMethod(PaymentMethodsType.COD, methodEnum)
                 .orElseGet(() -> paymentMethodsRepository.save(PaymentMethods.builder()
                         .paymentMethod(methodEnum)
                         .paymentMethodsType(PaymentMethodsType.COD)
@@ -668,9 +683,9 @@ public class BillServiceImpl implements BillService {
     }
 
     private void savePaymentBillCOD(Bill bill, PaymentMethods paymentMethods,
-                                 Double totalMoney,
-                                 String transactionCode,
-                                 String notesPayment
+                                    Double totalMoney,
+                                    String transactionCode,
+                                    String notesPayment
     ) {
         if (paymentMethods == null) return;
 
@@ -685,7 +700,6 @@ public class BillServiceImpl implements BillService {
 
         paymentBillRepository.save(paymentBill);
     }
-
 
 
     private BillResponse convertBillToBillResponse(Bill bill) {
@@ -757,10 +771,10 @@ public class BillServiceImpl implements BillService {
             bill.setShipMoney(request.getShipMoney());
             bill.setIsFreeShip(request.getIsFreeShip());
             bill.setVoucher(voucher);
-            if(request.getIsFreeShip() != null && request.getIsFreeShip()) {
+            if (request.getIsFreeShip() != null && request.getIsFreeShip()) {
                 bill.setIsFreeShip(true);
                 bill.setMoneyAfter(request.getMoneyBeforeDiscount() - request.getDiscountMoney());  // Tiền khach can thanh toan
-            }else {
+            } else {
                 bill.setIsFreeShip(false);
                 bill.setMoneyAfter(request.getMoneyBeforeDiscount() + request.getShipMoney() - request.getDiscountMoney());  // Tiền khach can thanh toan
             }
@@ -865,28 +879,28 @@ public class BillServiceImpl implements BillService {
 //        email.setFileName(bill.getBillCode());
         // Tạo nội dung email
         email.setBody("<!DOCTYPE html>\n" +
-                "<html lang=\"en\">\n" +
-                "<head>\n" +
-                "    <meta charset=\"UTF-8\">\n" +
-                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                "    <title>Hóa đơn TheHands</title>\n" +
-                "</head>\n" +
-                "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px;\">\n" +
-                "    <div style=\"max-width: 600px; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin: auto;\">\n" +
-                "        <h2 style=\"color: #333;\">🎉 " + subTitle + " 🎉</h2>\n" +
-                "        <p style=\"color: #555;\">Cảm ơn bạn đã mua hàng tại <strong>TheHands</strong>. Dưới đây là thông tin đơn hàng của bạn:</p>\n" +
-                "        <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\">\n" +
-                "        <p><strong>📧 Email:</strong> " + sendToMail + "</p>\n" +
-                "        <p><strong>🧾 Mã hóa đơn:</strong> <span style=\"color: #007bff; font-weight: bold;\">" + bill.getBillCode() + "</span></p>\n" +
-                "        <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\">\n" +
-                "        <h3 style=\"color: #007bff;\">Danh sách sản phẩm</h3>\n" +
-                "        <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\">\n" +
-                "        <p style=\"color: #555;\">Bạn có thể kiểm tra hóa đơn của mình bằng cách nhấn vào nút bên dưới:</p>\n" +
-                "        <a href=\"http://localhost:5173/searchbill?billcode=" + bill.getBillCode() + "\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;\">🔍 Xem hóa đơn</a>\n" +
-                "        <p style=\"margin-top: 20px; font-size: 12px; color: #999;\">Nếu bạn không thực hiện giao dịch này, vui lòng bỏ qua email này.</p>\n" +
-                "    </div>\n" +
-                "</body>\n" +
-                "</html>");
+                      "<html lang=\"en\">\n" +
+                      "<head>\n" +
+                      "    <meta charset=\"UTF-8\">\n" +
+                      "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                      "    <title>Hóa đơn TheHands</title>\n" +
+                      "</head>\n" +
+                      "<body style=\"font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; padding: 50px;\">\n" +
+                      "    <div style=\"max-width: 600px; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin: auto;\">\n" +
+                      "        <h2 style=\"color: #333;\">🎉 " + subTitle + " 🎉</h2>\n" +
+                      "        <p style=\"color: #555;\">Cảm ơn bạn đã mua hàng tại <strong>TheHands</strong>. Dưới đây là thông tin đơn hàng của bạn:</p>\n" +
+                      "        <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\">\n" +
+                      "        <p><strong>📧 Email:</strong> " + sendToMail + "</p>\n" +
+                      "        <p><strong>🧾 Mã hóa đơn:</strong> <span style=\"color: #007bff; font-weight: bold;\">" + bill.getBillCode() + "</span></p>\n" +
+                      "        <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\">\n" +
+                      "        <h3 style=\"color: #007bff;\">Danh sách sản phẩm</h3>\n" +
+                      "        <hr style=\"border: none; border-top: 1px solid #ddd; margin: 20px 0;\">\n" +
+                      "        <p style=\"color: #555;\">Bạn có thể kiểm tra hóa đơn của mình bằng cách nhấn vào nút bên dưới:</p>\n" +
+                      "        <a href=\"http://localhost:5173/searchbill?billcode=" + bill.getBillCode() + "\" style=\"display: inline-block; background-color: #007bff; color: #ffffff; padding: 12px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;\">🔍 Xem hóa đơn</a>\n" +
+                      "        <p style=\"margin-top: 20px; font-size: 12px; color: #999;\">Nếu bạn không thực hiện giao dịch này, vui lòng bỏ qua email này.</p>\n" +
+                      "    </div>\n" +
+                      "</body>\n" +
+                      "</html>");
 
         emailSender.sendEmail(email);
     }
