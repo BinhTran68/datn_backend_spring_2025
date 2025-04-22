@@ -26,7 +26,6 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
                 COUNT(CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS totalOrders, 
                 SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfullOrders,
                     SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
-                    SUM(CASE WHEN b.status = 'TRA_HANG' THEN 1 ELSE 0 END) AS returnedOrders,
             SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
                                              FROM bill b
                 LEFT JOIN bill_detail bd ON b.id = bd.bill_id
@@ -46,8 +45,7 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
                                                  
                     SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfullOrders,
                     SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
-                    SUM(CASE WHEN b.status = 'TRA_HANG' THEN 1 ELSE 0 END) AS returnedOrders,
-                    SUM(bd.quantity) AS totalProductsSold  
+            SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
                 FROM bill b
                 LEFT JOIN bill_detail bd ON b.id = bd.bill_id
                 WHERE YEARWEEK(FROM_UNIXTIME(b.created_at / 1000)) = YEARWEEK(CURDATE())
@@ -66,7 +64,6 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
                                                  
                     SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfullOrders,
                     SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
-                    SUM(CASE WHEN b.status = 'TRA_HANG' THEN 1 ELSE 0 END) AS returnedOrders,
             SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
                                                               FROM bill b
                 LEFT JOIN bill_detail bd ON b.id = bd.bill_id
@@ -83,10 +80,8 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
                     CAST(YEAR(FROM_UNIXTIME(b.created_at / 1000)) AS CHAR) AS reportTime,
                    SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.total_money ELSE 0 END) AS totalRevenue,
                     COUNT(CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS totalOrders, 
-                    COUNT(b.id) AS totalOrders,  
                     SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END) AS successfullOrders,
                     SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
-                  SUM(CASE WHEN b.status = 'TRA_HANG' THEN 1 ELSE 0 END) AS returnedOrders,
                     SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
                     FROM bill b
                 LEFT JOIN bill_detail bd ON b.id = bd.bill_id
@@ -106,13 +101,13 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
                                                               
                     COALESCE(SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END), 0) AS successfullOrders,
                     COALESCE(SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END), 0) AS cancelledOrders,
-                    COALESCE(SUM(CASE WHEN b.status = 'TRA_HANG' THEN 1 ELSE 0 END), 0) AS returnedOrders,
                    COALESCE(SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END), 0) AS totalProductsSold      
                 FROM bill b
                 LEFT JOIN bill_detail bd ON b.id = bd.bill_id
                 WHERE DATE(FROM_UNIXTIME(b.created_at / 1000)) BETWEEN :startDate AND :endDate
             """, nativeQuery = true)
     List<Object[]> getSumByCustomDate(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
 
     //lấy tên,size,màu,số lượng sản phẩm bán chạy nhất
     //lấy tổng
