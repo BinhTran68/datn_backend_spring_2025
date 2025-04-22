@@ -16,6 +16,7 @@ public interface GrowthRateRepository extends JpaRepository<Bill, Integer> {
             YEAR(ship_date) AS year,
             COALESCE(SUM(total_money), 0) AS revenue
         FROM bill
+                WHERE status = 'DA_HOAN_THANH'
         GROUP BY YEAR(ship_date)
     )
     SELECT 
@@ -41,6 +42,7 @@ public interface GrowthRateRepository extends JpaRepository<Bill, Integer> {
             MONTH(ship_date) AS month,
             COALESCE(SUM(total_money), 0) AS revenue
         FROM bill
+                WHERE status = 'DA_HOAN_THANH'
         GROUP BY YEAR(ship_date), MONTH(ship_date)
     )
     SELECT 
@@ -63,7 +65,6 @@ public interface GrowthRateRepository extends JpaRepository<Bill, Integer> {
     List<Object[]> getGrowthRateMonth();
 
 
-    //sản phẩm tháng
 
 
 }
