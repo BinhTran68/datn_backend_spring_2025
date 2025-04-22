@@ -189,7 +189,9 @@ public class BillServiceImpl implements BillService {
         if (bill == null) {
             throw new ApiException(ErrorCode.HOA_DON_NOT_FOUND);
         }
-        if (request.getStatus() == BillStatus.DA_HUY && (bill.getStatus() == BillStatus.DA_XAC_NHAN || bill.getStatus() == BillStatus.CHO_XAC_NHAN)) {
+        if (request.getStatus() == BillStatus.DA_HUY
+                && (bill.getStatus() == BillStatus.DA_XAC_NHAN ||
+                bill.getStatus() == BillStatus.CHO_XAC_NHAN)) {
             // Kiểm tra đã thanh toán chưa. Nếu đã thanh toán thì tạo ra 1 payment hoàn tiền
             Boolean isPayment = billHistoryRepository.existsByBillAndStatusDaThanhToan(bill);
             if (isPayment) {
@@ -256,6 +258,29 @@ public class BillServiceImpl implements BillService {
 //        econg het
 
         if (request.getStatus() == BillStatus.DA_XAC_NHAN) {
+
+            // Check xem t
+            PaymentBill paymentBill = paymentBillRepository.findDistinctFirstByBill(bill);
+            if(paymentBill.getPaymentMethods().getPaymentMethod() == PaymentMethodEnum.ZALO_PAY
+                    &&
+                    paymentBill.getPayMentBillStatus() == PayMentBillStatus.CHUA_THANH_TOAN
+            ) {
+                PaymentMethods paymentMethods = paymentMethodsRepository
+                        .findByPaymentMethodsTypeAndAndPaymentMethod
+                                (PaymentMethodsType.COD, PaymentMethodEnum.COD).orElse(null);
+
+                if (paymentMethods == null) {
+                    PaymentMethods paymentMethodsNew = PaymentMethods.builder()
+                            .paymentMethod(PaymentMethodEnum.COD)
+                            .paymentMethodsType(PaymentMethodsType.COD)
+                            .status(Status.HOAT_DONG)
+                            .build();
+                  paymentMethods =   paymentMethodsRepository.save(paymentMethodsNew);
+                }
+                paymentBill.setPaymentMethods(paymentMethods);
+                paymentBill.setTransactionCode(null);
+                paymentBillRepository.save(paymentBill);
+            }
             // Trừ số lượng sản phẩm khi xác nhận
             // Xử lí trừ số lượng san phẩm
             List<BillDetail> billDetails = billDetailRepository.findByBill(bill);
