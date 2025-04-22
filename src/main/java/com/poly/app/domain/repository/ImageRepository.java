@@ -15,6 +15,7 @@ import java.util.List;
 public interface ImageRepository extends JpaRepository<Image, Integer> {
 
     Image getImagesByProductDetail(ProductDetail productDetail);
+    Image findDistinctFirstByProductDetail(ProductDetail productDetail);
 
     @Query("SELECT new com.poly.app.domain.admin.product.response.img.ImgResponse(i.id,i.url,i.publicId) " +
            "FROM Image i WHERE i.productDetail.id = :productDetailId")

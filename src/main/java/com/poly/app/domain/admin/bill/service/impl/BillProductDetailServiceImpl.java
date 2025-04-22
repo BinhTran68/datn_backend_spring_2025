@@ -87,7 +87,7 @@ public class BillProductDetailServiceImpl implements BillProductDetailService {
                                         .createdAt(billDetail.getCreatedAt())
                                         .urlImage(
                                                 Optional.ofNullable(
-                                                                imageRepository.getImagesByProductDetail(billDetail.getProductDetail())
+                                                                imageRepository.findDistinctFirstByProductDetail(billDetail.getProductDetail())
                                                         )
                                                         .map(Image::getUrl) // Lấy URL nếu không null
                                                         .orElse(null)
