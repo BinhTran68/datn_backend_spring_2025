@@ -263,14 +263,15 @@ public class ClientServiceImpl implements ClientService {
 
 //Lưu lại lịch sử
 
-        billHistoryRepository.save(BillHistory
+        BillHistory billHistory = billHistoryRepository.save(BillHistory
                 .builder()
                 .customer(customer)
                 .bill(billSave)
                 .description(customer != null ? "chờ bên admin xác nhận" : " chờ xác minh danh tính")
                 .status(customer != null ? BillStatus.CHO_XAC_NHAN : BillStatus.DANG_XAC_MINH)
                 .build());
-
+        billHistory.setUpdatedBy(bill.getEmail());
+        billHistoryRepository.save(billHistory);
 
 //        lưu ptthanh toán
         switch (request.getPaymentMethodsType()) {
@@ -529,7 +530,7 @@ public class ClientServiceImpl implements ClientService {
                                 item.getQuantity(),
                                 item.getPrice(),
                                 item.getImage(),
-                                item.getProductDetail().getProduct().getProductName()+" ["+item.getProductDetail().getColor().getColorName()+"-"+item.getProductDetail().getSize().getSizeName()+"]",
+                                item.getProductDetail().getProduct().getProductName() + " [" + item.getProductDetail().getColor().getColorName() + "-" + item.getProductDetail().getSize().getSizeName() + "]",
                                 item.getProductDetail().getProduct().getId(),
                                 item.getProductDetail().getColor().getId(),
                                 item.getProductDetail().getSize().getId()))
@@ -580,13 +581,15 @@ public class ClientServiceImpl implements ClientService {
             bill.setStatus(BillStatus.CHO_XAC_NHAN);
             billRepository.save(bill);
             sendMail(bill.getEmail(), bill);
-            billHistoryRepository.save(BillHistory
+            BillHistory billHistory = billHistoryRepository.save(BillHistory
                     .builder()
                     .customer(null)
                     .bill(bill)
                     .description("xác minh danh tính thành công")
                     .status(BillStatus.CHO_XAC_NHAN)
                     .build());
+            billHistory.setCreatedBy(bill.getEmail());
+            billHistoryRepository.save(billHistory);
             return "xác minh thành công";
         } else if (paymentMethods.getPaymentMethod().equals(PaymentMethodEnum.ZALO_PAY)) {
             bill.setStatus(BillStatus.CHO_XAC_NHAN);
@@ -639,7 +642,7 @@ public class ClientServiceImpl implements ClientService {
                                     item.getQuantity(),
                                     item.getPrice(),
                                     item.getImage()
-                                    ,item.getProductDetail().getProduct().getProductName()+" ["+item.getProductDetail().getColor().getColorName()+"-"+item.getProductDetail().getSize().getSizeName()+"]",
+                                    , item.getProductDetail().getProduct().getProductName() + " [" + item.getProductDetail().getColor().getColorName() + "-" + item.getProductDetail().getSize().getSizeName() + "]",
                                     item.getProductDetail().getProduct().getId(),
                                     item.getProductDetail().getColor().getId(),
                                     item.getProductDetail().getSize().getId()))
