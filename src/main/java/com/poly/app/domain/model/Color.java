@@ -20,7 +20,6 @@ import java.io.Serializable;
 //màu sắc
 public class Color extends PrimaryEntity implements Serializable {
     String colorName;
-
     Status status;
 
 }
