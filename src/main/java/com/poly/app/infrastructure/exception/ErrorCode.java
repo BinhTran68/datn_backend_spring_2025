@@ -100,9 +100,9 @@ public enum ErrorCode {
     TOTAL_IN_A_ITEM(2000, "Mỗi sản phẩm không được mua quá số lượng 5"),
     ACCOUNT_NOT_ACTIVE(2000, "Tài khoản đã bị khóa không thể đăng nhập"),
     CANT_BE_CANCEL_WHEN_SHIPPING(2000, "Không thể hủy khi đơn hàng đã chuyển sang trạng thái giao hàng hoặc đã hoàn thành"),
-    BRAND_EXISTS(1100, "hãng đã tồn tại"),
-    COLOR_EXISTS(1200, "color đã tồn tại"),
-    NAME_EXISTS(3000, "tên đã tồn tại"),
+    BRAND_EXISTS(1100, "Hãng đã tồn tại!"),
+    COLOR_EXISTS(1200, "Color đã tồn tại!"),
+    NAME_EXISTS(3000, "Tên đã tồn tại!"),
     PRODUCT_DETAIL_EXISTS(4100, "Đã tồn tại chi tiết này rồi");
 
     private int code;
