@@ -316,7 +316,7 @@ public class BillServiceImpl implements BillService {
             // Tạo thông báo với nội dung phù hợp về việc hủy đơn hàng
             Announcement announcement = new Announcement();
             announcement.setCustomer(bill.getCustomer());
-            announcement.setAnnouncementContent("Đơn hàng #" + bill.getBillCode()+"chuyển trạng thái: "+request.getStatus());
+            announcement.setAnnouncementContent("Đơn hàng #" + bill.getBillCode()+"chuyển trạng thái: "+BillStatusFormatter.format(request.getStatus()));
             announcementRepository.save(announcement);
 
             simpMessagingTemplate.convertAndSend(

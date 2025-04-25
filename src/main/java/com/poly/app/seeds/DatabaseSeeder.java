@@ -93,7 +93,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             return;
         }
 
-        Role role = Role.builder().roleName("ROLE_ADMIN").build();
+        Role role = Role.builder().roleName("x").build();
         roleRepository.save(role);
 
         Role role1 = Role.builder().roleName("ROLE_STAFF").build();
