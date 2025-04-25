@@ -45,8 +45,7 @@ public class StatisticalService {
                 ((Number) row[2]).intValue(),
                 ((Number) row[3]).intValue(),
                 ((Number) row[4]).intValue(),
-                ((Number) row[5]).intValue(),
-                ((Number) row[6]).intValue()
+                ((Number) row[5]).intValue()
         )).collect(Collectors.toList());
     }
 
@@ -142,7 +141,6 @@ public class StatisticalService {
         dataRow.createCell(2).setCellValue(reportData.getTotalProductsSold());
         dataRow.createCell(3).setCellValue(reportData.getSuccessfulOrders());
         dataRow.createCell(4).setCellValue(reportData.getCancelledOrders());
-        dataRow.createCell(5).setCellValue(reportData.getReturnedOrders());
 
         // Tự động điều chỉnh độ rộng cột
         for (int i = 0; i < headers.length; i++) {
