@@ -16,7 +16,7 @@ public interface AddressRepository extends JpaRepository<Address,Integer> {
     Address findFirstByCustomerIdAndIsAddressDefault(Integer id, boolean b);
 
 
-    Address findByCustomerIdAndProvinceIdAndDistrictIdAndWardIdAndSpecificAddress
+    Address findFirstByCustomerIdAndProvinceIdAndDistrictIdAndWardIdAndSpecificAddress
             (Integer id,String province, String district, String ward, String spaci);
 
 

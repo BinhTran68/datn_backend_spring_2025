@@ -71,6 +71,8 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     public Voucher createVoucher(VoucherRequest request) {
 
+
+
         StatusEnum saStatusVoucher = checkVoucherStatus(request.getStartDate(), request.getEndDate());
         // Sinh mã voucher tự động (định nghĩa logic trong createVoucher)
         String generatedVoucherCode = "MGG" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
