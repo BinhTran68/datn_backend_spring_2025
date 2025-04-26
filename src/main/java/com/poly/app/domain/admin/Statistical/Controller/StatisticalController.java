@@ -2,12 +2,21 @@ package com.poly.app.domain.admin.Statistical.Controller;
 
 import com.poly.app.domain.admin.Statistical.Repository.GrowthRateProductRepository;
 import com.poly.app.domain.admin.Statistical.Repository.StatisticalRepository;
+import com.poly.app.domain.admin.Statistical.Response.StatisticResponse;
 import com.poly.app.domain.admin.Statistical.Service.*;
 import com.poly.app.domain.common.ApiResponse;
+import com.poly.app.domain.repository.BillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.IsoFields;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -30,6 +39,8 @@ public class StatisticalController {
     MinProductService minProductService;
     @Autowired
     GrowthRateService growthRateService;
+    @Autowired
+    private BillRepository billRepository;
 
     @GetMapping("/Sum")
     public ApiResponse<Double> SumBill() {
@@ -253,6 +264,205 @@ public class StatisticalController {
                     .build();
         }
     }
+
+
+    @GetMapping("/getStatistics")
+    public List<StatisticResponse> getStatistics(
+            @RequestParam String type,
+            @RequestParam String time,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
+    ) {
+        LocalDate startDate = from != null ? from : LocalDate.now().minusDays(9);
+        LocalDate endDate = to != null ? to : LocalDate.now();
+
+        List<StatisticResponse> result = new ArrayList<>();
+        List<StatisticResponse> statistics;
+
+        switch (time) {
+            case "day":
+                statistics = billRepository.getStatisticsByDay(startDate, endDate);
+                result = mergeStatisticsWithDefaultDays(startDate, endDate, statistics);
+                break;
+            case "week":
+                statistics = billRepository.getStatisticsByWeek(startDate, endDate);
+                result = mergeStatisticsWithDefaultWeeks(startDate, endDate, statistics);
+                break;
+            case "year":
+                statistics = billRepository.getStatisticsByYear(startDate, endDate);
+                result = mergeStatisticsWithDefaultYears(startDate, endDate, statistics);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid time value");
+        }
+
+        return result;
+    }
+
+    // Merge statistics with default values
+    private List<StatisticResponse> mergeStatisticsWithDefaultDays(LocalDate startDate, LocalDate endDate, List<StatisticResponse> statistics) {
+        List<LocalDate> allDates = getAllDatesBetween(startDate, endDate);
+        Map<String, StatisticResponse> statisticsMap = new HashMap<>();
+
+        for (StatisticResponse statistic : statistics) {
+            statisticsMap.put(statistic.getLabel(), statistic);
+        }
+
+        List<StatisticResponse> mergedList = new ArrayList<>();
+        for (LocalDate date : allDates) {
+            String label = date.format(DateTimeFormatter.ofPattern("dd/MM"));
+            StatisticResponse statistic = statisticsMap.get(label);
+            if (statistic == null) {
+                statistic = new StatisticResponse() {
+                    @Override
+                    public String getLabel() {
+                        return label;
+                    }
+
+                    @Override
+                    public Integer getOrders() {
+                        return 0;
+                    }
+
+                    @Override
+                    public Integer getQuantity() {
+                        return 0;
+                    }
+
+                    @Override
+                    public Double getTotalMoney() {
+                        return 0.0;
+                    }
+                };
+            }
+            mergedList.add(statistic);
+        }
+
+        return mergedList;
+    }
+
+    private List<LocalDate> getAllDatesBetween(LocalDate startDate, LocalDate endDate) {
+        List<LocalDate> allDates = new ArrayList<>();
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            allDates.add(currentDate);
+            currentDate = currentDate.plusDays(1);
+        }
+        return allDates;
+    }
+
+    private List<StatisticResponse> mergeStatisticsWithDefaultWeeks(LocalDate startDate, LocalDate endDate, List<StatisticResponse> statistics) {
+        List<String> allWeeks = getAllWeeksBetween(startDate, endDate);
+        Map<String, StatisticResponse> statisticsMap = new HashMap<>();
+
+        for (StatisticResponse statistic : statistics) {
+            statisticsMap.put(statistic.getLabel(), statistic);
+        }
+
+        List<StatisticResponse> mergedList = new ArrayList<>();
+        for (String week : allWeeks) {
+            StatisticResponse statistic = statisticsMap.get(week);
+            if (statistic == null) {
+                statistic = new StatisticResponse() {
+                    @Override
+                    public String getLabel() {
+                        return week;
+                    }
+
+                    @Override
+                    public Integer getOrders() {
+                        return 0;
+                    }
+
+                    @Override
+                    public Integer getQuantity() {
+                        return 0;
+                    }
+
+                    @Override
+                    public Double getTotalMoney() {
+                        return 0.0;
+                    }
+                };
+            }
+            mergedList.add(statistic);
+        }
+
+        return mergedList;
+    }
+
+    private List<String> getAllWeeksBetween(LocalDate startDate, LocalDate endDate) {
+        List<String> allWeeks = new ArrayList<>();
+        LocalDate currentDate = startDate;
+
+        while (!currentDate.isAfter(endDate)) {
+            int weekOfYear = currentDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+            String weekLabel = currentDate.getYear() + "-Tuần " + weekOfYear;
+            if (!allWeeks.contains(weekLabel)) {
+                allWeeks.add(weekLabel);
+            }
+            currentDate = currentDate.plusWeeks(1);
+        }
+
+        return allWeeks;
+    }
+
+    private List<StatisticResponse> mergeStatisticsWithDefaultYears(LocalDate startDate, LocalDate endDate, List<StatisticResponse> statistics) {
+        List<String> allYears = getAllYearsBetween(startDate, endDate);
+        Map<String, StatisticResponse> statisticsMap = new HashMap<>();
+
+        for (StatisticResponse statistic : statistics) {
+            statisticsMap.put(statistic.getLabel(), statistic);
+        }
+
+        List<StatisticResponse> mergedList = new ArrayList<>();
+        for (String year : allYears) {
+            StatisticResponse statistic = statisticsMap.get(year);
+            if (statistic == null) {
+                statistic = new StatisticResponse() {
+                    @Override
+                    public String getLabel() {
+                        return year;
+                    }
+
+                    @Override
+                    public Integer getOrders() {
+                        return 0;
+                    }
+
+                    @Override
+                    public Integer getQuantity() {
+                        return 0;
+                    }
+
+                    @Override
+                    public Double getTotalMoney() {
+                        return 0.0;
+                    }
+                };
+            }
+            mergedList.add(statistic);
+        }
+
+        return mergedList;
+    }
+
+    private List<String> getAllYearsBetween(LocalDate startDate, LocalDate endDate) {
+        List<String> allYears = new ArrayList<>();
+        LocalDate currentDate = startDate;
+
+        while (!currentDate.isAfter(endDate)) {
+            String yearLabel = String.valueOf(currentDate.getYear());
+            if (!allYears.contains(yearLabel)) {
+                allYears.add(yearLabel);
+            }
+            currentDate = currentDate.plusYears(1);
+        }
+
+        return allYears;
+    }
+
+
 
 }
 

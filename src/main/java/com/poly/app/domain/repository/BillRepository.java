@@ -1,5 +1,6 @@
 package com.poly.app.domain.repository;
 
+import com.poly.app.domain.admin.Statistical.Response.StatisticResponse;
 import com.poly.app.domain.model.Bill;
 import com.poly.app.infrastructure.constant.BillStatus;
 import org.springframework.data.domain.Page;
@@ -8,8 +9,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -55,5 +58,57 @@ public interface BillRepository extends JpaRepository<Bill, Integer>, JpaSpecifi
                
             """, nativeQuery = true)
     List<Object[]> getFullBillStatusSummary();
+
+
+
+
+    // Thống kê theo ngày
+    @Query(value = """
+    SELECT 
+        DATE_FORMAT(FROM_UNIXTIME(b.updated_at / 1000), '%d/%m') AS label,
+        COUNT(DISTINCT b.id) AS orders,
+        SUM(bd.quantity) AS quantity,
+        SUM(b.money_after) AS totalMoney
+    FROM bill b
+    JOIN bill_detail bd ON b.id = bd.bill_id
+    WHERE b.status = 'DA_HOAN_THANH'
+      AND DATE(FROM_UNIXTIME(b.updated_at / 1000)) BETWEEN :startDate AND :endDate
+    GROUP BY DATE(FROM_UNIXTIME(b.updated_at / 1000))
+    ORDER BY DATE(FROM_UNIXTIME(b.updated_at / 1000))
+""", nativeQuery = true)
+    List<StatisticResponse> getStatisticsByDay(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    // Thống kê theo tuần
+    @Query(value = """
+    SELECT 
+        CONCAT(YEAR(FROM_UNIXTIME(b.updated_at / 1000)), '-Tuần ', WEEK(FROM_UNIXTIME(b.updated_at / 1000))) AS label,
+        COUNT(DISTINCT b.id) AS orders,
+        SUM(bd.quantity) AS quantity,
+        SUM(b.money_after) AS totalMoney
+    FROM bill b
+    JOIN bill_detail bd ON b.id = bd.bill_id
+    WHERE b.status = 'DA_HOAN_THANH'
+      AND DATE(FROM_UNIXTIME(b.updated_at / 1000)) BETWEEN :startDate AND :endDate
+    GROUP BY YEAR(FROM_UNIXTIME(b.updated_at / 1000)), WEEK(FROM_UNIXTIME(b.updated_at / 1000))
+    ORDER BY YEAR(FROM_UNIXTIME(b.updated_at / 1000)), WEEK(FROM_UNIXTIME(b.updated_at / 1000))
+""", nativeQuery = true)
+    List<StatisticResponse> getStatisticsByWeek(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    // Thống kê theo năm
+    @Query(value = """
+    SELECT 
+        CAST(YEAR(FROM_UNIXTIME(b.updated_at / 1000)) AS CHAR) AS label,
+        COUNT(DISTINCT b.id) AS orders,
+        SUM(bd.quantity) AS quantity,
+        SUM(b.money_after) AS totalMoney
+    FROM bill b
+    JOIN bill_detail bd ON b.id = bd.bill_id
+    WHERE b.status = 'DA_HOAN_THANH'
+      AND DATE(FROM_UNIXTIME(b.updated_at / 1000)) BETWEEN :startDate AND :endDate
+    GROUP BY YEAR(FROM_UNIXTIME(b.updated_at / 1000))
+    ORDER BY YEAR(FROM_UNIXTIME(b.updated_at / 1000))
+""", nativeQuery = true)
+    List<StatisticResponse> getStatisticsByYear(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
 
 }
