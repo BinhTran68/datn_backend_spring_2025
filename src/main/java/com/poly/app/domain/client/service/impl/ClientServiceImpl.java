@@ -95,7 +95,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ProductDetailResponse findProductDetailbyProductIdAndColorIdAndSizeId(int productId, int colorId, int sizeId) {
         try {
-            ProductDetailResponse productDetail = productViewRepository.findByProductAndColorAndSize(productId, colorId, sizeId);
+            ProductDetailResponse productDetail = productViewRepository.findByProductAndColorAndSize(productId, colorId, sizeId).get(0);
             List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
             List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(), ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
             PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue))
@@ -105,6 +105,7 @@ public class ClientServiceImpl implements ClientService {
             return productDetail;
 
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new IllegalArgumentException("ko tìm thấy chi tiết sản phẩm này");
         }
 
