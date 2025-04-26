@@ -433,10 +433,10 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .product(product5) // New Balance 574
                 .brand(brand5) // New Balance
                 .type(type3) // Chạy bộ
-                .color(color5) // Xám
+                .color(color4) // Xám
                 .material(material5) // Lưới
                 .size(size4) // 39
-                .sole(sole2) // Cao su
+                .sole(sole3) // Cao su
                 .gender(genderMale) // Nam
                 .productDetailCode("PD015")
                 .quantity(110)
