@@ -163,7 +163,7 @@ public class ClientServiceImpl implements ClientService {
         }
         Address address = null;
         if (request.getDetailAddressShipping() != null && customer != null) {
-            Address address1 = addressRepository.findByCustomerIdAndProvinceIdAndDistrictIdAndWardIdAndSpecificAddress
+            Address address1 = addressRepository.findFirstByCustomerIdAndProvinceIdAndDistrictIdAndWardIdAndSpecificAddress
                     (customer.getId(),
                             request.getDetailAddressShipping().getProvinceId(),
                             request.getDetailAddressShipping().getDistrictId(),
