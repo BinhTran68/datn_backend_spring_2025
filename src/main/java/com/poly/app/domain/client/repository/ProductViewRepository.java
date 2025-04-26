@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductViewRepository extends JpaRepository<ProductDetail, Integer> {
@@ -223,8 +224,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                    "(pd.id,pd.code,pd.product.productName,pd.brand.brandName,pd.type.typeName,pd.color.colorName" +
                    ",pd.material.materialName,pd.size.sizeName,pd.sole.soleName,pd.gender.genderName,pd.quantity" +
                    ",pd.price,pd.weight,pd.descrition,pd.status,pd.updatedAt,pd.updatedBy) from ProductDetail pd  " +
-                   "where pd.product.id = :productId and pd.color.id= :colorId and pd.size.id = :sizeId")
-    ProductDetailResponse findByProductAndColorAndSize(int productId, int colorId, int sizeId);
+                   "where pd.product.id = :productId and pd.color.id= :colorId and pd.size.id = :sizeId ")
+    List<ProductDetailResponse> findByProductAndColorAndSize(int productId, int colorId, int sizeId);
 
     @Query(value = "SELECT NEW com.poly.app.domain.client.response.PromotionResponse" +
                    "(pd.promotion.id, pd.productDetail.id, pd.promotion.discountValue, pd.promotion.promotionName) " +
@@ -241,6 +242,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                        "CONCAT(MIN(pd.price), ' - ', MAX(pd.price)) AS price, " +
                        "CONCAT(MIN(pr.discount_value), ' - ', MAX(pr.discount_value)) AS discountValue, " +
                        "SUM(pd.sold) AS sold, " +
+                       "MAX(pd.created_At) as createdAt,"+
                        "MAX(pd.color_id) AS colorId, " +
                        "MAX(pd.gender_id) AS genderId, " +
                        "MAX(pd.size_id) AS sizeId, " +
@@ -273,7 +275,7 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                        "AND (:minPrice IS NULL OR pd.price >= :minPrice) " +
                        "AND (:maxPrice IS NULL OR pd.price <= :maxPrice) " +
                        "GROUP BY pd.product_id, c.color_name, g.gender_name " +
-                       "ORDER BY sold DESC",
+                       "ORDER BY createdAt DESC",
                 countQuery = "SELECT COUNT(DISTINCT CONCAT(pd.product_id, c.color_name, g.gender_name)) " +
                              "FROM product_detail pd " +
                              "LEFT JOIN product p ON pd.product_id = p.id " +
