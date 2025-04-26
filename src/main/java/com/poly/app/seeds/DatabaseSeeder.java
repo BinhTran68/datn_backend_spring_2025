@@ -483,7 +483,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         // Nếu chưa có role, tạo mới
         if (adminRole == null) {
-            adminRole = roleRepository.save(new Role("ADMIN", Status.HOAT_DONG));
+            adminRole = roleRepository.save(new Role("ROLE_ADMIN", Status.HOAT_DONG));
         }
         if (userRole == null) {
             userRole = roleRepository.save(new Role("USER", Status.HOAT_DONG));
