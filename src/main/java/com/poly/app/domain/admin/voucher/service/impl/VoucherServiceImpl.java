@@ -5,18 +5,18 @@ import com.poly.app.domain.admin.voucher.request.voucher.VoucherRequest;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.admin.voucher.service.VoucherService;
 import com.poly.app.domain.auth.request.RegisterRequest;
-import com.poly.app.domain.model.Customer;
+import com.poly.app.domain.client.response.NotificationResponse;
+import com.poly.app.domain.model.*;
 import com.poly.app.domain.admin.customer.service.CustomerService;
 
-import com.poly.app.domain.model.CustomerVoucher;
-import com.poly.app.domain.model.StatusEnum;
-import com.poly.app.domain.model.Voucher;
+import com.poly.app.domain.repository.AnnouncementRepository;
 import com.poly.app.domain.repository.CustomerVoucherRepository;
 import com.poly.app.domain.repository.VoucherRepository;
 import com.poly.app.infrastructure.constant.DiscountType;
 import com.poly.app.infrastructure.constant.VoucherType;
 import com.poly.app.infrastructure.email.Email;
 import com.poly.app.infrastructure.email.EmailSender;
+import com.poly.app.infrastructure.util.CurrencyFormatter;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -44,6 +45,10 @@ import java.util.stream.Stream;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VoucherServiceImpl implements VoucherService {
+    @Autowired
+    AnnouncementRepository announcementRepository;
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
     @Autowired
     CustomerService customerService;
     VoucherRepository voucherRepository;
@@ -126,6 +131,30 @@ public class VoucherServiceImpl implements VoucherService {
                             "</html>\n");
 
                     emailSender.sendEmail(email);
+
+                    try {
+                        // Gửi thông báo qua WebSocket đến customer
+                        // Tạo thông báo với nội dung phù hợp về việc hủy đơn hàng
+                        Announcement announcement = new Announcement();
+                        announcement.setCustomer(customer);
+                        announcement.setAnnouncementContent("Bạn nhận được phiếu giảm giá " + voucher.getVoucherName() + " giảm " + CurrencyFormatter.formatCurrencyVND(voucher.getDiscountValue()) +(voucher.getDiscountType().equals(DiscountType.PERCENT)?" %":" đ") +" cho đơn hàng từ " + CurrencyFormatter.formatCurrencyVND(voucher.getBillMinValue()));
+                        announcementRepository.save(announcement);
+
+                        messagingTemplate.convertAndSend(
+
+                                "/topic/global-notifications/" + customer.getId(),
+                                new NotificationResponse(
+                                        Long.valueOf(announcement.getId()), // Chắc chắn ID không null sau khi đã save
+                                        announcement.getAnnouncementContent(),
+                                        new Date(announcement.getCreatedAt()),
+                                        false
+                                )
+                        );
+//                        System.out.println("Đã gửi thông báo WebSocket tới user: " + bill.getCustomer().getId());
+                    } catch (Exception e) {
+                        System.err.println("Lỗi khi gửi thông báo WebSocket: " + e.getMessage());
+                        e.printStackTrace();
+                    }
 
                 }
             }

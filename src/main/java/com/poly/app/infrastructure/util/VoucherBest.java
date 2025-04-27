@@ -21,7 +21,7 @@ public class VoucherBest {
 
         if (bestVoucher.isPresent()) {
             String result = "Best voucher: " + bestVoucher.get().getVoucherName() + " - Discount: " +
-                            calculateDiscount(bestVoucher.get(), billValue);
+                            CurrencyFormatter.formatCurrencyVND(calculateDiscount(bestVoucher.get(), billValue));
             String additionalSuggestion = suggestAdditionalPurchaseForBetterVoucher(billValue,vouchers);
             return VoucherBestResponse.builder()
                     .voucher(bestVoucher.get())
@@ -53,7 +53,7 @@ public class VoucherBest {
         if (!possibleVouchers.isEmpty()) {
             Voucher suggestedVoucher = possibleVouchers.get(0);
             double amountNeeded = suggestedVoucher.getBillMinValue() - billValue;
-            return "Bạn chỉ cần mua thêm " + amountNeeded + " để sử dụng mã voucher " + suggestedVoucher.getVoucherCode();
+            return "Bạn chỉ cần mua thêm " + CurrencyFormatter.formatCurrencyVND(amountNeeded)+" đ" + " để sử dụng mã voucher " + suggestedVoucher.getVoucherCode();
         }
         return "Không có voucher phù hợp hiện tại.";
     }
@@ -65,10 +65,10 @@ public class VoucherBest {
 
         if (betterVoucher.isPresent()) {
             double amountNeeded = betterVoucher.get().getBillMinValue() - billValue;
-            return "Đã áp dụng voucher tốt nhất \n bạn chỉ cần mua thêm " + amountNeeded +
-                   "đ  để sử dụng voucher tốt hơn: " + betterVoucher.get().getVoucherName()+
+            return "Đã áp dụng voucher tốt nhất \n bạn chỉ cần mua thêm " + CurrencyFormatter.formatCurrencyVND(amountNeeded) +" đ"+
+                   " để sử dụng voucher tốt hơn: " + betterVoucher.get().getVoucherName()+
                    "-"+betterVoucher.get().getVoucherCode()+
-                   " tiết kiệm lên tới "+betterVoucher.get().getDiscountValue()+""+(betterVoucher.get().getDiscountType().equals(DiscountType.PERCENT)?"%":"đ");
+                   " tiết kiệm lên tới "+CurrencyFormatter.formatCurrencyVND(betterVoucher.get().getDiscountValue())+(betterVoucher.get().getDiscountType().equals(DiscountType.PERCENT)?"%":"đ");
         }
         return "";
     }
