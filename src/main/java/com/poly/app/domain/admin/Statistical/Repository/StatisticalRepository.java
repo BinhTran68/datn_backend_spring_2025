@@ -18,90 +18,94 @@ public interface StatisticalRepository extends JpaRepository<Bill, Integer> {
             , nativeQuery = true)
     SumTotal SumBill();
 
-    // Ngày
+    //ngày
     @Query(value = """
-    SELECT 
-        DATE(FROM_UNIXTIME(b.created_at / 1000)) AS reportDate,
-    (SELECT SUM(total_money) FROM bill b2 WHERE b2.status = 'DA_HOAN_THANH' AND DATE(FROM_UNIXTIME(b2.created_at / 1000)) = CURDATE()) AS totalRevenue,
-                       COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS totalOrders,
-        COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS successfullOrders,
-        COUNT(DISTINCT CASE WHEN b.status = 'DA_HUY' THEN b.id ELSE NULL END) AS cancelledOrders,
-        SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
-    FROM bill b
-    LEFT JOIN bill_detail bd ON b.id = bd.bill_id
-    WHERE DATE(FROM_UNIXTIME(b.created_at / 1000)) = CURDATE()
-    GROUP BY reportDate
-    ORDER BY reportDate DESC
-""", nativeQuery = true)
+                SELECT 
+                    DATE(FROM_UNIXTIME(b.created_at / 1000)) AS reportDate,
+                   SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.total_money ELSE 0 END) AS totalRevenue,
+                 COUNT(DISTINCT b.id) AS totalOrders, 
+             COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS successfullOrders,
+                    SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
+            SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
+                                             FROM bill b
+                LEFT JOIN bill_detail bd ON b.id = bd.bill_id
+                WHERE DATE(FROM_UNIXTIME(b.created_at / 1000)) = CURDATE()
+                GROUP BY reportDate
+                ORDER BY reportDate DESC
+            """, nativeQuery = true)
     List<Object[]> getSumDay();
+
 
     // Tuần
     @Query(value = """
-    SELECT 
-        CAST(YEARWEEK(FROM_UNIXTIME(b.created_at / 1000)) AS CHAR) AS reportTime,
-    (SELECT SUM(total_money) FROM bill b2 WHERE b2.status = 'DA_HOAN_THANH' AND DATE(FROM_UNIXTIME(b2.created_at / 1000)) = CURDATE()) AS totalRevenue,
-                                                                                              COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS totalOrders,
-        COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS successfullOrders,
-        COUNT(DISTINCT CASE WHEN b.status = 'DA_HUY' THEN b.id ELSE NULL END) AS cancelledOrders,
-        SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
-    FROM bill b
-    LEFT JOIN bill_detail bd ON b.id = bd.bill_id
-    WHERE YEARWEEK(FROM_UNIXTIME(b.created_at / 1000)) = YEARWEEK(CURDATE())
-    GROUP BY reportTime
-    ORDER BY reportTime DESC
-""", nativeQuery = true)
+                SELECT 
+                    CAST(YEARWEEK(FROM_UNIXTIME(b.created_at / 1000)) AS CHAR) AS reportTime,
+                   SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.total_money ELSE 0 END) AS totalRevenue,
+                    COUNT(DISTINCT b.id) AS totalOrders, 
+                    COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS successfullOrders,
+                    SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
+            SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
+                FROM bill b
+                LEFT JOIN bill_detail bd ON b.id = bd.bill_id
+                WHERE YEARWEEK(FROM_UNIXTIME(b.created_at / 1000)) = YEARWEEK(CURDATE())
+                GROUP BY reportTime
+                ORDER BY reportTime DESC
+            """, nativeQuery = true)
     List<Object[]> getSumWeek();
+
 
     // Tháng
     @Query(value = """
-    SELECT 
-        DATE_FORMAT(FROM_UNIXTIME(b.created_at / 1000), '%Y-%m') AS reportTime,
-    (SELECT SUM(total_money) FROM bill b2 WHERE b2.status = 'DA_HOAN_THANH' AND DATE(FROM_UNIXTIME(b2.created_at / 1000)) = CURDATE()) AS totalRevenue,
-                                                                                             COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS totalOrders,
-        COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS successfullOrders,
-        COUNT(DISTINCT CASE WHEN b.status = 'DA_HUY' THEN b.id ELSE NULL END) AS cancelledOrders,
-        SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
-    FROM bill b
-    LEFT JOIN bill_detail bd ON b.id = bd.bill_id
-    WHERE DATE_FORMAT(FROM_UNIXTIME(b.created_at / 1000), '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
-    GROUP BY reportTime
-    ORDER BY reportTime DESC
-""", nativeQuery = true)
+                SELECT 
+                    DATE_FORMAT(FROM_UNIXTIME(b.created_at / 1000), '%Y-%m') AS reportTime,
+                   SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.total_money ELSE 0 END) AS totalRevenue,
+                 COUNT(DISTINCT b.id) AS totalOrders,
+               COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS successfullOrders,
+                    SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
+            SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
+                                                              FROM bill b
+                LEFT JOIN bill_detail bd ON b.id = bd.bill_id
+                WHERE DATE_FORMAT(FROM_UNIXTIME(b.created_at / 1000), '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')
+                GROUP BY reportTime
+                ORDER BY reportTime DESC
+            """, nativeQuery = true)
     List<Object[]> getSumMonth();
+
 
     // Năm
     @Query(value = """
-                SELECT\s
-                                            CAST(YEAR(FROM_UNIXTIME(b.created_at / 1000)) AS CHAR) AS reportTime,
-            (SELECT SUM(total_money) FROM bill b2 WHERE b2.status = 'DA_HOAN_THANH' AND DATE(FROM_UNIXTIME(b2.created_at / 1000)) = CURDATE()) AS totalRevenue,
-                                                                                                                                         COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS totalOrders,
-                                            COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS successfullOrders,
-                                            COUNT(DISTINCT CASE WHEN b.status = 'DA_HUY' THEN b.id ELSE NULL END) AS cancelledOrders,
-                                            SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
-                                        FROM bill b
-                                        LEFT JOIN bill_detail bd ON b.id = bd.bill_id
-                                        WHERE YEAR(FROM_UNIXTIME(b.created_at / 1000)) = YEAR(CURDATE())
-                                        GROUP BY reportTime
-                                        ORDER BY reportTime DESC
-                                        
+                SELECT 
+                    CAST(YEAR(FROM_UNIXTIME(b.created_at / 1000)) AS CHAR) AS reportTime,
+                   SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.total_money ELSE 0 END) AS totalRevenue,
+                    COUNT(DISTINCT b.id) AS totalOrders,
+                 COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END) AS successfullOrders,
+                    SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END) AS cancelledOrders,
+                    SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END) AS totalProductsSold
+                    FROM bill b
+                LEFT JOIN bill_detail bd ON b.id = bd.bill_id
+                WHERE YEAR(FROM_UNIXTIME(b.created_at / 1000)) = YEAR(CURDATE())
+                GROUP BY reportTime
+                ORDER BY reportTime DESC
             """, nativeQuery = true)
     List<Object[]> getSumYear();
 
 
     // Tuỳ chỉnh ngày
     @Query(value = """
-    SELECT 
-        CONCAT(:startDate, ' to ', :endDate) AS reportTime,
-    (SELECT SUM(total_money) FROM bill b2 WHERE b2.status = 'DA_HOAN_THANH' AND DATE(FROM_UNIXTIME(b2.created_at / 1000)) = CURDATE()) AS totalRevenue,
-                                                                                      COALESCE(COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END), 0) AS totalOrders,
-        COALESCE(COUNT(DISTINCT CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END), 0) AS successfullOrders,
-        COALESCE(COUNT(DISTINCT CASE WHEN b.status = 'DA_HUY' THEN b.id ELSE NULL END), 0) AS cancelledOrders,
-        COALESCE(SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END), 0) AS totalProductsSold
-    FROM bill b
-    LEFT JOIN bill_detail bd ON b.id = bd.bill_id
-    WHERE DATE(FROM_UNIXTIME(b.created_at / 1000)) BETWEEN :startDate AND :endDate
-""", nativeQuery = true)
+                SELECT 
+                    CONCAT(:startDate, ' to ', :endDate) AS reportTime,
+                   COALESCE(SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.total_money ELSE 0 END), 0) AS totalRevenue,
+                                                              COALESCE(COUNT(CASE WHEN b.status = 'DA_HOAN_THANH' THEN b.id ELSE NULL END), 0) AS totalOrders,  
+                    COALESCE(SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN 1 ELSE 0 END), 0) AS successfullOrders,
+                    COALESCE(SUM(CASE WHEN b.status = 'DA_HUY' THEN 1 ELSE 0 END), 0) AS cancelledOrders,
+                   COALESCE(SUM(CASE WHEN b.status = 'DA_HOAN_THANH' THEN bd.quantity ELSE 0 END), 0) AS totalProductsSold      
+                FROM bill b
+                LEFT JOIN bill_detail bd ON b.id = bd.bill_id
+                WHERE DATE(FROM_UNIXTIME(b.created_at / 1000)) BETWEEN :startDate AND :endDate
+            """, nativeQuery = true)
     List<Object[]> getSumByCustomDate(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+
     //lấy tên,size,màu,số lượng sản phẩm bán chạy nhất
     //lấy tổng
     @Query(value = "SELECT p.product_name, c.color_name, s.size_name, SUM(bd.quantity) AS totalQuantitySold " +

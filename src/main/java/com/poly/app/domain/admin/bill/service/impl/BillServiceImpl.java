@@ -115,6 +115,9 @@ public class BillServiceImpl implements BillService {
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
+    @Autowired
+    private ImageRepository imageRepository;
+
     @Override
     public Page<BillResponse> getPageBill(Integer size, Integer page,
                                           BillStatus statusBill,
@@ -488,6 +491,13 @@ public class BillServiceImpl implements BillService {
 
         for (BillDetailRequest billDetailRequest : request.getBillDetailRequests()) {
             ProductDetail productDetail = productDetailRepository.findById(billDetailRequest.getProductDetailId()).orElse(null);
+
+            List<Image> images = imageRepository.findByProductDetail_Id(productDetail.getId());
+            String imageUrl = "";
+            if(images.size() > 0) {
+                imageUrl = images.get(0).getUrl();
+            }
+
             if (productDetail != null) {
                 BillDetail billDetail = BillDetail
                         .builder()
@@ -496,6 +506,7 @@ public class BillServiceImpl implements BillService {
                         .price(billDetailRequest.getPrice())
                         .totalMoney(billDetailRequest.getPrice() * billDetailRequest.getQuantity())
                         .quantity(billDetailRequest.getQuantity())
+                        .image(imageUrl)
                         .build();
                 billDetailRepository.save(billDetail);
             }
