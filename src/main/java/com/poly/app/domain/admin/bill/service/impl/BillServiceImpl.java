@@ -491,7 +491,12 @@ public class BillServiceImpl implements BillService {
 
         for (BillDetailRequest billDetailRequest : request.getBillDetailRequests()) {
             ProductDetail productDetail = productDetailRepository.findById(billDetailRequest.getProductDetailId()).orElse(null);
+            if(bill.getStatus() == BillStatus.DA_HOAN_THANH) {
+                // Cộng số lượng đã bán
+                productDetail.setSold((productDetail.getSold()!=null?productDetail.getSold():0) +
+                        billDetailRequest.getQuantity());
 
+            }
             List<Image> images = imageRepository.findByProductDetail_Id(productDetail.getId());
             String imageUrl = "";
             if(images.size() > 0) {
