@@ -184,7 +184,7 @@ public class StatisticalService {
             );
 
             // Thiết lập email nhận - cập nhật với địa chỉ email thực tế
-            email.setToEmail(new String[]{"tutbph46367@fpt.edu.vn"});
+            email.setToEmail(new String[]{"binhtdph46147@fpt.edu.vn"});
 
             // Thêm file Excel vào email
             email.setExcelFile(excelFile);
