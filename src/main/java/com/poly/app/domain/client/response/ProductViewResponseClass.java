@@ -16,6 +16,9 @@ public class ProductViewResponseClass {
     private Integer tag;
     private Integer colorId;
     private Integer sizeId;
+    private Integer genderId;
+    private Integer materialId;
+    private Integer soleId;
     private String imageUrl;
     private Long createdAt;
     private Long views;

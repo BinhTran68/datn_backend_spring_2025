@@ -12,6 +12,8 @@ public interface ProductViewResponse {
     Integer getTag();
     Integer getColorId();
     Integer getSizeId();
+    Integer getMaterialId();
+    Integer getSoleId();
     String getImageUrl();
     Integer getGenderId();
     String getPromotionName();

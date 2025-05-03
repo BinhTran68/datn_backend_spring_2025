@@ -1,8 +1,11 @@
 package com.poly.app.domain.client.service;
 
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
+import com.poly.app.domain.admin.product.response.gender.GenderResponse;
+import com.poly.app.domain.admin.product.response.material.MaterialResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
+import com.poly.app.domain.admin.product.response.sole.SoleResponse;
 import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.*;
@@ -25,11 +28,11 @@ public interface ClientService {
 
 //    trang detail từng sản phẩm
 
-    ProductDetailResponse findProductDetailbyProductIdAndColorIdAndSizeId(int productId, int colorId, int sizeId);
+    ProductDetailResponse findProductDetailbyProductIdAndColorIdAndSizeId(int productId, int colorId, int sizeId, int genderId,int materialId,int soleId);
 
     List<SizeResponse> findSizesByProductId(Integer productId);
 
-    List<SizeResponse> findSizesByProductIdAndColorId(Integer productId, Integer colorId);
+    List<SizeResponse> findSizesByProductIdAndColorId(Integer productId, Integer colorId,Integer soleId, Integer materialId, Integer genderId);
 
     List<ColorResponse> findColorsByProductId(Integer productId);
 
@@ -76,9 +79,25 @@ public interface ClientService {
                                                    int page, int size);
 
     Map<String, Object> refund(Integer billId, Integer MoneyRefund, String description) throws Exception;
+
     List<ProductDetailDiscountDTO> getDiscountedProductDetails(Integer productId, Integer colorId, Integer genderId);
 
     PromotionView getPromotionView(Integer productId, Integer colorId, Integer genderId);
 
     Boolean hasBought(Integer customerId, Integer productId);
+
+    //    thêm
+    List<GenderResponse> findGenderByProductId(Integer productId);
+
+    List<MaterialResponse> findMaterialByProductId(Integer productId);
+
+    List<SoleResponse> findSoleByProductId(Integer productId);
+
+    List<ColorResponse> findColorByProductIdAndSoleId(Integer productId,Integer soleId, Integer materialId, Integer genderId);
+
+    List<SoleResponse> findSoleByProductIdAndMaterialId(Integer productId,Integer materialId,Integer genderId);
+
+    List<MaterialResponse> findMaterialByProductIdAndGenderId(Integer productId,Integer genderId);
+
+
 }

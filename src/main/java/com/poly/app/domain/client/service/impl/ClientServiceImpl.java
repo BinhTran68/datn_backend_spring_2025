@@ -3,9 +3,12 @@ package com.poly.app.domain.client.service.impl;
 import com.poly.app.domain.admin.address.AddressRequest;
 import com.poly.app.domain.admin.bill.request.BillDetailRequest;
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
+import com.poly.app.domain.admin.product.response.gender.GenderResponse;
 import com.poly.app.domain.admin.product.response.img.ImgResponse;
+import com.poly.app.domain.admin.product.response.material.MaterialResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
+import com.poly.app.domain.admin.product.response.sole.SoleResponse;
 import com.poly.app.domain.client.repository.ProductViewRepository;
 import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
@@ -48,6 +51,9 @@ public class ClientServiceImpl implements ClientService {
     ImageRepository imageRepository;
     SizeRepository sizeRepository;
     ColorRepository colorRepository;
+    GenderRepository genderRepository;
+    MaterialRepository materialRepository;
+    SoleRepository  soleRepository;
     ProductRepository productRepository;
     CustomerRepository customerRepository;
     VoucherRepository voucherRepository;
@@ -93,9 +99,9 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ProductDetailResponse findProductDetailbyProductIdAndColorIdAndSizeId(int productId, int colorId, int sizeId) {
+    public ProductDetailResponse findProductDetailbyProductIdAndColorIdAndSizeId(int productId, int colorId, int sizeId,int genderId,int materialId,int soleId) {
         try {
-            ProductDetailResponse productDetail = productViewRepository.findByProductAndColorAndSize(productId, colorId, sizeId).get(0);
+            ProductDetailResponse productDetail = productViewRepository.findByProductAndColorAndSize(productId, colorId, sizeId, genderId,materialId,soleId).get(0);
             List<ImgResponse> images = imageRepository.findByProductDetailId(productDetail.getId());
             List<PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(), ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
             PromotionResponse maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue))
@@ -118,8 +124,8 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<SizeResponse> findSizesByProductIdAndColorId(Integer productId, Integer colorId) {
-        return sizeRepository.findSizesByProductIdAndColorId(productId, colorId);
+    public List<SizeResponse> findSizesByProductIdAndColorId(Integer productId, Integer colorId,Integer soleId, Integer materialId, Integer genderId) {
+        return sizeRepository.findSizesByProductIdAndColorId(productId, colorId,soleId,materialId,genderId);
     }
 
     @Override
@@ -1126,6 +1132,36 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Boolean hasBought(Integer customerId, Integer productId) {
         return productViewRepository.hasBought(customerId, productId) > 0;
+    }
+
+    @Override
+    public List<GenderResponse> findGenderByProductId(Integer productId) {
+        return genderRepository.findGendersByProductId(productId);
+    }
+
+    @Override
+    public List<MaterialResponse> findMaterialByProductId(Integer productId) {
+        return materialRepository.findMaterialsByProductId(productId);
+    }
+
+    @Override
+    public List<SoleResponse> findSoleByProductId(Integer productId) {
+        return soleRepository.findSolesByProductId(productId);
+    }
+
+    @Override
+    public List<ColorResponse> findColorByProductIdAndSoleId(Integer productId, Integer soleId, Integer materialId, Integer genderId) {
+        return colorRepository.findColorsByProductIdAndSoleId(productId,soleId,materialId,genderId);
+    }
+
+    @Override
+    public List<SoleResponse> findSoleByProductIdAndMaterialId(Integer productId, Integer materialId,Integer genderId) {
+        return soleRepository.findSolesByProductIdAndMaterialId(productId,materialId,genderId);
+    }
+
+    @Override
+    public List<MaterialResponse> findMaterialByProductIdAndGenderId(Integer productId, Integer genderId) {
+        return materialRepository.findMaterialsByProductIdAndGenderId(productId,genderId);
     }
 
 

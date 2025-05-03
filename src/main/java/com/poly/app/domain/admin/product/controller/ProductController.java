@@ -4,6 +4,8 @@ import com.poly.app.domain.admin.product.response.img.ImgResponse;
 import com.poly.app.domain.admin.product.response.product.IProductResponse;
 import com.poly.app.domain.admin.product.response.product.ProductResponse2;
 import com.poly.app.domain.admin.product.response.product.ProductResponseSelect;
+import com.poly.app.domain.admin.product.response.productdetail.ProductAtributeExistResponse;
+import com.poly.app.domain.admin.product.service.ProductDetailService;
 import com.poly.app.domain.admin.product.service.ProductListService;
 import com.poly.app.domain.admin.voucher.response.VoucherReponse;
 import com.poly.app.domain.common.Meta;
@@ -42,6 +44,7 @@ import java.util.Map;
 
 public class ProductController {
     ProductService productService;
+    ProductDetailService productDetailService;
     ProductListService productListService;
     ImageRepository imageRepository;
     ProductRepository productRepository;
@@ -216,6 +219,12 @@ public class ProductController {
                 .data(productListService.searchProduct(minQuantity))
                 .build();
     }
-
+    @GetMapping("/get-attribute-of-product")
+    public ApiResponse<ProductAtributeExistResponse> getAttributeOfProduct(@RequestParam(value = "productId") Integer productId) {
+        return ApiResponse.<ProductAtributeExistResponse>builder()
+                .message("Tìm")
+                .data(productDetailService.getAttributeOfProductExist(productId))
+                .build();
+    }
     //
 }
