@@ -2,13 +2,10 @@ package com.poly.app.domain.admin.product.service;
 
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.response.product.AllNameProductDetailResponse;
-import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailDTO;
-import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailWithPromotionDTO;
+import com.poly.app.domain.admin.product.response.productdetail.*;
 import com.poly.app.domain.model.ProductDetail;
 import com.poly.app.domain.admin.product.request.productdetail.FilterRequest;
 import com.poly.app.domain.admin.product.request.productdetail.ProductDetailRequest;
-import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailResponse;
-import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.infrastructure.constant.Status;
 import org.springframework.data.domain.Page;
 
@@ -58,5 +55,5 @@ public interface ProductDetailService {
 
     String switchStatus(Integer id, Status status);
 
-
+ProductAtributeExistResponse getAttributeOfProductExist(Integer productId);
 }

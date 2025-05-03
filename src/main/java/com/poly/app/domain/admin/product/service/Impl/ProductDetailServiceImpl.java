@@ -6,6 +6,7 @@ import com.poly.app.domain.admin.product.response.color.ColorResponse;
 import com.poly.app.domain.admin.product.response.img.ImgResponse;
 import com.poly.app.domain.admin.product.response.product.AllNameProductDetailResponse;
 import com.poly.app.domain.admin.product.response.productdetail.FilterProductDetailWithPromotionDTO;
+import com.poly.app.domain.admin.product.response.productdetail.ProductAtributeExistResponse;
 import com.poly.app.domain.admin.product.service.CloundinaryService;
 import com.poly.app.domain.client.repository.ProductViewRepository;
 import com.poly.app.domain.client.response.PromotionResponse;
@@ -763,6 +764,12 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
         }
 
+    }
+
+    @Override
+    public ProductAtributeExistResponse getAttributeOfProductExist(Integer productId) {
+        List<ProductAtributeExistResponse> list =  productDetailRepository.getAttributeOfProduct(productId);
+        return !list.isEmpty()? list.get(0):null;
     }
 
     //Phầm em tú làm

@@ -1,8 +1,11 @@
 package com.poly.app.domain.client.controller;
 
 import com.poly.app.domain.admin.product.response.color.ColorResponse;
+import com.poly.app.domain.admin.product.response.gender.GenderResponse;
+import com.poly.app.domain.admin.product.response.material.MaterialResponse;
 import com.poly.app.domain.admin.product.response.productdetail.ProductDetailResponse;
 import com.poly.app.domain.admin.product.response.size.SizeResponse;
+import com.poly.app.domain.admin.product.response.sole.SoleResponse;
 import com.poly.app.domain.client.request.AddCart;
 import com.poly.app.domain.client.request.CreateBillClientRequest;
 import com.poly.app.domain.client.response.*;
@@ -29,7 +32,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ClientController {
     ClientService clientService;
-ProductDetailRepository productDetailRepository;
+    ProductDetailRepository productDetailRepository;
+
     @GetMapping("/getallproducthadpromotion")
     ApiResponse<List<ProductViewResponseClass>> getAllProductHadPromotion(@RequestParam(value = "page", defaultValue = "0") Integer page
             , @RequestParam(value = "size", defaultValue = "5") Integer size
@@ -46,6 +50,9 @@ ProductDetailRepository productDetailRepository;
                         .tag(i.getTag())
                         .colorId(i.getColorId())
                         .sizeId(i.getSizeId())
+                        .genderId(i.getGenderId())
+                        .materialId(i.getMaterialId())
+                        .soleId(i.getSoleId())
                         .imageUrl(i.getImageUrl())
                         .createdAt(i.getCreatedAt())
                         .views(i.getViews())
@@ -78,6 +85,9 @@ ProductDetailRepository productDetailRepository;
                         .tag(i.getTag())
                         .colorId(i.getColorId())
                         .sizeId(i.getSizeId())
+                        .genderId(i.getGenderId())
+                        .materialId(i.getMaterialId())
+                        .soleId(i.getSoleId())
                         .imageUrl(i.getImageUrl())
                         .createdAt(i.getCreatedAt())
                         .views(i.getViews())
@@ -129,12 +139,15 @@ ProductDetailRepository productDetailRepository;
     @GetMapping("/getproductdetail")
     ApiResponse<ProductDetailResponse> getProductDetail(@RequestParam(value = "productId", defaultValue = "") Integer productId
             , @RequestParam(value = "colorId", defaultValue = "") Integer colorId,
-                                                        @RequestParam(value = "sizeId", defaultValue = "") Integer sizeId
+            @RequestParam(value = "sizeId", defaultValue = "") Integer sizeId,
+                                                        @RequestParam(value = "genderId", defaultValue = "") Integer genderId,
+                                                        @RequestParam(value = "materialId", defaultValue = "") Integer materialId,
+                                                                @RequestParam(value = "soleId", defaultValue = "") Integer soleId
     ) {
 
         return ApiResponse.<ProductDetailResponse>builder()
                 .message("lấy sản phẩm")
-                .data(clientService.findProductDetailbyProductIdAndColorIdAndSizeId(productId, colorId, sizeId))
+                .data(clientService.findProductDetailbyProductIdAndColorIdAndSizeId(productId, colorId, sizeId,genderId,materialId,soleId))
                 .build();
     }
 
@@ -149,11 +162,45 @@ ProductDetailRepository productDetailRepository;
 
     @GetMapping("/findsizebyproductidandcolorid")
     ApiResponse<List<SizeResponse>> findSizesByProductIdAndColorId(@RequestParam(value = "productId", defaultValue = "") Integer productId,
-                                                                   @RequestParam(value = "colorId", defaultValue = "") Integer colorId
+                                                                   @RequestParam(value = "colorId", defaultValue = "") Integer colorId,
+                                                                   @RequestParam(value = "soleId", defaultValue = "") Integer soleId,
+                                                                   @RequestParam(value = "materialId", defaultValue = "") Integer materialId,
+                                                                   @RequestParam(value = "genderId", defaultValue = "") Integer genderId
+
     ) {
         return ApiResponse.<List<SizeResponse>>builder()
                 .message("danh sách các size thuộc sản phẩm và color")
-                .data(clientService.findSizesByProductIdAndColorId(productId, colorId))
+                .data(clientService.findSizesByProductIdAndColorId(productId, colorId,soleId,materialId,genderId))
+                .build();
+    }
+    @GetMapping("/find-color-byproductid-and-soleId")
+    ApiResponse<List<ColorResponse>> findColorByProductIdAndSoleId(@RequestParam(value = "productId", defaultValue = "") Integer productId,
+                                                                   @RequestParam(value = "soleId", defaultValue = "") Integer soleId,
+                                                                   @RequestParam(value = "materialId", defaultValue = "") Integer materialId,
+                                                                   @RequestParam(value = "genderId", defaultValue = "") Integer genderId
+    ) {
+        return ApiResponse.<List<ColorResponse>>builder()
+                .message("danh sách các color thuộc sản phẩm và color")
+                .data(clientService.findColorByProductIdAndSoleId(productId, soleId,materialId,genderId))
+                .build();
+    }
+    @GetMapping("/find-sole-byproductid-and-materialId")
+    ApiResponse<List<SoleResponse>> findSoleByProductIdAndMaterialId(@RequestParam(value = "productId", defaultValue = "") Integer productId,
+                                                                   @RequestParam(value = "materialId", defaultValue = "") Integer materialId,
+                                                                     @RequestParam(value = "genderId", defaultValue = "") Integer genderId
+    ) {
+        return ApiResponse.<List<SoleResponse>>builder()
+                .message("danh sách các sole thuộc sản phẩm và materialId")
+                .data(clientService.findSoleByProductIdAndMaterialId(productId, materialId,genderId))
+                .build();
+    }
+    @GetMapping("/find-material-byproductid-and-genderid")
+    ApiResponse<List<MaterialResponse>> findMaterialByProductIdAndGenderId(@RequestParam(value = "productId", defaultValue = "") Integer productId,
+                                                                     @RequestParam(value = "genderId", defaultValue = "") Integer genderId
+    ) {
+        return ApiResponse.<List<MaterialResponse>>builder()
+                .message("danh sách các Material thuộc sản phẩm và genderId")
+                .data(clientService.findMaterialByProductIdAndGenderId(productId, genderId))
                 .build();
     }
 
@@ -163,6 +210,33 @@ ProductDetailRepository productDetailRepository;
         return ApiResponse.<List<ColorResponse>>builder()
                 .message("danh sách các size thuộc sản phẩm")
                 .data(clientService.findColorsByProductId(productId))
+                .build();
+    }
+
+    @GetMapping("/findgendersbyproductid")
+    ApiResponse<List<GenderResponse>> findGendersByProductId(@RequestParam(value = "productId", defaultValue = "") Integer productId
+    ) {
+        return ApiResponse.<List<GenderResponse>>builder()
+                .message("danh sách các gender thuộc sản phẩm")
+                .data(clientService.findGenderByProductId(productId))
+                .build();
+    }
+
+    @GetMapping("/findmaterialsbyproductid")
+    ApiResponse<List<MaterialResponse>> findMaterialsByProductId(@RequestParam(value = "productId", defaultValue = "") Integer productId
+    ) {
+        return ApiResponse.<List<MaterialResponse>>builder()
+                .message("danh sách các material thuộc sản phẩm")
+                .data(clientService.findMaterialByProductId(productId))
+                .build();
+    }
+
+    @GetMapping("/findsolesbyproductid")
+    ApiResponse<List<SoleResponse>> findSolesByProductId(@RequestParam(value = "productId", defaultValue = "") Integer productId
+    ) {
+        return ApiResponse.<List<SoleResponse>>builder()
+                .message("danh sách các Sole thuộc sản phẩm")
+                .data(clientService.findSoleByProductId(productId))
                 .build();
     }
 
@@ -322,6 +396,7 @@ ProductDetailRepository productDetailRepository;
                 .data(clientService.searchBill(billCode.trim()))
                 .build();
     }
+
     @GetMapping("/veritifybillcode")
     ApiResponse<String> veritify(
             @RequestParam(required = false) String billCode
@@ -331,6 +406,7 @@ ProductDetailRepository productDetailRepository;
                 .data(clientService.veritifyBill(billCode))
                 .build();
     }
+
     @GetMapping("/getallbillcustomerId")
     ApiResponse<List<SearchStatusBillResponse>> getALlBillCustomerId(
             @RequestParam(value = "customerId", required = false) Integer customerId,
@@ -338,19 +414,21 @@ ProductDetailRepository productDetailRepository;
             @RequestParam(value = "page", defaultValue = "1") Integer page
             , @RequestParam(value = "size", defaultValue = "5") Integer size
     ) {
-        return clientService.getAllBillOfCustomerid(customerId,page,size);
+        return clientService.getAllBillOfCustomerid(customerId, page, size);
     }
+
     @GetMapping("/cancelbill")
     ApiResponse<String> cacelBill(
             @RequestParam(required = false) Integer billId,
             @RequestParam(required = false) String description
 
-            ) throws Exception {
+    ) throws Exception {
         return ApiResponse.<String>builder()
                 .message("Hủy đơn hàng")
-                .data(clientService.cancelBill(billId,description))
+                .data(clientService.cancelBill(billId, description))
                 .build();
     }
+
     @GetMapping("/buyback")
     ApiResponse<String> buyBack(
             @RequestParam Integer billId,
@@ -359,9 +437,10 @@ ProductDetailRepository productDetailRepository;
     ) {
         return ApiResponse.<String>builder()
                 .message("Hủy đơn hàng")
-                .data(clientService.buyBack(billId,customerId))
+                .data(clientService.buyBack(billId, customerId))
                 .build();
     }
+
     @GetMapping("/refund")
     ApiResponse<Map<String, Object>> refund(
             @RequestParam Integer billId,
@@ -369,11 +448,12 @@ ProductDetailRepository productDetailRepository;
             @RequestParam String depcription
 
     ) throws Exception {
-        return ApiResponse.<     Map<String, Object> >builder()
+        return ApiResponse.<Map<String, Object>>builder()
                 .message("Hủy đơn hàng")
-                .data(clientService.refund(billId,moneyRefund,depcription))
+                .data(clientService.refund(billId, moneyRefund, depcription))
                 .build();
     }
+
     @GetMapping("/filter")
     public ApiResponse<List<ProductViewResponseClass>> filterProducts(
             @RequestParam(required = false) Long brandId,
@@ -394,7 +474,7 @@ ProductDetailRepository productDetailRepository;
 
 
         Page<ProductViewResponse> result = clientService.findFilteredProducts(
-                productId,brandId , genderId, typeId, colorId, materialId, minPrice, maxPrice, page - 1, size);
+                productId, brandId, genderId, typeId, colorId, materialId, minPrice, maxPrice, page - 1, size);
 // Ánh xạ thủ công từ Page<ProductViewResponse> sang List<ProductViewResponseClass>
         List<ProductViewResponseClass> list = result.getContent().stream()
                 .map(i -> ProductViewResponseClass.builder()
@@ -406,6 +486,9 @@ ProductDetailRepository productDetailRepository;
                         .tag(i.getTag())
                         .colorId(i.getColorId())
                         .sizeId(i.getSizeId())
+                        .genderId(i.getGenderId())
+                        .materialId(i.getMaterialId())
+                        .soleId(i.getSoleId())
                         .imageUrl(i.getImageUrl())
                         .createdAt(i.getCreatedAt())
                         .views(i.getViews())
@@ -421,6 +504,7 @@ ProductDetailRepository productDetailRepository;
                         .totalPages(result.getTotalPages()).build())
                 .build();
     }
+
     @GetMapping("/product-details/discount")
     public List<ProductDetailDiscountDTO> getDiscountedProductDetails(
             @RequestParam Integer productId,
@@ -428,13 +512,15 @@ ProductDetailRepository productDetailRepository;
             @RequestParam Integer genderId) {
         return clientService.getDiscountedProductDetails(productId, colorId, genderId);
     }
+
     @GetMapping("/has-bought")
     public Boolean hasBought(
             @RequestParam Integer productId,
             @RequestParam Integer customerId
-        ) {
-        return clientService.hasBought(customerId,productId);
+    ) {
+        return clientService.hasBought(customerId, productId);
     }
+
     @GetMapping("/product-full")
     public ApiResponse<List<ProductDetailResponse>> getAllSelectDetail() {
         return ApiResponse.<List<ProductDetailResponse>>builder()

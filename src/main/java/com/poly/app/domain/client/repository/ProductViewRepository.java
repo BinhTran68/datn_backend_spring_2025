@@ -32,6 +32,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "MAX(pd.color_id) AS color_id," +
                     "MAX(pd.size_id) AS size_id," +
                     "MAX(pd.gender_id) AS genderId, " +
+                    "MAX(pd.material_id) AS materialId, " +
+                    "MAX(pd.sole_id) AS soleId, " +
                     "MAX(pd.tag) AS tag, " +
                     "COALESCE((" +
                     "SELECT i.url " +
@@ -86,6 +88,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                     "MAX(pd.color_id) AS colorId, " +
                     "MAX(pd.size_id) AS sizeId, " +
                     "MAX(pd.gender_id) AS genderId, " +
+                    "MAX(pd.material_id) AS materialId, " +
+                    "MAX(pd.sole_id) AS soleId, " +
 
                     "MAX(pd.tag) AS tag, " +
                     "COALESCE(( " +
@@ -224,8 +228,9 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                    "(pd.id,pd.code,pd.product.productName,pd.brand.brandName,pd.type.typeName,pd.color.colorName" +
                    ",pd.material.materialName,pd.size.sizeName,pd.sole.soleName,pd.gender.genderName,pd.quantity" +
                    ",pd.price,pd.weight,pd.descrition,pd.status,pd.updatedAt,pd.updatedBy) from ProductDetail pd  " +
-                   "where pd.product.id = :productId and pd.color.id= :colorId and pd.size.id = :sizeId ")
-    List<ProductDetailResponse> findByProductAndColorAndSize(int productId, int colorId, int sizeId);
+                   "where pd.product.id = :productId and pd.color.id= :colorId and pd.size.id = :sizeId " +
+                   "and pd.gender.id = :genderId and pd.material.id = :materialId and pd.sole.id = :soleId  ")
+    List<ProductDetailResponse> findByProductAndColorAndSize(int productId, int colorId, int sizeId, int genderId, int materialId, int soleId);
 
     @Query(value = "SELECT NEW com.poly.app.domain.client.response.PromotionResponse" +
                    "(pd.promotion.id, pd.productDetail.id, pd.promotion.discountValue, pd.promotion.promotionName) " +
@@ -246,6 +251,8 @@ public interface ProductViewRepository extends JpaRepository<ProductDetail, Inte
                        "MAX(pd.color_id) AS colorId, " +
                        "MAX(pd.gender_id) AS genderId, " +
                        "MAX(pd.size_id) AS sizeId, " +
+                       "MAX(pd.material_id) AS materialId, " +
+                       "MAX(pd.sole_id) AS soleId, " +
                        "MAX(pd.tag) AS tag, " +
                        "p.views,"+
                        "COALESCE((SELECT i.url " +

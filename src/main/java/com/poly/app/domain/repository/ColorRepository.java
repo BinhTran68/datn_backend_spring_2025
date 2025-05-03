@@ -32,6 +32,18 @@ public interface ColorRepository extends JpaRepository<Color, Integer> {
 
     @Query("SELECT DISTINCT new com.poly.app.domain.admin.product.response.color.ColorResponse(s.id,s.code, s.colorName,s.updatedAt,s.status) " +
            "FROM Color s JOIN ProductDetail pd ON pd.color.id = s.id " +
-           "WHERE pd.product.id = :productId")
+           "WHERE pd.product.id = :productId and pd.status=0  order by s.colorName ")
     List<ColorResponse> findColorsByProductId(@Param("productId") int productId);
+
+    @Query("SELECT DISTINCT new com.poly.app.domain.admin.product.response.color.ColorResponse(s.id,s.code, s.colorName,s.updatedAt,s.status) " +
+           "FROM Color s JOIN ProductDetail pd ON pd.color.id = s.id " +
+           "WHERE pd.product.id = :productId and pd.status=0 and pd.sole.id = :soleId and pd.material.id = :materialId and pd.gender.id = :genderId  order by s.colorName ")
+    List<ColorResponse> findColorsByProductIdAndSoleId(@Param("productId") int productId,
+                                                       @Param("soleId") int soleId,
+                                                       @Param("materialId") int materialId,
+                                                       @Param("genderId") int genderId);
+
+
+
+
 }
