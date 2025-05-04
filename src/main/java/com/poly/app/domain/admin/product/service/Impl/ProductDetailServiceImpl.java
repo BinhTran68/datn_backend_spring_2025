@@ -302,6 +302,8 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         List<com.poly.app.domain.client.response.PromotionResponse> promotionResponses = productViewRepository.findPromotionByProductDetailId(productDetail.getId(), ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime());
         Optional<com.poly.app.domain.client.response.PromotionResponse> maxPromotion = promotionResponses.stream().max(Comparator.comparing(PromotionResponse::getDiscountValue));
         productDetailResponse.setPromotionResponse(maxPromotion.orElse(null));
+        List<ImgResponse> imgResponseList = imageRepository.findByProductDetailId(productDetail.getId());
+        productDetailResponse.setImage(imgResponseList);
         webSocketService.sendProductUpdate(productDetailResponse);
         return productDetailResponse;
     }

@@ -24,7 +24,7 @@ public class VoucherSchedulerService {
 
         LocalDateTime now = LocalDateTime.now();
         List<Voucher> expiredVouchers = voucherRepository
-                .findByEndDateBeforeAndStatusVoucherNot(now, StatusEnum.ngung_kich_hoat);
+                .findByEndDateBeforeAndStatusVoucherNotOrQuantity(now, StatusEnum.ngung_kich_hoat, 0);
 
         for (Voucher voucher : expiredVouchers) {
             voucher.setStatusVoucher(StatusEnum.ngung_kich_hoat);

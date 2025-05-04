@@ -53,4 +53,6 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
 
 
     List<Voucher> findByEndDateBeforeAndStatusVoucherNot(LocalDateTime date, StatusEnum status);
+
+    List<Voucher> findByEndDateBeforeAndStatusVoucherNotOrQuantity(LocalDateTime endDateBefore, StatusEnum statusVoucher, Integer quantity);
 }
