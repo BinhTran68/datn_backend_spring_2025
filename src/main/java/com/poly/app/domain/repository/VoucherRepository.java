@@ -52,7 +52,7 @@ public interface VoucherRepository extends JpaRepository<Voucher, Integer> {
     Voucher findVoucherByVoucherCode(String voucherCode);
 
 
-    List<Voucher> findByEndDateBeforeAndStatusVoucherNot(LocalDateTime date, StatusEnum status);
+    List<Voucher> findByStartDateBeforeAndStatusVoucher(LocalDateTime date, StatusEnum status);
 
     List<Voucher> findByEndDateBeforeAndStatusVoucherNotOrQuantity(LocalDateTime endDateBefore, StatusEnum statusVoucher, Integer quantity);
 }

@@ -33,4 +33,22 @@ public class VoucherSchedulerService {
 
         voucherRepository.saveAll(expiredVouchers);
     }
+
+
+    @Scheduled(fixedRate = 30000)
+    public void checkVoucherActivation() {
+        log.info("Đang kiểm tra voucher đủ điều kiện kích hoạt...");
+
+        LocalDateTime now = LocalDateTime.now();
+        List<Voucher> vouchersToActivate = voucherRepository
+                .findByStartDateBeforeAndStatusVoucher(now, StatusEnum.chua_kich_hoat);
+
+        for (Voucher voucher : vouchersToActivate) {
+            voucher.setStatusVoucher(StatusEnum.dang_kich_hoat);
+            log.info("Voucher được kích hoạt: " + voucher.getVoucherCode());
+        }
+
+        voucherRepository.saveAll(vouchersToActivate);
+    }
+
 }
