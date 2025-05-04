@@ -122,11 +122,11 @@ public class GenHoaDon {
             invoiceTable.setWidthPercentage(100);
 
             String fullName;
-//            if (bill.getFullName() != null && !bill.getFullName().isEmpty()) {
-//                fullName = bill.getFullName();
-//            } else {
+            if (bill.getCustomerName() != null && !bill.getCustomerName().isEmpty()) {
+                fullName = bill.getCustomerName();
+            } else {
                 fullName = "Khách lẻ";
-//            }
+            }
 
             PdfPCell cell3 = new PdfPCell(new Paragraph("Tên khách hàng: " + fullName, normalFont));
             cell3.setHorizontalAlignment(Element.ALIGN_LEFT);

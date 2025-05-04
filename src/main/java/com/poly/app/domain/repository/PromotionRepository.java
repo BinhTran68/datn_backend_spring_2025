@@ -29,4 +29,6 @@ public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
 
 
     List<Promotion> findByEndDateBeforeAndStatusPromotionNot(LocalDateTime today, StatusEnum statusPromotion);
+    List<Promotion> findByStartDateBeforeAndStatusPromotionNot(LocalDateTime today, StatusEnum statusPromotion);
+
 }
