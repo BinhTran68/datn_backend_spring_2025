@@ -18,7 +18,7 @@ public class PromotionSchedulerService {
 
     private final PromotionRepository promotionRepository;
 
-    @Scheduled(fixedRate = 30000) // Chạy mỗi 30 giây
+    @Scheduled(fixedRate = 5000) // Chạy mỗi 30 giây
     public void checkPromotionExpiration() {
         log.info("Đang kiểm tra các chương trình khuyến mãi hết hạn...");
 
@@ -28,6 +28,21 @@ public class PromotionSchedulerService {
 
         for (Promotion promo : expiredPromotions) {
             promo.setStatusPromotion(StatusEnum.ngung_kich_hoat);
+            log.info("Promotion hết hạn: " + promo.getPromotionCode());
+        }
+
+        promotionRepository.saveAll(expiredPromotions);
+    }
+    @Scheduled(fixedRate = 5000) // Chạy mỗi 30 giây
+    public void checkPromotionExpiration1() {
+        log.info("Đang kiểm tra các chương trình khuyến mãi hết hạn...");
+
+        LocalDateTime now = LocalDateTime.now();
+        List<Promotion> expiredPromotions = promotionRepository
+                .findByStartDateBeforeAndStatusPromotionNot(now, StatusEnum.chua_kich_hoat);
+
+        for (Promotion promo : expiredPromotions) {
+            promo.setStatusPromotion(StatusEnum.dang_kich_hoat);
             log.info("Promotion hết hạn: " + promo.getPromotionCode());
         }
 
